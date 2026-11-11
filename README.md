@@ -57,19 +57,13 @@ sudo dnf install hyprland waybar kitty rofi-wayland grim slurp \
 
 ## Screenshots & Gallery
 
-> Drop your screenshots into the `docs/screenshots/` directory or replace the image links below.
-
-| Total Black (Solid OLED) | macOS Liquid Glass |
+| Control Sidebar (Win + P) | Desktop Overview |
 | :---: | :---: |
-| ![Total Black OLED](docs/screenshots/total_black.png) | ![macOS Liquid Glass](docs/screenshots/macos_glass.png) |
+| ![Control Sidebar](docs/screenshots/sidebar.webp) | ![Desktop Overview](docs/screenshots/desktop.webp) |
 
-| Total White Clean | Cyber Neon / Nord Frost |
+| Total White Clean | Cyber Neon |
 | :---: | :---: |
-| ![Total White Clean](docs/screenshots/total_white.png) | ![Cyber Neon / Nord](docs/screenshots/cyber_nord.png) |
-
-| Control Sidebar & Audio Output Switcher | Keybindings Cheatsheet (Super + /) |
-| :---: | :---: |
-| ![Sidebar](docs/screenshots/sidebar.png) | ![Keybindings Help](docs/screenshots/cheatsheet.png) |
+| ![Total White Clean](docs/screenshots/total_white.webp) | ![Cyber Neon](docs/screenshots/cyber_neon.webp) |
 
 ---
 
@@ -292,21 +286,15 @@ sudo dnf install hyprland waybar kitty rofi-wayland grim slurp \
 
 ---
 
-## Место для скриншотов
+## Скриншоты и галерея
 
-> Поместите ваши скриншоты в папку `docs/screenshots/` или укажите нужные пути в таблице ниже:
-
-| Total Black (Чистый OLED) | macOS Liquid Glass |
+| Боковая панель управления (Win + P) | Рабочий стол (Общий вид) |
 | :---: | :---: |
-| ![Total Black OLED](docs/screenshots/total_black.png) | ![macOS Liquid Glass](docs/screenshots/macos_glass.png) |
+| ![Боковая панель](docs/screenshots/sidebar.webp) | ![Рабочий стол](docs/screenshots/desktop.webp) |
 
-| Total White Clean | Cyber Neon / Nord Frost |
+| Total White Clean (Белый стиль) | Cyber Neon (Киберпанк) |
 | :---: | :---: |
-| ![Total White Clean](docs/screenshots/total_white.png) | ![Cyber Neon / Nord](docs/screenshots/cyber_nord.png) |
-
-| Боковая панель управления и аудиовыходы | Шпаргалка горячих клавиш (Super + /) |
-| :---: | :---: |
-| ![Sidebar](docs/screenshots/sidebar.png) | ![Keybindings Help](docs/screenshots/cheatsheet.png) |
+| ![Total White Clean](docs/screenshots/total_white.webp) | ![Cyber Neon](docs/screenshots/cyber_neon.webp) |
 
 ---
 
