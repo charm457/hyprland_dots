@@ -23,6 +23,7 @@ set_monocle() {
     echo "monocle" > "$MODE_FILE"
     
     # Снимаем глобальный float если был
+    hyprctl keyword windowrule "unset, match:class ^(.*)$" &>/dev/null || true
     hyprctl keyword windowrulev2 "unset, class:^(.*)$" &>/dev/null || true
 
     # Разворачиваем текущее окно на полный экран с сохранением Waybar (fullscreen 1)
@@ -42,7 +43,7 @@ set_windows() {
     hyprctl dispatch fullscreen 0 &>/dev/null || true
 
     # Новые окна будут открываться плавающими
-    hyprctl keyword windowrulev2 "float, class:^(.*)$" &>/dev/null || true
+    hyprctl keyword windowrule "float 1, match:class ^(.*)$" &>/dev/null || hyprctl keyword windowrulev2 "float, class:^(.*)$" &>/dev/null || true
 
     # Делаем все окна на текущем workspace плавающими
     if command -v jq &>/dev/null; then
@@ -73,6 +74,7 @@ set_tiling() {
     hyprctl dispatch fullscreen 0 &>/dev/null || true
 
     # Отключаем глобальный float для новых окон
+    hyprctl keyword windowrule "unset, match:class ^(.*)$" &>/dev/null || true
     hyprctl keyword windowrulev2 "unset, class:^(.*)$" &>/dev/null || true
 
     # Возвращаем плавающие окна обратно в плитку на текущем workspace
