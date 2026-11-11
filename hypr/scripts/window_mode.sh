@@ -30,7 +30,7 @@ set_tiling() {
     hyprctl dispatch fullscreen 0 &>/dev/null || true
 
     # Гарантируем, что ВСЕ новые окна открываются ТОЛЬКО обычными (тайловыми)
-    hyprctl keyword windowrulev2 "tile, class:.*" &>/dev/null || true
+    hyprctl keyword windowrule "tile 1, match:class .*" &>/dev/null || true
 
     # Все текущие открытые окна переводим в тайлинг (settiled)
     if command -v jq &>/dev/null; then
@@ -44,8 +44,8 @@ set_tiling() {
     fi
 
     # Исключения для системных диалогов сохраняем в float
-    hyprctl keyword windowrulev2 "float, class:^(pavucontrol|blueman-manager|nm-connection-editor|wlogout)$" &>/dev/null || true
-    hyprctl keyword windowrulev2 "float, title:^(Open File|Save File|Choose Wallpaper)$" &>/dev/null || true
+    hyprctl keyword windowrule "float 1, match:class ^(pavucontrol|blueman-manager|nm-connection-editor|wlogout)$" &>/dev/null || true
+    hyprctl keyword windowrule "float 1, match:title ^(Open File|Save File|Choose Wallpaper)$" &>/dev/null || true
 
     if command -v notify-send &>/dev/null; then
         if [[ "$APP_LANG" == "en" ]]; then
@@ -63,7 +63,7 @@ set_floating() {
     hyprctl dispatch fullscreen 0 &>/dev/null || true
 
     # Гарантируем, что ВСЕ новые окна открываются свободно плавающими
-    hyprctl keyword windowrulev2 "float, class:.*" &>/dev/null || true
+    hyprctl keyword windowrule "float 1, match:class .*" &>/dev/null || true
 
     # Все текущие открытые окна переводим в свободный плавающий режим (setfloating)
     if command -v jq &>/dev/null; then

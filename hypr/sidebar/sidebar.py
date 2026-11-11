@@ -579,7 +579,7 @@ class Sidebar:
         # Поддержка прозрачности/скругления углов без артефактов
         screen = self.window.get_screen()
         visual = screen.get_rgba_visual()
-        if visual and self.window.is_composited():
+        if visual:
             self.window.set_visual(visual)
         self.window.set_app_paintable(True)
 
@@ -647,7 +647,10 @@ class Sidebar:
             GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.LEFT,   0)
             # При открытии справа резервируем 316px под сайдбар:
             # Hyprland автоматически ужимает обычные окна влево, они не накладываются друг на друга и на сайдбар!
-            GtkLayerShell.set_exclusive_zone(self.window, 316)
+            try:
+                GtkLayerShell.auto_exclusive_zone_enable(self.window)
+            except Exception:
+                GtkLayerShell.set_exclusive_zone(self.window, 316)
             self._refresh_dynamic()
             self.window.show_all()
             self.visible = True

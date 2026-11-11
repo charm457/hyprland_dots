@@ -12,7 +12,15 @@ SCRIPT="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/sidebar/sidebar.py"
 if [[ -f "$PID_FILE" ]]; then
     PID=$(cat "$PID_FILE")
     if kill -0 "$PID" 2>/dev/null; then
-        # Демон жив — просто переключаем видимость
+        # Если файл скрипта новее PID (произошло обновление), перезапускаем на свежую версию
+        if [[ -f "$SCRIPT" && "$SCRIPT" -nt "$PID_FILE" ]]; then
+            kill -9 "$PID" 2>/dev/null || true
+            rm -f "$PID_FILE"
+            sleep 0.2
+            python3 "$SCRIPT" --show &>> /tmp/sidebar.log &
+            exit 0
+        fi
+        # Демон жив — переключаем видимость
         kill -USR1 "$PID"
         exit 0
     fi

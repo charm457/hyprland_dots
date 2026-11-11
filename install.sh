@@ -275,7 +275,8 @@ reload_environment() {
         waybar &>/dev/null &
 
         pkill -SIGUSR1 kitty 2>/dev/null || true
-        pkill -f "sidebar.py" 2>/dev/null || true
+        pkill -9 -f "sidebar.py" 2>/dev/null || true
+        rm -f "$CACHE_DIR/sidebar.pid" 2>/dev/null || true
         sleep 0.5
         python3 "$HYPR_DST/sidebar/sidebar.py" &>> /tmp/sidebar.log &
 
