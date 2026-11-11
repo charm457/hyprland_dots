@@ -96,8 +96,8 @@ elif command -v mako &>/dev/null; then
     mako &
 fi
 
-# Панель Waybar
-pkill waybar 2>/dev/null || true
+# Панель Waybar (строго один экземпляр)
+killall -9 waybar 2>/dev/null || pkill -9 -x waybar 2>/dev/null || true
 sleep 0.3
 waybar &
 

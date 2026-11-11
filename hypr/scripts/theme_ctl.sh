@@ -57,9 +57,12 @@ apply_theme() {
     # 2. Waybar CSS (копируем файл целиком, чтобы GTK не кэшировал импорты)
     if [[ -f "$waybar_theme" ]]; then
         cp -f "$waybar_theme" "$WAYBAR_DIR/style.css"
-        # Перезагружаем Waybar для 100% применения новых цветов и скруглений
-        pkill -USR2 waybar 2>/dev/null || true
-        ( pkill -x waybar 2>/dev/null; sleep 0.15; waybar &>/dev/null & ) &
+        # Мгновенная перезагрузка стилей без перезапуска процесса (исключает дублирование панели)
+        if pgrep -x waybar &>/dev/null; then
+            pkill -USR2 -x waybar 2>/dev/null || true
+        else
+            waybar &>/dev/null &
+        fi
     fi
 
     # 3. Kitty конфиг темы (копируем файл напрямую, исключая сбои относительных путей)

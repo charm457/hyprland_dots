@@ -268,8 +268,10 @@ reload_environment() {
         fi
 
         command -v hyprctl &>/dev/null && hyprctl reload &>/dev/null || true
-        pkill waybar 2>/dev/null || true
-        sleep 0.3
+
+        # Исключаем дублирование Waybar: убиваем любые старые копии и запускаем ровно один процесс
+        killall -9 waybar 2>/dev/null || pkill -9 -x waybar 2>/dev/null || true
+        sleep 0.4
         waybar &>/dev/null &
 
         pkill -SIGUSR1 kitty 2>/dev/null || true

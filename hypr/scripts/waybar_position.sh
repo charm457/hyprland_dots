@@ -11,13 +11,9 @@ export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
 export DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$(id -u)/bus}"
 
 start_waybar() {
-    pkill -x waybar 2>/dev/null || true
+    killall -9 waybar 2>/dev/null || pkill -9 -x waybar 2>/dev/null || true
     sleep 0.3
-    if command -v hyprctl &>/dev/null; then
-        hyprctl dispatch exec -- waybar
-    else
-        waybar &
-    fi
+    waybar &
 }
 
 get_current() {
