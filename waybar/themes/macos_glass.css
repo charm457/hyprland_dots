@@ -1,4 +1,4 @@
-/* Waybar Theme: macOS Liquid Glass (Full Transparency & Frosted Glass) */
+/* Waybar Theme: macOS / iOS Dynamic Island Glass (Full Transparency) */
 * {
     font-family: "-apple-system", "SF Pro Display", "JetBrainsMono Nerd Font", sans-serif;
     font-size: 13px;
@@ -9,18 +9,18 @@
 }
 
 window#waybar {
-    background: rgba(30, 32, 40, 0.55);
-    color: #e5e5ea;
-    border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    transition: all 0.3s ease;
+    background: rgba(22, 24, 32, 0.58);
+    color: #f2f2f7;
+    border-radius: 22px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    margin: 6px 14px;
 }
 
 #custom-menu {
     font-size: 16px;
     color: #ffffff;
-    padding: 0 12px 0 16px;
+    padding: 0 14px 0 18px;
 }
 
 #custom-menu:hover {
@@ -29,21 +29,20 @@ window#waybar {
 
 #workspaces {
     background: rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    padding: 2px 4px;
+    border-radius: 14px;
+    padding: 2px 6px;
     margin: 4px 6px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.10);
 }
 
 #workspaces button {
     padding: 0 8px;
-    color: #98989d;
+    color: #a1a1a6;
     background: transparent;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 12px;
     min-width: 22px;
     margin: 2px 1px;
-    transition: all 0.2s ease;
 }
 
 #workspaces button.active {
@@ -62,42 +61,32 @@ window#waybar {
     color: #64d2ff;
     padding: 2px 12px;
     margin: 4px 6px;
-    border-radius: 10px;
+    border-radius: 14px;
     border: 1px solid rgba(100, 210, 255, 0.35);
-    font-weight: 500;
-}
-
-#custom-window_mode:hover {
-    background: rgba(0, 122, 255, 0.35);
-}
-
-#window {
-    color: #aeaeb2;
-    padding: 0 10px;
-    font-size: 12px;
-    font-weight: 400;
 }
 
 #clock {
     color: #ffffff;
     font-weight: 600;
     font-size: 13px;
-    padding: 0 16px;
+    padding: 0 18px;
     background: rgba(255, 255, 255, 0.10);
-    border-radius: 12px;
+    border-radius: 14px;
     margin: 4px 0;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 #pulseaudio, #network, #battery, #custom-theme, #tray, #custom-power {
-    padding: 0 9px;
-    color: #e5e5ea;
+    padding: 0 10px;
+    color: #f2f2f7;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    margin: 4px 2px;
 }
 
 #pulseaudio:hover, #network:hover, #battery:hover, #custom-theme:hover, #custom-power:hover {
     color: #ffffff;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.18);
 }
 
 #pulseaudio.muted { color: #8e8e93; }
@@ -108,19 +97,14 @@ window#waybar {
 
 #custom-power {
     color: #ff453a;
-    font-size: 15px;
-    padding: 0 14px;
-}
-
-#custom-power:hover {
-    background: rgba(255, 69, 58, 0.2);
-    border-radius: 10px;
+    font-size: 14px;
+    padding: 0 12px;
 }
 
 tooltip {
-    background: rgba(28, 28, 30, 0.85);
+    background: rgba(22, 24, 30, 0.88);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
+    border-radius: 14px;
     color: #ffffff;
     font-size: 12px;
 }

@@ -70,26 +70,20 @@ apply_theme() {
     # 4. Сохраняем активную тему
     echo "$theme_key" > "$THEME_CACHE"
 
-    # 5. Рекомендованные обои (если есть и если пользователь хочет авто-смену)
-    local wp_candidate="$HYPR_DIR/assets/wallpapers/${category}.png"
-    if [[ -f "$wp_candidate" && "$3" == "--with-wallpaper" ]]; then
-        echo "$wp_candidate" > "$WALLPAPER_CACHE"
-        pkill swaybg 2>/dev/null || true
-        sleep 0.1
-        swaybg -i "$wp_candidate" -m stretch &
-    fi
+    # 5. Уведомление
+    local lang_cache="$CACHE_DIR/dots_lang"
+    local app_lang="ru"
+    [[ -f "$lang_cache" ]] && app_lang=$(cat "$lang_cache")
 
-    # 6. Обновляем Waybar сигнал для иконки меню
-    pkill -RTMIN+9 waybar 2>/dev/null || true
-
-    # 7. Уведомление
     if command -v notify-send &>/dev/null; then
-        local title="Стиль: ${category^}"
-        local desc="Подстиль: ${substyle^}"
-        notify-send -a "Hyprland Theme" -i preferences-desktop-theme "$title" "$desc" -t 2000
+        if [[ "$app_lang" == "en" ]]; then
+            notify-send -a "Theme Controller" -i preferences-desktop-theme "Theme Applied: ${category^}" "Style: ${substyle^}" -t 2000
+        else
+            notify-send -a "Стиль оформления" -i preferences-desktop-theme "Стиль: ${category^}" "Подстиль: ${substyle^}" -t 2000
+        fi
     fi
 
-    echo "Тема успешно установлена: $theme_key"
+    echo "Theme applied: $theme_key"
 }
 
 case "${1:-get}" in

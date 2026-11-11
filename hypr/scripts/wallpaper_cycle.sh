@@ -4,18 +4,13 @@
 # ==============================================================================
 
 WALLPAPER_DIR="$HOME/wallpapers"
-BUILTIN_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/assets/wallpapers"
 STATE_FILE="${XDG_CACHE_HOME:-$HOME/.cache}/wallpaper_index"
 CACHE_WP="${XDG_CACHE_HOME:-$HOME/.cache}/current_wallpaper"
 
 mkdir -p "${XDG_CACHE_HOME:-$HOME/.cache}"
 
-# Собираем список обоев из ~/wallpapers или встроенных
+# Собираем список обоев из ~/wallpapers
 mapfile -t WALLPAPERS < <(find "$WALLPAPER_DIR" -maxdepth 1 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) 2>/dev/null | sort)
-
-if [[ ${#WALLPAPERS[@]} -eq 0 && -d "$BUILTIN_DIR" ]]; then
-    mapfile -t WALLPAPERS < <(find "$BUILTIN_DIR" -maxdepth 1 -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.webp" \) 2>/dev/null | sort)
-fi
 
 TOTAL=${#WALLPAPERS[@]}
 if [[ $TOTAL -eq 0 ]]; then

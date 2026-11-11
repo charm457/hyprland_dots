@@ -1,171 +1,160 @@
 # 🌟 Hyprland Custom Dotfiles
 
-Продвинутая, модульная сборка конфигов для **Hyprland** (Wayland) с интерактивной боковой панелью управления на **GtkLayerShell**, динамической сменой 4 уникальных дизайнерских стилей (Black, White, macOS Glass, Cyber) с подстилями и переключателем режимов окон (**Тайлинг** / **На весь экран с Waybar** / **Плавающие окна как в Windows**).
+[![English](https://img.shields.io/badge/Language-English-blue)](#-english-version)
+[![Russian](https://img.shields.io/badge/Language-Русский-red)](#-hyprland-custom-dotfiles-русский)
+
+A modern, highly modular configuration for **Hyprland** (Wayland) featuring:
+- **Interactive Control Sidebar** powered by **GtkLayerShell** with audio visualizer, volume & brightness sliders, and audio output sink switcher.
+- **Bilingual Interface** with on-the-fly language switching (English / Russian).
+- **4 Design Families with Extended Sub-themes**: Total Black, Total White, Apple macOS (Liquid Glass & Full Pitch Dark), and Cyberpunk/Nord.
+- **Window Layout Modes**: Auto-Tiling, Monocle (Fullscreen **with Waybar visible**), and Windows Mode (Stacking floating windows with mouse drag/resize).
+- **Screenshots System**: Automatically saved to `~/Screenshots/` and copied to clipboard.
+- **Keybindings Cheatsheet Window**: Accessible via `Super + /` or `Super + F1`.
+- **Universal Installer (`install.sh`)**: For both clean installations and updating existing setups with automatic timestamped backups.
 
 ---
 
-## ✨ Основные возможности
+## 🇬🇧 English Version
 
-1. **Универсальный установщик (`./install.sh`)**:
-   - **Чистая установка**: автоматическая проверка и предложение установки недостающих пакетов (`hyprland`, `waybar`, `kitty`, `swaybg`, `gtk-layer-shell`, `python-gobject` и др.).
-   - **Обновление готовой сборки**: безопасная накатка поверх существующей сборки с **автоматическим бэкапом** старых конфигов в `~/.config/hypr_backup_YYYYMMDD_HHMMSS/` и возможностью мгновенного отката.
-   - Живая перезагрузка без перезахода в систему.
+### ✨ Key Features
 
-2. **4 Дизайнерских стиля с подстилями**:
+1. **Dual Language Support (EN / RU)**:
+   - Language prompt upon running `./install.sh`.
+   - On-the-fly UI language toggle in the sidebar (`[ 🌐 EN | RU ]`) or via shortcut `Super + Alt + L`.
+
+2. **Window Layout Modes**:
+   - ⛶ **Fullscreen with Waybar (Monocle / Maximize)**: Windows expand to full screen while keeping **Waybar interactive and visible** (`fullscreen 1`).
+   - 🪟 **Windows Mode (Floating)**: All windows float freely, can overlap, and can be dragged (`Super + LMB`) or resized (`Super + RMB`). New windows open floating automatically.
+   - ▦ **Tiling Mode**: Standard Hyprland dynamic dwindle tiling.
+   - Interactive switcher in Waybar (`[ ▦ Tiling | ⛶ Max | 🪟 Win ]`) and Sidebar.
+
+3. **4 Theme Families & Sub-themes**:
    - ⬛ **Total Black**:
-     - *Чистый OLED (Solid)* — глубокий абсолютно черный, 100% непрозрачный, без размытия, максимальный контраст.
-     - *Графитовый (Stealth)* — матовый темно-серый с мягким размытием.
-     - *Дымчатое стекло (Black Glass)* — полупрозрачный обсидиан с глубоким блюром.
+     - *Pure OLED*: 100% solid pitch black, zero blur, maximum contrast.
+     - *Matte Stealth*: Dark graphite with subtle blur.
+     - *Smoked Glass*: Translucent dark obsidian glass with deep blur.
    - ⬜ **Total White**:
-     - *Чистый белый (Snow Clean)* — контрастный яркий белый минимализм со строгими рамками.
-     - *Белое стекло (Frosted Glass)* — матовое акриловое стекло с мягким сиянием.
-     - *Catppuccin Latte* — теплый пастельный кремовый стиль.
-   - 🍎 **Apple macOS (Cupertino)**:
-     - *macOS Liquid Glass* — **полная прозрачность** окон и плавающей панели Waybar, 4-проходный blur с вибрацией, скругление 16px, значок ``, мягкие тени.
-     - *macOS Dark Glass* — темное стекло в стиле macOS Sonoma.
-     - *macOS Light Glass* — светлое матовое стекло.
-   - ⚡ **Кибер & Норд**:
-     - *Cyber Neon* — неоновый киберпанк (cyan / magenta glow) с акцентной подсветкой.
-     - *Nord Arctic* — холодный арктический нордический стиль с синими оттенками.
+     - *Snow Clean*: Crisp bright white minimalism with high contrast dark text.
+     - *Frosted Glass*: Translucent acrylic white glass.
+     - *Catppuccin Latte*: Warm soothing cream pastel.
+   - 🍎 **Apple macOS**:
+     - *macOS Liquid Glass*: Full window and bar transparency, 4-pass blur, floating pill island,  menu.
+     - *macOS Pitch Dark*: Full dark glass with soft dark-white/silver symbols and icons.
+     - *macOS Dark Glass*: Sonoma-style dark glass.
+     - *macOS Light Glass*: Cupertino light frosted glass.
+   - ⚡ **Cyber & Nord**:
+     - *Cyber Neon*: High-voltage cyan/magenta synthwave glow.
+     - *Nord Arctic*: Polar ice-blue aesthetic.
 
-3. **Режимы окон (Управление макетом)**:
-   - ⛶ **На весь экран с Waybar (Monocle / Maximize)**: окно разворачивается на весь экран, но **Waybar остается полностью виден и интерактивен**!
-   - 🪟 **Как в обычной Windows (Floating / Stacking)**: все окна становятся плавающими, свободно перекрываются, перемещаются мышью (`Super + ЛКМ`) и масштабируются (`Super + ПКМ`), новые приложения автоматически открываются плавающими.
-   - ▦ **Тайлинг (Плитка)**: классическое автоматическое разделение окон Hyprland (dwindle).
-   - Индикатор и переключатель прямо в Waybar: `[ ▦ Плитка | ⛶ Макс | 🪟 Win ]` с возможностью клика для быстрой смены!
+4. **Compact Player & Control Center (Sidebar)**:
+   - Sleek compact height.
+   - Live animated visualizer / equalizer bars when music is playing.
+   - Expandable drawer with:
+     - Volume slider (`pactl`).
+     - Brightness slider (`brightnessctl`).
+     - **Audio Output Selector**: easily switch between Speakers, Headphones, Bluetooth, and HDMI with live stream routing.
 
-4. **Интерактивная боковая панель (Win+P)**:
-   - Создана на **GtkLayerShell** с `exclusive_zone` (сдвигает окна, приклеена к правому краю).
-   - Управление режимами окон в 1 клик.
-   - Музыкальный плеер (`playerctl`).
-   - Быстрые переключатели Wi-Fi, Bluetooth, Авиарежима, энергосбережения.
-   - Переключение положения Waybar (Вверху / Внизу / Скрыть).
-   - Галерея обоев с мгновенным применением.
-   - Меню выбора стилей и подстилей оформления.
+5. **Screenshots & Keybindings Cheatsheet**:
+   - All screenshots saved directly to `~/Screenshots/Screenshot_YYYY-MM-DD_HH-MM-SS.png` and copied to clipboard.
+   - Floating keybindings help cheatsheet available at `Super + /` or `Super + F1`.
 
 ---
 
-## 🚀 Быстрый старт и установка
+### 🚀 Quick Start & Installation
 
-### 1. Клонирование репозитория
 ```bash
-git clone <url-вашего-репозитория> ~/hyprland_dots
+git clone https://github.com/charm457/hyprland_dots.git ~/hyprland_dots
 cd ~/hyprland_dots
-```
-
-### 2. Запуск установщика
-```bash
 chmod +x install.sh
 ./install.sh
 ```
 
-В интерактивном меню выберите нужный пункт:
-- **1) Установка на чистый Hyprland**: проверит пакеты, установит зависимости, скопирует конфиги и стартовые обои.
-- **2) Обновление поверх готовой сборки**: сделает полный бэкап старых конфигов и применит новую сборку без риска потери данных.
-- **3) Резервная копия**: создать бэкап в любой момент.
-- **4) Восстановление**: откат на любую сохраненную ранее резервную копию.
-
-> **Для автоматической установки без вопросов:**
-> ```bash
-> ./install.sh --fresh   # Чистая установка
-> ./install.sh --update  # Быстрое обновление с бэкапом
-> ```
+Choose your preferred language (**English** or **Русский**), then select:
+- **1) Clean Install**: Checks and installs missing packages, deploys modular configs.
+- **2) Update Existing**: Creates a timestamped backup in `~/.config/hypr_backup_...` and cleanly applies new configs with live reload.
 
 ---
 
-## ⌨️ Горячие клавиши
+### ⌨️ Keybindings (Cheatsheet)
 
-| Клавиша | Действие |
+| Shortcut | Description |
 |---|---|
-| **`Super + P`** | Открыть / скрыть боковую панель настроек |
-| **`Super + Z`** / **`Super + M`** | **Развернуть окно на весь экран с сохранением Waybar** (Monocle) |
-| **`Super + W`** | **Циклически переключить режим**: [Плитка ↔ Макс с Waybar ↔ Windows] |
-| **`Super + V`** | Сделать текущее окно плавающим / плиткой |
-| **`Super + Shift + W`** | Включить режим **как в обычной Windows** (все окна плавают) |
-| **`Super + Shift + T`** | Вернуть режим **плитки** (Tiling) |
-| **`Super + F`** | Полноэкранный режим **без** Waybar (для видео/игр) |
-| **`Super + ЛКМ (зажать)`** | Перемещать плавающее окно мышью (как в Windows) |
-| **`Super + ПКМ (зажать)`** | Изменять размер окна мышью |
-| **`Super + Return`** | Терминал Kitty |
-| **`Super + D`** / **`Space`** | Rofi App Launcher |
-| **`Super + E`** | Файловый менеджер Dolphin |
-| **`Super + B`** | Браузер Firefox |
-| **`Super + Q`** | Закрыть текущее окно |
-| **`Super + Shift + M`** | Безопасный выход из Hyprland |
-| **`Super + ]`** / **`[`** | Следующие / предыдущие обои |
-| **`Super + Alt + P`** | Цикл позиции Waybar: Верх → Низ → Скрыть → Верх |
-| **`Super + Shift + S`** | Скриншот выбранной области в буфер |
-| **`Super + 1…0`** | Переключение рабочих столов |
-| **`Super + Shift + 1…0`** | Переместить окно на другой рабочий стол |
+| **`Super + /`** or **`Super + F1`** | **Show Keybindings Cheatsheet Window** |
+| **`Super + P`** | Toggle Control Sidebar |
+| **`Super + Shift + S`** | Screenshot area (copied & saved to `~/Screenshots`) |
+| **`Print`** | Screenshot full screen |
+| **`Super + Print`** | Screenshot active window |
+| **`Super + Alt + S`** | Interactive screenshot menu |
+| **`Super + Z`** or **`Super + M`** | **Fullscreen WITH Waybar** (Monocle) |
+| **`Super + F`** | Fullscreen **WITHOUT** Waybar |
+| **`Super + V`** | Toggle current window Floating / Tiled |
+| **`Super + W`** | Cycle window modes: [Tiling ↔ Fullscreen with Waybar ↔ Windows Floating] |
+| **`Super + Shift + W`** | Enable Windows floating mode on active workspace |
+| **`Super + Shift + T`** | Reset active workspace to Tiling |
+| **`Super + LMB (drag)`** | Drag floating windows with mouse |
+| **`Super + RMB (drag)`** | Resize floating windows with mouse |
+| **`Super + Alt + L`** | Toggle interface language (EN / RU) |
+| **`Super + Alt + P`** | Cycle Waybar position (Top ↔ Bottom ↔ Hide) |
+| **`Super + ]`** / **`[`** | Next / previous wallpaper in `~/wallpapers` |
+| **`Super + Return`** | Kitty terminal |
+| **`Super + Space`** / **`D`** | Rofi application launcher |
+| **`Super + Q`** | Close focused window |
+| **`Super + Shift + M`** | Safe exit from Hyprland |
 
 ---
 
-## 🎨 Переключение тем и стилей
+<br>
 
-### Через боковую панель:
-Нажмите **`Win + P`** → прокрутите вниз до раздела **"ДИЗАЙН И СТИЛИЗАЦИЯ"** → нажмите на любой стиль или подстиль. Изменения применятся мгновенно для Hyprland, Waybar и Kitty!
+## 🇷🇺 Hyprland Custom Dotfiles (Русский)
 
-### Через командную строку (CLI):
+Модульная сборка для **Hyprland** (Wayland) с интерактивной боковой панелью управления на **GtkLayerShell**, переключателем стилей, режимами окон и поддержкой двух языков.
+
+### ✨ Главные возможности
+
+1. **Поддержка двух языков (RU / EN)**:
+   - Выбор языка в начале работы `install.sh`.
+   - Мгновенное переключение языка прямо в сайдбаре (`[ 🌐 EN | RU ]`) или по клавише `Super + Alt + L`.
+
+2. **Режимы окон**:
+   - ⛶ **На весь экран с Waybar (Monocle / Maximize)**: Окно раскрывается на весь экран, но **Waybar остается на виду и доступен для кликов** (`fullscreen 1`).
+   - 🪟 **Как в обычной Windows (Плавающие окна)**: Окна свободно плавают, перекрываются, перемещаются мышью (`Super + ЛКМ`) и масштабируются (`Super + ПКМ`). Новые окна открываются плавающими.
+   - ▦ **Тайлинг (Плитка)**: Классический тайлинг Hyprland (dwindle).
+
+3. **4 Семейства тем с подстилями**:
+   - ⬛ **Total Black**: Чистый OLED без размытия, Графитовый Stealth, Дымчатое стекло.
+   - ⬜ **Total White**: Чистый белый Snow Clean, Белое стекло, Catppuccin Latte.
+   - 🍎 **Apple macOS**:
+     - *macOS Liquid Glass*: полная прозрачность, 4-проходный блюр, значок ``.
+     - *macOS Pitch Dark*: глубокое темное стекло со спокойными темно-белыми/серебряными символами.
+     - *macOS Dark / Light*: темное и светлое матовое стекло Sonoma/Cupertino.
+   - ⚡ **Кибер & Норд**: Cyber Neon (киберпанк), Nord Arctic (ледяной синий).
+
+4. **Компактный плеер и Центр управления (Сайдбар Win+P)**:
+   - Уменьшенная высота плеера.
+   - Анимированный эквалайзер.
+   - Выдвижной отсек:
+     - Ползунок громкости (`pactl`).
+     - Ползунок яркости (`brightnessctl`).
+     - **Выбор аудиовыхода**: переключение вывода звука между динамиками, наушниками, Bluetooth и HDMI.
+
+5. **Скриншоты и Шпаргалка клавиш**:
+   - Скриншоты автоматически сохраняются в `~/Screenshots/` и копируются в буфер обмена.
+   - Всплывающее окно со всеми комбинациями клавиш вызывается по `Super + /` или `Super + F1`.
+
+---
+
+### 🚀 Установка
+
 ```bash
-~/.config/hypr/scripts/theme_ctl.sh set <категория> <подстиль> [--with-wallpaper]
-
-# Примеры:
-~/.config/hypr/scripts/theme_ctl.sh set macos glass --with-wallpaper   # macOS Liquid Glass с полной прозрачностью
-~/.config/hypr/scripts/theme_ctl.sh set black solid --with-wallpaper   # Чистый черный OLED
-~/.config/hypr/scripts/theme_ctl.sh set white clean --with-wallpaper   # Чистый белоснежный
-~/.config/hypr/scripts/theme_ctl.sh set cyber neon  --with-wallpaper   # Киберпанк неон
+git clone https://github.com/charm457/hyprland_dots.git ~/hyprland_dots
+cd ~/hyprland_dots
+chmod +x install.sh
+./install.sh
 ```
+
+Выберите язык и желаемый тип установки (чистая или обновление с авто-бэкапом).
 
 ---
 
-## 🪟 Управление режимами окон через CLI
-
-```bash
-~/.config/hypr/scripts/window_mode.sh monocle  # На полный экран с Waybar
-~/.config/hypr/scripts/window_mode.sh windows  # Режим обычной Windows (floating)
-~/.config/hypr/scripts/window_mode.sh tiling   # Классический тайлинг
-~/.config/hypr/scripts/window_mode.sh cycle    # Переключение по кругу
-```
-
----
-
-## 📂 Структура репозитория
-
-```
-hyprland_dots/
-├── install.sh                  # Универсальный установщик и менеджер бэкапов
-├── README.md                   # Документация сборки
-├── hypr/
-│   ├── hyprland.conf           # Основной конфигурационный файл
-│   ├── current_theme.conf      # Активная тема (генерируется автоматически)
-│   ├── assets/wallpapers/      # Встроенные стартовые обои (Black, White, macOS, Cyber)
-│   ├── themes/                 # 4 Семьи стилей с подстилями
-│   │   ├── black/              # solid.conf, stealth.conf, glass.conf
-│   │   ├── white/              # clean.conf, glass.conf, latte.conf
-│   │   ├── macos/              # glass.conf (full transparency), dark.conf, light.conf
-│   │   └── cyber/              # neon.conf, nord.conf
-│   ├── scripts/                # Модульные скрипты управления
-│   │   ├── theme_ctl.sh        # Смена тем и стилей оформления
-│   │   ├── window_mode.sh      # Управление режимами Monocle / Windows / Tiling
-│   │   ├── init_desktop.sh     # Безопасный автозапуск рабочего стола
-│   │   ├── wallpaper_cycle.sh  # Циклическая смена обоев
-│   │   └── waybar_position.sh  # Позиционирование Waybar (верх / низ / скрыть)
-│   └── sidebar/
-│       ├── sidebar.py          # Боковая панель настроек (GtkLayerShell)
-│       └── toggle.sh           # Быстрый вызов сайдбара (Win+P)
-├── waybar/
-│   ├── config                  # Конфигурация модулей Waybar
-│   ├── style.css               # Активный CSS стиль Waybar
-│   └── themes/                 # Темы Waybar под все стили и подстили
-└── kitty/
-    ├── kitty.conf              # Основной конфиг терминала
-    ├── theme.conf              # Активная цветовая схема Kitty
-    ├── userprefs.conf          # Пользовательские настройки Kitty
-    └── themes/                 # Темы Kitty под все стили
-```
-
----
-
-## 📄 Лицензия
-
-MIT License — используйте, модифицируйте и распространяйте свободно.
+## 📄 License
+MIT License

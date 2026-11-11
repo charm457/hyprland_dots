@@ -47,12 +47,7 @@ start_wallpaper() {
 
     # Проверяем папку ~/wallpapers/
     if [[ -z "$wp" && -d "$WALLPAPERS_DIR" ]]; then
-        wp=$(find "$WALLPAPERS_DIR" -maxdepth 1 -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.webp" \) | head -n 1)
-    fi
-
-    # Проверяем встроенные обои сборки
-    if [[ -z "$wp" && -f "$HYPR_DIR/assets/wallpapers/black.png" ]]; then
-        wp="$HYPR_DIR/assets/wallpapers/black.png"
+        wp=$(find "$WALLPAPERS_DIR" -maxdepth 1 -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.webp" \) 2>/dev/null | head -n 1)
     fi
 
     if [[ -n "$wp" && -f "$wp" ]]; then

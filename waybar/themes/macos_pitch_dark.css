@@ -1,0 +1,86 @@
+/* Waybar Theme: macOS Full Pitch Dark (Muted Dark-White Symbols) */
+* {
+    font-family: "-apple-system", "SF Pro Display", "JetBrainsMono Nerd Font", sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    min-height: 0;
+    border: none;
+    border-radius: 0;
+}
+
+window#waybar {
+    background: rgba(12, 12, 16, 0.88);
+    color: #e2e2e8;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+    margin: 6px 12px;
+}
+
+#custom-menu {
+    font-size: 16px;
+    color: #e5e5ea;
+    padding: 0 14px 0 16px;
+}
+
+#workspaces {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 14px;
+    padding: 3px 6px;
+    margin: 4px 6px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+#workspaces button {
+    padding: 0 8px;
+    color: #8e8e93;
+    background: transparent;
+    border-radius: 10px;
+    font-size: 12px;
+    min-width: 22px;
+    margin: 2px 1px;
+}
+
+#workspaces button.active {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+#custom-window_mode {
+    background: rgba(255, 255, 255, 0.08);
+    color: #d1d1d6;
+    padding: 2px 12px;
+    margin: 4px 6px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+#clock {
+    color: #f2f2f7;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 0 16px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    margin: 4px 0;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+#pulseaudio, #network, #battery, #custom-theme, #tray, #custom-power {
+    padding: 0 9px;
+    color: #d1d1d6;
+}
+
+#pulseaudio:hover, #network:hover, #battery:hover, #custom-theme:hover, #custom-power:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+}
+
+tooltip {
+    background: rgba(18, 18, 22, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    color: #e5e5ea;
+}

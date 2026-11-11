@@ -1,14 +1,12 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# INSTALL.SH — Универсальный установщик и обновлятор сборки Hyprland
-# Поддерживает:
-# 1. Установку на чистый Hyprland (с проверкой пакетов и зависимостей)
-# 2. Обновление / замену поверх существующей сборки с авто-бэкапом
+# INSTALL.SH — Hyprland Dotfiles Installer & Updater
+# Supports clean install, seamless update with automatic backups, and EN/RU languages.
 # ==============================================================================
 
 set -e
 
-# Цвета для вывода в терминал
+# Terminal Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -24,10 +22,22 @@ HYPR_DST="$CONFIG_DIR/hypr"
 WAYBAR_DST="$CONFIG_DIR/waybar"
 KITTY_DST="$CONFIG_DIR/kitty"
 WALLPAPER_DST="$HOME/wallpapers"
+SCREENSHOTS_DST="$HOME/Screenshots"
 TIMESTAMP="$(date +%Y%m%d_%H%M%S)"
 BACKUP_DIR="$CONFIG_DIR/hypr_backup_$TIMESTAMP"
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}"
+LANG_FILE="$CACHE_DIR/dots_lang"
 
-print_header() {
+mkdir -p "$CACHE_DIR"
+INSTALL_LANG="en"
+[[ -f "$LANG_FILE" ]] && INSTALL_LANG=$(cat "$LANG_FILE")
+
+log_info() { echo -e "${BLUE}[INFO]${RESET} $1"; }
+log_ok()   { echo -e "${GREEN}[OK]${RESET} $1"; }
+log_warn() { echo -e "${YELLOW}[WARN]${RESET} $1"; }
+log_err()  { echo -e "${RED}[ERROR]${RESET} $1"; }
+
+print_banner() {
     clear 2>/dev/null || true
     echo -e "${CYAN}${BOLD}"
     cat << "EOF"
@@ -38,57 +48,58 @@ print_header() {
         |___/ |_|                                                  
 EOF
     echo -e "${RESET}"
-    echo -e "${BOLD}${MAGENTA}  Универсальный установщик сборки Hyprland${RESET}"
-    echo -e "${BLUE}  • Стили: Black, White, macOS Glass, Cyber${RESET}"
-    echo -e "${BLUE}  • Режимы окон: Плитка / Monocle с Waybar / Windows Mode${RESET}"
+    if [[ "$INSTALL_LANG" == "ru" ]]; then
+        echo -e "${BOLD}${MAGENTA}  Универсальный установщик и менеджер сборки Hyprland${RESET}"
+        echo -e "${BLUE}  • Стили: Black, White, macOS Glass, Cyber (с подстилями)${RESET}"
+        echo -e "${BLUE}  • Режимы окон: Плитка / Monocle с Waybar / Windows Mode${RESET}"
+    else
+        echo -e "${BOLD}${MAGENTA}  Universal Hyprland Dotfiles Installer & Manager${RESET}"
+        echo -e "${BLUE}  • Styles: Black, White, macOS Glass, Cyber (with sub-themes)${RESET}"
+        echo -e "${BLUE}  • Window Modes: Tiling / Fullscreen with Waybar / Windows Floating${RESET}"
+    fi
     echo -e "${CYAN}------------------------------------------------------------${RESET}\n"
 }
 
-log_info() {
-    echo -e "${BLUE}[INFO]${RESET} $1"
-}
+select_language() {
+    if [[ -n "${FORCE_LANG:-}" ]]; then
+        INSTALL_LANG="$FORCE_LANG"
+        echo "$INSTALL_LANG" > "$LANG_FILE"
+        return
+    fi
 
-log_ok() {
-    echo -e "${GREEN}[OK]${RESET} $1"
-}
-
-log_warn() {
-    echo -e "${YELLOW}[WARN]${RESET} $1"
-}
-
-log_err() {
-    echo -e "${RED}[ERROR]${RESET} $1"
-}
-
-# ------------------------------------------------------------------------------
-# Определение дистрибутива и пакетного менеджера
-# ------------------------------------------------------------------------------
-detect_pkg_manager() {
-    if command -v pacman &>/dev/null; then
-        echo "pacman"
-    elif command -v dnf &>/dev/null; then
-        echo "dnf"
-    elif command -v apt-get &>/dev/null; then
-        echo "apt"
-    elif command -v zypper &>/dev/null; then
-        echo "zypper"
-    elif command -v xbps-install &>/dev/null; then
-        echo "xbps"
+    echo -e "${BOLD}Select Language / Выберите язык интерфейса:${RESET}"
+    echo -e "  ${GREEN}1)${RESET} English (Default)"
+    echo -e "  ${CYAN}2)${RESET} Русский"
+    read -rp "Choice / Выбор [1/2, default 1]: " lchoice
+    if [[ "$lchoice" == "2" ]]; then
+        INSTALL_LANG="ru"
     else
-        echo "unknown"
+        INSTALL_LANG="en"
+    fi
+    echo "$INSTALL_LANG" > "$LANG_FILE"
+    print_banner
+}
+
+detect_pkg_manager() {
+    if command -v pacman &>/dev/null; then echo "pacman"
+    elif command -v dnf &>/dev/null; then echo "dnf"
+    elif command -v apt-get &>/dev/null; then echo "apt"
+    elif command -v zypper &>/dev/null; then echo "zypper"
+    elif command -v xbps-install &>/dev/null; then echo "xbps"
+    else echo "unknown"
     fi
 }
 
-# ------------------------------------------------------------------------------
-# Проверка и установка зависимостей
-# ------------------------------------------------------------------------------
 check_and_install_deps() {
     local pm
     pm=$(detect_pkg_manager)
-    log_info "Определен пакетный менеджер: ${BOLD}$pm${RESET}"
+    if [[ "$INSTALL_LANG" == "ru" ]]; then
+        log_info "Определен пакетный менеджер: ${BOLD}$pm${RESET}"
+    else
+        log_info "Detected package manager: ${BOLD}$pm${RESET}"
+    fi
 
-    # Список ключевых утилит
-    local core_deps=("hyprland" "waybar" "kitty" "swaybg" "playerctl" "brightnessctl" "python3")
+    local core_deps=("hyprland" "waybar" "kitty" "swaybg" "playerctl" "brightnessctl" "python3" "grimblast")
     local missing=()
 
     for dep in "${core_deps[@]}"; do
@@ -97,25 +108,30 @@ check_and_install_deps() {
         fi
     done
 
-    # Проверка Python GTK Layer Shell (для боковой панели)
-    local py_gls_ok=false
-    if python3 -c "import gi; gi.require_version('GtkLayerShell', '0.1'); from gi.repository import GtkLayerShell" 2>/dev/null; then
-        py_gls_ok=true
-    else
+    if ! python3 -c "import gi; gi.require_version('GtkLayerShell', '0.1'); from gi.repository import GtkLayerShell" 2>/dev/null; then
         missing+=("gtk-layer-shell" "python-gobject")
     fi
 
     if [[ ${#missing[@]} -eq 0 ]]; then
-        log_ok "Все основные зависимости установлены!"
+        if [[ "$INSTALL_LANG" == "ru" ]]; then
+            log_ok "Все основные зависимости установлены!"
+        else
+            log_ok "All core dependencies are installed!"
+        fi
         return 0
     fi
 
-    log_warn "Обнаружены отсутствующие пакеты: ${YELLOW}${missing[*]}${RESET}"
-    read -rp "Установить отсутствующие зависимости автоматически? (y/N): " ans
+    if [[ "$INSTALL_LANG" == "ru" ]]; then
+        log_warn "Отсутствуют пакеты: ${YELLOW}${missing[*]}${RESET}"
+        read -rp "Установить недостающие зависимости? (y/N): " ans
+    else
+        log_warn "Missing packages: ${YELLOW}${missing[*]}${RESET}"
+        read -rp "Install missing dependencies automatically? (y/N): " ans
+    fi
+
     if [[ "$ans" =~ ^[YyДд]$ ]]; then
         case "$pm" in
             pacman)
-                log_info "Установка через pacman / yay..."
                 local arch_pkgs=(
                     "hyprland" "waybar" "kitty" "swaybg" "dunst" "rofi-wayland"
                     "playerctl" "brightnessctl" "grimblast-git" "libnotify"
@@ -131,26 +147,19 @@ check_and_install_deps() {
                 fi
                 ;;
             dnf)
-                log_info "Установка через dnf..."
                 sudo dnf install -y hyprland waybar kitty swaybg dunst rofi-wayland playerctl brightnessctl python3 python3-gobject gtk3 gtk-layer-shell jq || true
                 ;;
             apt)
-                log_info "Установка через apt..."
                 sudo apt-get update
                 sudo apt-get install -y waybar kitty playerctl brightnessctl python3 python3-gi gir1.2-gtk-3.0 jq || true
                 ;;
             *)
-                log_warn "Автоматическая установка для $pm не настроена. Пожалуйста, установите: ${missing[*]}"
+                log_warn "Unsupported package manager for auto-install. Please install manually: ${missing[*]}"
                 ;;
         esac
-    else
-        log_info "Пропуск установки пакетов по запросу пользователя."
     fi
 }
 
-# ------------------------------------------------------------------------------
-# Резервное копирование существующих конфигов
-# ------------------------------------------------------------------------------
 backup_existing_configs() {
     local has_backup=false
 
@@ -162,58 +171,69 @@ backup_existing_configs() {
     done
 
     if [[ "$has_backup" == true ]]; then
-        log_info "Создание резервной копии старых конфигов в: ${BOLD}$BACKUP_DIR${RESET}"
+        if [[ "$INSTALL_LANG" == "ru" ]]; then
+            log_info "Создание резервной копии старых конфигов в: ${BOLD}$BACKUP_DIR${RESET}"
+        else
+            log_info "Backing up existing configs to: ${BOLD}$BACKUP_DIR${RESET}"
+        fi
         mkdir -p "$BACKUP_DIR"
         [[ -d "$HYPR_DST" ]]   && cp -r "$HYPR_DST"   "$BACKUP_DIR/hypr"
         [[ -d "$WAYBAR_DST" ]] && cp -r "$WAYBAR_DST" "$BACKUP_DIR/waybar"
         [[ -d "$KITTY_DST" ]]  && cp -r "$KITTY_DST"  "$BACKUP_DIR/kitty"
-        log_ok "Резервная копия успешно сохранена!"
-    else
-        log_info "Предыдущих конфигов не обнаружено — чистая установка."
+        if [[ "$INSTALL_LANG" == "ru" ]]; then
+            log_ok "Резервная копия успешно сохранена!"
+        else
+            log_ok "Backup created successfully!"
+        fi
     fi
 }
 
-# ------------------------------------------------------------------------------
-# Копирование и развертывание конфигов
-# ------------------------------------------------------------------------------
 deploy_configs() {
-    log_info "Развертывание новых конфигураций..."
+    if [[ "$INSTALL_LANG" == "ru" ]]; then
+        log_info "Развертывание конфигураций..."
+    else
+        log_info "Deploying configurations..."
+    fi
 
-    mkdir -p "$CONFIG_DIR" "$WALLPAPER_DST" "$HOME/.cache/sidebar_thumbs"
+    mkdir -p "$CONFIG_DIR" "$WALLPAPER_DST" "$SCREENSHOTS_DST" "$CACHE_DIR/sidebar_thumbs"
 
     local clean_mode=true
-    if [[ "${AUTO_MERGE:-false}" == "true" ]]; then
-        clean_mode=false
-    elif [[ -t 0 && -d "$HYPR_DST" && "${NON_INTERACTIVE:-false}" != "true" ]]; then
-        echo -e "\n${YELLOW}Внимание: Обнаружены существующие конфиги Hyprland!${RESET}"
-        echo -e "${BLUE}(Они уже сохранены в бэкап: $BACKUP_DIR)${RESET}"
-        echo -e "Как применить новую сборку?"
-        echo -e "  ${GREEN}1)${RESET} ${BOLD}Чистая замена (Рекомендуется)${RESET} — исключает конфликты и остаточный 'мусор' старой сборки"
-        echo -e "  ${CYAN}2)${RESET} ${BOLD}Перезапись поверх (Merge)${RESET} — обновить файлы сборки, но оставить ваши личные файлы нетронутыми"
-        read -rp "Ваш выбор [1/2, по умолчанию 1]: " mode_choice
+    if [[ -t 0 && -d "$HYPR_DST" && "${NON_INTERACTIVE:-false}" != "true" ]]; then
+        if [[ "$INSTALL_LANG" == "ru" ]]; then
+            echo -e "\n${YELLOW}Обнаружены существующие конфиги Hyprland!${RESET}"
+            echo -e "${BLUE}(Они сохранены в бэкап: $BACKUP_DIR)${RESET}"
+            echo -e "Как применить новую сборку?"
+            echo -e "  ${GREEN}1)${RESET} ${BOLD}Чистая замена (Рекомендуется)${RESET} — исключает конфликты со старой сборкой"
+            echo -e "  ${CYAN}2)${RESET} ${BOLD}Перезапись поверх (Merge)${RESET} — обновить файлы, сохранив ваши сторонние скрипты"
+            read -rp "Ваш выбор [1/2, по умолчанию 1]: " mode_choice
+        else
+            echo -e "\n${YELLOW}Existing Hyprland configuration detected!${RESET}"
+            echo -e "${BLUE}(Backed up to: $BACKUP_DIR)${RESET}"
+            echo -e "How would you like to install?"
+            echo -e "  ${GREEN}1)${RESET} ${BOLD}Clean Replacement (Recommended)${RESET} — prevents leftover config conflicts"
+            echo -e "  ${CYAN}2)${RESET} ${BOLD}Merge / Overwrite${RESET} — overwrite repo files, keep your custom scripts"
+            read -rp "Choice [1/2, default 1]: " mode_choice
+        fi
+
         if [[ "$mode_choice" == "2" ]]; then
             clean_mode=false
         fi
     fi
 
     if [[ "$clean_mode" == true ]]; then
-        log_info "Выполняется чистая замена (старые файлы сохранены в бэкапе)..."
         rm -rf "$HYPR_DST" "$WAYBAR_DST"
-    else
-        log_info "Выполняется обновление поверх существующих файлов..."
     fi
 
-    # 1. Hyprland конфиги
+    # 1. Hyprland
     mkdir -p "$HYPR_DST"
     cp -r "$SCRIPT_DIR/hypr/"* "$HYPR_DST/"
 
-    # 2. Waybar конфиги
+    # 2. Waybar
     mkdir -p "$WAYBAR_DST"
     cp -r "$SCRIPT_DIR/waybar/"* "$WAYBAR_DST/"
 
-    # 3. Kitty конфиги
+    # 3. Kitty
     mkdir -p "$KITTY_DST"
-    # Сохраняем userprefs.conf если он уже был настроен пользователем
     if [[ -f "$KITTY_DST/userprefs.conf" ]]; then
         mv "$KITTY_DST/userprefs.conf" "/tmp/userprefs_backup.conf" 2>/dev/null || true
     fi
@@ -222,100 +242,77 @@ deploy_configs() {
         mv "/tmp/userprefs_backup.conf" "$KITTY_DST/userprefs.conf" 2>/dev/null || true
     fi
 
-    # 4. Стартовые обои (не перезаписываем личные, если уже есть)
-    if [[ -d "$SCRIPT_DIR/hypr/assets/wallpapers" ]]; then
-        for wp in "$SCRIPT_DIR/hypr/assets/wallpapers/"*.png; do
-            if [[ -f "$wp" ]]; then
-                local bname
-                bname=$(basename "$wp")
-                if [[ ! -f "$WALLPAPER_DST/$bname" ]]; then
-                    cp "$wp" "$WALLPAPER_DST/"
-                fi
-            fi
-        done
-    fi
-
-    # 5. Выдача прав на исполнение скриптов
+    # 4. Make all scripts executable
     chmod +x "$HYPR_DST/scripts/"*.sh 2>/dev/null || true
     chmod +x "$HYPR_DST/sidebar/"*.sh 2>/dev/null || true
     chmod +x "$HYPR_DST/sidebar/sidebar.py" 2>/dev/null || true
     chmod +x "$HYPR_DST/change_wallpaper.sh" 2>/dev/null || true
 
-    log_ok "Конфигурационные файлы успешно скопированы и права выданы!"
+    if [[ "$INSTALL_LANG" == "ru" ]]; then
+        log_ok "Файлы успешно скопированы и права выданы!"
+    else
+        log_ok "Configuration files deployed and permissions granted!"
+    fi
 }
 
-# ------------------------------------------------------------------------------
-# Живая перезагрузка Hyprland и компонентов
-# ------------------------------------------------------------------------------
 reload_environment() {
     if pgrep -x "Hyprland" &>/dev/null; then
-        log_info "Hyprland запущен. Применяем изменения на лету..."
+        if [[ "$INSTALL_LANG" == "ru" ]]; then
+            log_info "Hyprland активен. Применяем изменения на лету..."
+        else
+            log_info "Hyprland is running. Applying changes live..."
+        fi
 
-        # 1. Применяем тему по умолчанию
         if [[ -x "$HYPR_DST/scripts/theme_ctl.sh" ]]; then
             "$HYPR_DST/scripts/theme_ctl.sh" set black solid &>/dev/null || true
         fi
 
-        # 2. Перезагрузка Hyprland
-        if command -v hyprctl &>/dev/null; then
-            hyprctl reload &>/dev/null || true
-        fi
-
-        # 3. Перезагрузка Waybar
+        command -v hyprctl &>/dev/null && hyprctl reload &>/dev/null || true
         pkill waybar 2>/dev/null || true
         sleep 0.3
         waybar &>/dev/null &
 
-        # 4. Перезагрузка открытых Kitty
         pkill -SIGUSR1 kitty 2>/dev/null || true
-
-        # 5. Перезапуск Sidebar
         pkill -f "sidebar.py" 2>/dev/null || true
         sleep 0.5
         python3 "$HYPR_DST/sidebar/sidebar.py" &>> /tmp/sidebar.log &
 
-        log_ok "Окружение успешно перезагружено без перезахода в систему!"
-    else
-        log_info "Hyprland сейчас не активен. Конфиги готовы для следующего входа!"
+        if [[ "$INSTALL_LANG" == "ru" ]]; then
+            log_ok "Окружение успешно перезагружено без перезахода!"
+        else
+            log_ok "Environment reloaded live!"
+        fi
     fi
 }
 
-# ------------------------------------------------------------------------------
-# Восстановление из бэкапа
-# ------------------------------------------------------------------------------
 restore_backup() {
     local backups=("$CONFIG_DIR"/hypr_backup_*)
     if [[ ! -e "${backups[0]}" ]]; then
-        log_warn "Резервных копий не найдено."
+        log_warn "No backups found."
         return 0
     fi
 
-    echo -e "\nДоступные резервные копии:"
+    echo -e "\nAvailable backups:"
     local i=1
     for b in "${backups[@]}"; do
         echo "  $i) $(basename "$b")"
         ((i++))
     done
 
-    read -rp "Выберите номер бэкапа для восстановления (или 0 для отмены): " choice
+    read -rp "Select backup number to restore (or 0 to cancel): " choice
     if [[ "$choice" -ge 1 && "$choice" -le "${#backups[@]}" ]]; then
         local target="${backups[$((choice - 1))]}"
-        log_info "Восстановление из $target..."
+        log_info "Restoring from $target..."
         [[ -d "$target/hypr" ]]   && rm -rf "$HYPR_DST"   && cp -r "$target/hypr" "$HYPR_DST"
         [[ -d "$target/waybar" ]] && rm -rf "$WAYBAR_DST" && cp -r "$target/waybar" "$WAYBAR_DST"
         [[ -d "$target/kitty" ]]  && rm -rf "$KITTY_DST"  && cp -r "$target/kitty" "$KITTY_DST"
-        log_ok "Восстановление завершено!"
+        log_ok "Backup restored!"
         reload_environment
-    else
-        log_info "Отмена восстановления."
     fi
 }
 
-# ------------------------------------------------------------------------------
-# Меню и запуск
-# ------------------------------------------------------------------------------
 main() {
-    print_header
+    select_language
 
     case "${1:-}" in
         --fresh)
@@ -331,26 +328,31 @@ main() {
             reload_environment
             exit 0
             ;;
-        --no-deps)
-            backup_existing_configs
-            deploy_configs
-            reload_environment
-            exit 0
-            ;;
         --restore)
             restore_backup
             exit 0
             ;;
     esac
 
-    echo -e "${BOLD}Выберите действие:${RESET}"
-    echo -e "  ${GREEN}1)${RESET} ${BOLD}Установка на чистый Hyprland${RESET} (с проверкой пакетов и зависимостей)"
-    echo -e "  ${CYAN}2)${RESET} ${BOLD}Обновление поверх готовой сборки${RESET} (с авто-бэкапом старых конфигов)"
-    echo -e "  ${YELLOW}3)${RESET} Создать только резервную копию (бэкап)"
-    echo -e "  ${MAGENTA}4)${RESET} Восстановить конфиги из предыдущего бэкапа"
-    echo -e "  ${RED}5)${RESET} Выход"
-    echo ""
-    read -rp "Введите пункт [1-5]: " choice
+    if [[ "$INSTALL_LANG" == "ru" ]]; then
+        echo -e "${BOLD}Выберите действие:${RESET}"
+        echo -e "  ${GREEN}1)${RESET} ${BOLD}Установка на чистый Hyprland${RESET} (с проверкой пакетов)"
+        echo -e "  ${CYAN}2)${RESET} ${BOLD}Обновление поверх готовой сборки${RESET} (с авто-бэкапом)"
+        echo -e "  ${YELLOW}3)${RESET} Создать только резервную копию (бэкап)"
+        echo -e "  ${MAGENTA}4)${RESET} Восстановить конфиги из бэкапа"
+        echo -e "  ${RED}5)${RESET} Выход"
+        echo ""
+        read -rp "Введите пункт [1-5]: " choice
+    else
+        echo -e "${BOLD}Select Action:${RESET}"
+        echo -e "  ${GREEN}1)${RESET} ${BOLD}Install on Fresh Hyprland${RESET} (with package check)"
+        echo -e "  ${CYAN}2)${RESET} ${BOLD}Update Existing Setup${RESET} (with auto-backup)"
+        echo -e "  ${YELLOW}3)${RESET} Create backup only"
+        echo -e "  ${MAGENTA}4)${RESET} Restore from previous backup"
+        echo -e "  ${RED}5)${RESET} Exit"
+        echo ""
+        read -rp "Enter choice [1-5]: " choice
+    fi
 
     case "$choice" in
         1)
@@ -371,23 +373,32 @@ main() {
             restore_backup
             ;;
         5)
-            echo "Выход."
             exit 0
             ;;
         *)
-            log_err "Неверный выбор."
+            log_err "Invalid selection."
             exit 1
             ;;
     esac
 
-    echo -e "\n${GREEN}${BOLD}✔ Готово!${RESET}"
-    echo -e "${CYAN}Горячие клавиши:${RESET}"
-    echo -e "  • ${BOLD}Win + P${RESET}        — Открыть боковую панель настроек (Стили, Обои, Режимы окон)"
-    echo -e "  • ${BOLD}Win + Z / M${RESET}    — Развернуть окно на весь экран ${BOLD}с сохранением Waybar${RESET}"
-    echo -e "  • ${BOLD}Win + V${RESET}        — Плавающее окно (как в Windows)"
-    echo -e "  • ${BOLD}Win + W${RESET}        — Циклическое переключение режимов: [Плитка ↔ Макс с Waybar ↔ Windows]"
-    echo -e "  • ${BOLD}Win + F${RESET}        — Полный экран без Waybar"
-    echo -e "  • ${BOLD}Win + Alt + P${RESET}  — Переключение позиции Waybar (верх / низ / скрыть)\n"
+    echo -e "\n${GREEN}${BOLD}✔ Done / Готово!${RESET}"
+    if [[ "$INSTALL_LANG" == "ru" ]]; then
+        echo -e "${CYAN}Горячие клавиши:${RESET}"
+        echo -e "  • ${BOLD}Win + /  или  Win + F1${RESET} — Окно со всеми горячими клавишами"
+        echo -e "  • ${BOLD}Win + P${RESET}               — Боковая панель настроек"
+        echo -e "  • ${BOLD}Win + Shift + S${RESET}       — Скриншот области (сохранение в ~/Screenshots)"
+        echo -e "  • ${BOLD}Win + Z / M${RESET}           — На весь экран с сохранением Waybar"
+        echo -e "  • ${BOLD}Win + V${RESET}               — Плавающее окно (как в Windows)"
+        echo -e "  • ${BOLD}Win + W${RESET}               — Смена режима окон: [Плитка ↔ Макс с Waybar ↔ Windows]"
+    else
+        echo -e "${CYAN}Keybindings Cheat Sheet:${RESET}"
+        echo -e "  • ${BOLD}Win + /  or  Win + F1${RESET}  — Keybindings Help Window"
+        echo -e "  • ${BOLD}Win + P${RESET}               — Control Sidebar"
+        echo -e "  • ${BOLD}Win + Shift + S${RESET}       — Screenshot Area (saves to ~/Screenshots)"
+        echo -e "  • ${BOLD}Win + Z / M${RESET}           — Fullscreen WITH Waybar (Monocle)"
+        echo -e "  • ${BOLD}Win + V${RESET}               — Floating Window (like Windows)"
+        echo -e "  • ${BOLD}Win + W${RESET}               — Cycle Window Modes: [Tiling ↔ Max with Waybar ↔ Windows]"
+    fi
 }
 
 main "$@"
