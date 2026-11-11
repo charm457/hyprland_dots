@@ -28,5 +28,6 @@ waybar/config.bak
 hypr/*.bak
 hypr/*-bak*
 
-# Wallpapers (не включаем в репо — личные файлы)
-wallpapers/
+# Wallpapers (не включаем в репо личные файлы в корне)
+/wallpapers/
+!hypr/assets/wallpapers/

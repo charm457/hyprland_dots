@@ -7,7 +7,9 @@
     "margin-left": 10,
     "margin-right": 10,
     "modules-left": [
+        "custom/menu",
         "hyprland/workspaces",
+        "custom/window_mode",
         "hyprland/window"
     ],
     "modules-center": [
@@ -17,9 +19,18 @@
         "pulseaudio",
         "network",
         "battery",
+        "custom/theme",
         "tray",
         "custom/power"
     ],
+    "custom/menu": {
+        "format": "{}",
+        "exec": "~/.config/hypr/scripts/theme_ctl.sh menu_icon",
+        "interval": 10,
+        "signal": 9,
+        "on-click": "~/.config/hypr/sidebar/toggle.sh",
+        "tooltip-format": "Меню / Сайдбар (Super+P)"
+    },
     "hyprland/workspaces": {
         "format": "{icon}",
         "format-icons": {
@@ -40,9 +51,17 @@
         "on-scroll-down": "hyprctl dispatch workspace e-1",
         "persistent-workspaces": {}
     },
+    "custom/window_mode": {
+        "format": "{}",
+        "exec": "~/.config/hypr/scripts/window_mode.sh status_icon",
+        "interval": 2,
+        "signal": 8,
+        "on-click": "~/.config/hypr/scripts/window_mode.sh cycle",
+        "tooltip-format": "Режим окон:\n- Плитка (Tiling)\n- На весь экран с Waybar (Monocle)\n- Как в Windows (Плавающий)\nКлик: переключить"
+    },
     "hyprland/window": {
         "format": " {}",
-        "max-length": 40,
+        "max-length": 35,
         "separate-outputs": true
     },
     "clock": {
@@ -92,6 +111,11 @@
             "critical": 15
         },
         "interval": 30
+    },
+    "custom/theme": {
+        "format": "󰏘",
+        "on-click": "~/.config/hypr/sidebar/toggle.sh",
+        "tooltip-format": "Смена тем и стилей оформления"
     },
     "tray": {
         "icon-size": 16,

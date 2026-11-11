@@ -1,0 +1,78 @@
+/* Waybar Theme: Cyber Neon */
+* {
+    font-family: "JetBrainsMono Nerd Font", "Font Awesome 6 Free", sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    min-height: 0;
+    border: none;
+    border-radius: 0;
+}
+
+window#waybar {
+    background: rgba(12, 4, 24, 0.92);
+    color: #e0e0ff;
+    border-radius: 12px;
+    border: 1px solid #ff007f;
+    box-shadow: 0 0 12px rgba(255, 0, 127, 0.35);
+    transition: none;
+}
+
+#custom-menu {
+    font-size: 16px;
+    color: #00f0ff;
+    padding: 0 12px 0 14px;
+}
+
+#workspaces button {
+    padding: 0 7px;
+    color: #7a6b99;
+    background: transparent;
+    border-radius: 6px;
+    font-size: 12px;
+    min-width: 24px;
+    margin: 4px 1px;
+}
+
+#workspaces button.active {
+    color: #00f0ff;
+    background: rgba(0, 240, 255, 0.15);
+    border: 1px solid #00f0ff;
+    box-shadow: 0 0 6px rgba(0, 240, 255, 0.4);
+}
+
+#custom-window_mode {
+    background: rgba(255, 0, 127, 0.15);
+    color: #ff007f;
+    padding: 2px 10px;
+    margin: 5px 6px;
+    border-radius: 6px;
+    border: 1px solid #ff007f;
+}
+
+#clock {
+    color: #00f0ff;
+    font-weight: bold;
+    padding: 0 14px;
+    background: rgba(255, 0, 127, 0.1);
+    border-radius: 6px;
+    margin: 4px 0;
+    border: 1px solid rgba(255, 0, 127, 0.3);
+}
+
+#pulseaudio, #network, #battery, #custom-theme, #tray, #custom-power {
+    padding: 0 9px;
+    color: #e0e0ff;
+}
+
+#pulseaudio:hover, #network:hover, #battery:hover, #custom-theme:hover, #custom-power:hover {
+    color: #00f0ff;
+    background: rgba(0, 240, 255, 0.12);
+    border-radius: 6px;
+}
+
+tooltip {
+    background: #0d051c;
+    border: 1px solid #ff007f;
+    border-radius: 8px;
+    color: #00f0ff;
+}

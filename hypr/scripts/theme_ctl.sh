@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# theme_ctl.sh — Контроллер стилей и тем оформления
+# ==============================================================================
+
+HYPR_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/hypr"
+WAYBAR_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/waybar"
+KITTY_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/kitty"
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}"
+THEME_CACHE="$CACHE_DIR/sidebar_theme"
+WALLPAPER_CACHE="$CACHE_DIR/current_wallpaper"
+
+mkdir -p "$CACHE_DIR"
+
+get_current_theme() {
+    if [[ -f "$THEME_CACHE" ]]; then
+        cat "$THEME_CACHE"
+    else
+        echo "black_solid"
+    fi
+}
+
+menu_icon() {
+    local cur
+    cur=$(get_current_theme)
+    if [[ "$cur" == macos* ]]; then
+        echo ""
+    elif [[ "$cur" == cyber* ]]; then
+        echo "󰊠"
+    elif [[ "$cur" == white* ]]; then
+        echo "󰄛"
+    else
+        echo "󰣇"
+    fi
+}
+
+apply_theme() {
+    local category="$1"
+    local substyle="$2"
+    local theme_key="${category}_${substyle}"
+
+    local hypr_theme="$HYPR_DIR/themes/$category/$substyle.conf"
+    local waybar_theme="$WAYBAR_DIR/themes/${theme_key}.css"
+    local kitty_theme="$KITTY_DIR/themes/${theme_key}.conf"
+
+    if [[ ! -f "$hypr_theme" ]]; then
+        echo "Ошибка: конфиг Hyprland не найден: $hypr_theme"
+        return 1
+    fi
+
+    # 1. Hyprland конфиг темы
+    cp "$hypr_theme" "$HYPR_DIR/current_theme.conf"
+    if command -v hyprctl &>/dev/null; then
+        hyprctl reload &>/dev/null
+    fi
+
+    # 2. Waybar CSS
+    if [[ -f "$waybar_theme" ]]; then
+        echo "@import \"themes/${theme_key}.css\";" > "$WAYBAR_DIR/style.css"
+        pkill -USR2 waybar 2>/dev/null || true
+    fi
+
+    # 3. Kitty конфиг темы
+    if [[ -f "$kitty_theme" ]]; then
+        echo "include ./themes/${theme_key}.conf" > "$KITTY_DIR/theme.conf"
+        # Перезагружаем открытые терминалы Kitty
+        pkill -SIGUSR1 kitty 2>/dev/null || true
+    fi
+
+    # 4. Сохраняем активную тему
+    echo "$theme_key" > "$THEME_CACHE"
+
+    # 5. Рекомендованные обои (если есть и если пользователь хочет авто-смену)
+    local wp_candidate="$HYPR_DIR/assets/wallpapers/${category}.png"
+    if [[ -f "$wp_candidate" && "$3" == "--with-wallpaper" ]]; then
+        echo "$wp_candidate" > "$WALLPAPER_CACHE"
+        pkill swaybg 2>/dev/null || true
+        sleep 0.1
+        swaybg -i "$wp_candidate" -m stretch &
+    fi
+
+    # 6. Обновляем Waybar сигнал для иконки меню
+    pkill -RTMIN+9 waybar 2>/dev/null || true
+
+    # 7. Уведомление
+    if command -v notify-send &>/dev/null; then
+        local title="Стиль: ${category^}"
+        local desc="Подстиль: ${substyle^}"
+        notify-send -a "Hyprland Theme" -i preferences-desktop-theme "$title" "$desc" -t 2000
+    fi
+
+    echo "Тема успешно установлена: $theme_key"
+}
+
+case "${1:-get}" in
+    set)
+        apply_theme "$2" "$3" "$4"
+        ;;
+    get)
+        get_current_theme
+        ;;
+    menu_icon)
+        menu_icon
+        ;;
+    list)
+        echo "Доступные стили:"
+        echo "  black  -> solid, stealth, glass"
+        echo "  white  -> clean, glass, latte"
+        echo "  macos  -> glass, dark, light"
+        echo "  cyber  -> neon, nord"
+        ;;
+    *)
+        echo "Использование: $0 [set <категория> <подстиль> [--with-wallpaper] | get | menu_icon | list]"
+        exit 1
+        ;;
+esac

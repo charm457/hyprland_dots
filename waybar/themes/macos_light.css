@@ -1,0 +1,83 @@
+/* Waybar Theme: macOS Light Glass */
+* {
+    font-family: "-apple-system", "SF Pro Display", "JetBrainsMono Nerd Font", sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    min-height: 0;
+    border: none;
+    border-radius: 0;
+}
+
+window#waybar {
+    background: rgba(242, 242, 247, 0.78);
+    color: #1d1d1f;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+#custom-menu {
+    font-size: 16px;
+    color: #1d1d1f;
+    padding: 0 12px 0 16px;
+}
+
+#workspaces {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    padding: 2px 4px;
+    margin: 4px 6px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+#workspaces button {
+    padding: 0 8px;
+    color: #6e6e73;
+    background: transparent;
+    border-radius: 8px;
+    font-size: 12px;
+    min-width: 22px;
+    margin: 2px 1px;
+}
+
+#workspaces button.active {
+    color: #007aff;
+    background: rgba(0, 122, 255, 0.12);
+    font-weight: 600;
+}
+
+#custom-window_mode {
+    background: rgba(0, 122, 255, 0.1);
+    color: #007aff;
+    padding: 2px 12px;
+    margin: 4px 6px;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 122, 255, 0.2);
+}
+
+#clock {
+    color: #1d1d1f;
+    font-weight: 600;
+    padding: 0 14px;
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: 10px;
+    margin: 4px 0;
+}
+
+#pulseaudio, #network, #battery, #custom-theme, #tray, #custom-power {
+    padding: 0 9px;
+    color: #3a3a3c;
+}
+
+#pulseaudio:hover, #network:hover, #battery:hover, #custom-theme:hover, #custom-power:hover {
+    color: #000000;
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+}
+
+tooltip {
+    background: rgba(242, 242, 247, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+    color: #1d1d1f;
+}
