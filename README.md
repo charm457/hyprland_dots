@@ -93,12 +93,11 @@ sudo dnf install hyprland waybar kitty rofi-wayland grim slurp \
 
 | Keybinding | Action |
 |---|---|
-| `Super + Z` or `Super + M` | **Monocle Mode**: Maximize window **WITH Waybar visible** (`fullscreen 1`) |
-| `Super + F` | **Exclusive Fullscreen**: Maximize window **WITHOUT** Waybar (`fullscreen 0`) |
+| `Super + W` | Cycle window layout mode (`Default Tiling` ↔ `Free Floating`) |
+| `Super + Shift + T` | Enforce Default Mode: all windows strictly tiled and auto-split |
+| `Super + Shift + W` | Enforce Free Mode: all windows float freely like in Windows |
 | `Super + V` | Toggle active window between Floating and Tiled |
-| `Super + W` | Cycle window layout mode (`Tiling` ↔ `Monocle` ↔ `Windows Floating`) |
-| `Super + Shift + W` | Force Windows floating mode across current workspace |
-| `Super + Shift + T` | Reset current workspace back to Tiling mode |
+| `Super + F` | Fullscreen mode |
 | `Super + LMB (drag)` | Move floating window |
 | `Super + RMB (drag)` | Resize floating window |
 
@@ -172,13 +171,12 @@ Every subsystem provides dedicated shell scripts for scripting and terminal mana
 
 ### Window Layout Modes
 ```bash
-# Cycle layout mode (Tiling -> Monocle -> Windows)
+# Cycle layout mode (Default Tiling <-> Free Floating)
 ~/.config/hypr/scripts/window_mode.sh cycle
 
 # Switch explicitly
 ~/.config/hypr/scripts/window_mode.sh tiling
-~/.config/hypr/scripts/window_mode.sh monocle
-~/.config/hypr/scripts/window_mode.sh windows
+~/.config/hypr/scripts/window_mode.sh floating
 
 # Print current mode
 ~/.config/hypr/scripts/window_mode.sh status
@@ -331,12 +329,11 @@ sudo dnf install hyprland waybar kitty rofi-wayland grim slurp \
 
 | Сочетание клавиш | Описание |
 |---|---|
-| `Super + Z` или `Super + M` | **Режим Monocle**: окно на весь экран **с сохранением Waybar** (`fullscreen 1`) |
-| `Super + F` | Полный экран **БЕЗ** Waybar (`fullscreen 0`) |
+| `Super + W` | Сменить режим окон (`Обычный тайлинг` ↔ `Свободный плавающий`) |
+| `Super + Shift + T` | Включить Обычный режим (тайлинг, все новые окна строго делятся) |
+| `Super + Shift + W` | Включить Свободный режим (все окна свободно плавают как в Windows) |
 | `Super + V` | Переключить текущее окно между плавающим и тайловым |
-| `Super + W` | Сменить режим окон (`Плитка` ↔ `Monocle` ↔ `Плавающие окна Windows`) |
-| `Super + Shift + W` | Принудительно включить плавающий режим Windows на текущем рабочем столе |
-| `Super + Shift + T` | Сбросить текущий рабочий стол в тайлинг |
+| `Super + F` | Полный экран (fullscreen) |
 | `Super + ЛКМ (тянуть)` | Перемещение плавающего окна мышью |
 | `Super + ПКМ (тянуть)` | Изменение размера окна мышью |
 
@@ -397,13 +394,12 @@ sudo dnf install hyprland waybar kitty rofi-wayland grim slurp \
 
 ### Режимы компоновки окон
 ```bash
-# Циклическое переключение режимов
+# Переключение режимов (Обычный тайлинг <-> Свободный плавающий)
 ~/.config/hypr/scripts/window_mode.sh cycle
 
 # Установка конкретного режима
 ~/.config/hypr/scripts/window_mode.sh tiling
-~/.config/hypr/scripts/window_mode.sh monocle
-~/.config/hypr/scripts/window_mode.sh windows
+~/.config/hypr/scripts/window_mode.sh floating
 ```
 
 ---

@@ -38,13 +38,11 @@ LOCALES = {
     "en": {
         "title": "⚙  SETTINGS",
         "lang_btn": "🌐 RU",
-        "modes_title": "WINDOW MODES",
-        "mode_tiling": "▦  Tiling (Auto-split)",
-        "mode_monocle": "⛶  Fullscreen (with Waybar)",
-        "mode_windows": "🪟  Windows Mode (Floating)",
-        "mode_tiling_desc": "Automatic dynamic tiling",
-        "mode_monocle_desc": "Maximize window, keep Waybar visible",
-        "mode_windows_desc": "Floating stacking windows like Windows",
+        "modes_title": "WINDOW LAYOUT",
+        "mode_tiling": "▦  Default (Tiling)",
+        "mode_floating": "🪟  Free (Floating)",
+        "mode_tiling_desc": "All windows strictly tiled, auto-split",
+        "mode_floating_desc": "Windows float freely like in Windows",
         "music_title": "NOW PLAYING & VOLUME",
         "output_title": "AUDIO OUTPUT DEVICE",
         "output_connected": "Connected:",
@@ -67,12 +65,10 @@ LOCALES = {
         "title": "⚙  НАСТРОЙКИ",
         "lang_btn": "🌐 EN",
         "modes_title": "РЕЖИМ ОКОН",
-        "mode_tiling": "▦  Плитка (Tiling)",
-        "mode_monocle": "⛶  На весь экран (с Waybar)",
-        "mode_windows": "🪟  Как в Windows (Плавающий)",
-        "mode_tiling_desc": "Автоматическое разделение окон",
-        "mode_monocle_desc": "Окна развернуты на экран, Waybar виден",
-        "mode_windows_desc": "Плавающие окна, свободное перемещение",
+        "mode_tiling": "▦  Обычный (Тайлинг)",
+        "mode_floating": "🪟  Свободный (Плавающий)",
+        "mode_tiling_desc": "Все окна только обычные, строго разделяются",
+        "mode_floating_desc": "Свободные окна как в Windows",
         "music_title": "МУЗЫКА И ГРОМКОСТЬ",
         "output_title": "ВЫВОД ЗВУКА",
         "output_connected": "Подключено:",
@@ -455,7 +451,10 @@ def get_active_theme():
 
 def get_active_mode():
     try:
-        return open(MODE_FILE).read().strip()
+        val = open(MODE_FILE).read().strip()
+        if val in ("floating", "windows", "free"):
+            return "floating"
+        return "tiling"
     except Exception:
         return "tiling"
 
@@ -827,28 +826,29 @@ class Sidebar:
         open(LANG_FILE, "w").write(new_l)
         run_bg(f'bash "{SCRIPTS_DIR}/lang_ctl.sh" set {new_l}')
 
-    # ─── 1. Режимы окон ───────────────────────────────────────────────────────
+    # ─── 1. Режимы окон (Обычный тайлинг / Свободный) ─────────────────────────
     def _make_window_modes(self, t):
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+        box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         box.set_margin_top(2); box.set_margin_bottom(4)
 
         current_mode = get_active_mode()
+        if current_mode not in ("tiling", "floating"):
+            current_mode = "tiling"
+
         modes = [
-            ("tiling",  t["mode_tiling"],  t["mode_tiling_desc"]),
-            ("monocle", t["mode_monocle"], t["mode_monocle_desc"]),
-            ("windows", t["mode_windows"], t["mode_windows_desc"]),
+            ("tiling",   t["mode_tiling"],   t["mode_tiling_desc"]),
+            ("floating", t["mode_floating"], t["mode_floating_desc"]),
         ]
 
         for m_key, title, tooltip in modes:
             btn = Gtk.Button(label=title)
-            btn.set_property("xalign", 0.05)
             btn.get_style_context().add_class("mode-btn")
             btn.set_tooltip_text(tooltip)
             if m_key == current_mode:
                 btn.get_style_context().add_class("active-mode")
             btn.connect("clicked", self._on_mode_click, m_key)
             self._mode_btns[m_key] = btn
-            box.pack_start(btn, False, False, 0)
+            box.pack_start(btn, True, True, 0)
 
         return box
 

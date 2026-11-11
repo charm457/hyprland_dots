@@ -1,14 +1,19 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # window_mode.sh — Управление режимами окон:
-# 1. Tiling   — Плитка / Авто-тайлинг (стандартный Hyprland)
-# 2. Monocle  — На весь экран с Waybar (fullscreen 1)
-# 3. Windows  — Обычный режим Windows (плавающие окна, перекрытие, drag&drop)
+# 1. Обычный (Tiling)   — Строгий тайлинг, окна автоматически разделяются,
+#                         все новые окна открываются только обычными.
+# 2. Свободный (Floating) — Плавающие окна как в Windows, свободное перемещение
+#                         и изменение размера, новые окна открываются плавающими.
 # ==============================================================================
 
 CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}"
 MODE_FILE="$CACHE_DIR/hypr_window_mode"
+LANG_FILE="$CACHE_DIR/dots_lang"
 mkdir -p "$CACHE_DIR"
+
+APP_LANG="ru"
+[[ -f "$LANG_FILE" ]] && APP_LANG=$(cat "$LANG_FILE")
 
 get_mode() {
     if [[ -f "$MODE_FILE" ]]; then
@@ -18,149 +23,113 @@ get_mode() {
     fi
 }
 
-set_monocle() {
-    # Режим "На полный экран, но с Waybar"
-    echo "monocle" > "$MODE_FILE"
-    
-    # Снимаем глобальный float если был
-    hyprctl keyword windowrule "unset, match:class ^(.*)$" &>/dev/null || true
-    hyprctl keyword windowrulev2 "unset, class:^(.*)$" &>/dev/null || true
-
-    # Разворачиваем текущее окно на полный экран с сохранением Waybar (fullscreen 1)
-    hyprctl dispatch fullscreen 1 &>/dev/null || true
-
-    pkill -RTMIN+8 waybar 2>/dev/null || true
-    if command -v notify-send &>/dev/null; then
-        notify-send -a "Hyprland Layout" -i view-fullscreen "Режим окон: На весь экран" "Окно развернуто на весь экран (Waybar сохранён)" -t 1800
-    fi
-}
-
-set_windows() {
-    # Режим "Как на обычной Windows" — плавающие окна
-    echo "windows" > "$MODE_FILE"
+set_tiling() {
+    echo "tiling" > "$MODE_FILE"
 
     # Снимаем fullscreen если был
     hyprctl dispatch fullscreen 0 &>/dev/null || true
 
-    # Новые окна будут открываться плавающими
-    hyprctl keyword windowrule "float 1, match:class ^(.*)$" &>/dev/null || hyprctl keyword windowrulev2 "float, class:^(.*)$" &>/dev/null || true
+    # Гарантируем, что ВСЕ новые окна открываются ТОЛЬКО обычными (тайловыми)
+    hyprctl keyword windowrulev2 "tile, class:.*" &>/dev/null || true
 
-    # Делаем все окна на текущем workspace плавающими
+    # Все текущие открытые окна переводим в тайлинг (settiled)
     if command -v jq &>/dev/null; then
-        local active_ws
-        active_ws=$(hyprctl activeworkspace -j 2>/dev/null | jq -r '.id')
-        if [[ -n "$active_ws" && "$active_ws" != "null" ]]; then
-            hyprctl clients -j 2>/dev/null | jq -r ".[] | select(.workspace.id == $active_ws and .floating == false) | .address" | while read -r addr; do
-                if [[ -n "$addr" ]]; then
-                    hyprctl dispatch togglefloating "address:$addr" &>/dev/null || true
-                fi
-            done
-        fi
+        hyprctl clients -j 2>/dev/null | jq -r '.[] | .address' | while read -r addr; do
+            if [[ -n "$addr" && "$addr" != "null" ]]; then
+                hyprctl dispatch settiled "address:$addr" &>/dev/null || true
+            fi
+        done
     else
-        hyprctl dispatch togglefloating &>/dev/null || true
+        hyprctl dispatch settiled &>/dev/null || true
     fi
 
-    pkill -RTMIN+8 waybar 2>/dev/null || true
+    # Исключения для системных диалогов сохраняем в float
+    hyprctl keyword windowrulev2 "float 1, match:class ^(pavucontrol|blueman-manager|nm-connection-editor|wlogout)$" &>/dev/null || true
+    hyprctl keyword windowrulev2 "float 1, match:title ^(Open File|Save File|Choose Wallpaper)$" &>/dev/null || true
+
     if command -v notify-send &>/dev/null; then
-        notify-send -a "Hyprland Layout" -i preferences-system-windows "Режим окон: Windows" "Плавающие окна как в обычной Windows (Super+ЛКМ тянуть, Super+ПКМ размер)" -t 2000
+        if [[ "$APP_LANG" == "en" ]]; then
+            notify-send -a "Window Mode" -i view-grid "Default Mode (Tiling)" "All windows strictly split and tile" -t 1800
+        else
+            notify-send -a "Режим окон" -i view-grid "Обычный режим (Тайлинг)" "Все окна открываются только обычными и разделяются" -t 1800
+        fi
     fi
 }
 
-set_tiling() {
-    # Режим "Плиточный тайлинг"
-    echo "tiling" > "$MODE_FILE"
+set_floating() {
+    echo "floating" > "$MODE_FILE"
 
-    # Снимаем fullscreen
+    # Снимаем fullscreen если был
     hyprctl dispatch fullscreen 0 &>/dev/null || true
 
-    # Отключаем глобальный float для новых окон
-    hyprctl keyword windowrule "unset, match:class ^(.*)$" &>/dev/null || true
-    hyprctl keyword windowrulev2 "unset, class:^(.*)$" &>/dev/null || true
+    # Гарантируем, что ВСЕ новые окна открываются свободно плавающими
+    hyprctl keyword windowrulev2 "float, class:.*" &>/dev/null || true
 
-    # Возвращаем плавающие окна обратно в плитку на текущем workspace
+    # Все текущие открытые окна переводим в свободный плавающий режим (setfloating)
     if command -v jq &>/dev/null; then
-        local active_ws
-        active_ws=$(hyprctl activeworkspace -j 2>/dev/null | jq -r '.id')
-        if [[ -n "$active_ws" && "$active_ws" != "null" ]]; then
-            hyprctl clients -j 2>/dev/null | jq -r ".[] | select(.workspace.id == $active_ws and .floating == true) | .address" | while read -r addr; do
-                if [[ -n "$addr" ]]; then
-                    hyprctl dispatch togglefloating "address:$addr" &>/dev/null || true
-                fi
-            done
-        fi
+        hyprctl clients -j 2>/dev/null | jq -r '.[] | .address' | while read -r addr; do
+            if [[ -n "$addr" && "$addr" != "null" ]]; then
+                hyprctl dispatch setfloating "address:$addr" &>/dev/null || true
+            fi
+        done
     else
-        hyprctl dispatch togglefloating &>/dev/null || true
+        hyprctl dispatch setfloating &>/dev/null || true
     fi
 
-    pkill -RTMIN+8 waybar 2>/dev/null || true
     if command -v notify-send &>/dev/null; then
-        notify-send -a "Hyprland Layout" -i view-grid "Режим окон: Плитка" "Автоматическое тайлинговое разделение окон" -t 1800
+        if [[ "$APP_LANG" == "en" ]]; then
+            notify-send -a "Window Mode" -i preferences-system-windows "Free Mode (Floating)" "Windows float freely like in Windows (Super+LMB drag, Super+RMB resize)" -t 1800
+        else
+            notify-send -a "Режим окон" -i preferences-system-windows "Свободный режим (Плавающий)" "Свободные окна как в Windows (Super+ЛКМ тянуть, Super+ПКМ размер)" -t 1800
+        fi
     fi
 }
 
-toggle_floating() {
+toggle_single_window() {
     hyprctl dispatch togglefloating &>/dev/null || true
 }
 
 cycle_mode() {
     local cur
     cur=$(get_mode)
-    case "$cur" in
-        tiling)
-            set_monocle
-            ;;
-        monocle)
-            set_windows
-            ;;
-        windows)
-            set_tiling
-            ;;
-        *)
-            set_tiling
-            ;;
-    esac
+    if [[ "$cur" == "floating" || "$cur" == "windows" ]]; then
+        set_tiling
+    else
+        set_floating
+    fi
 }
 
-status_icon() {
+init_mode() {
     local cur
     cur=$(get_mode)
-    case "$cur" in
-        monocle)
-            echo "⛶ Макс"
-            ;;
-        windows)
-            echo "🪟 Win"
-            ;;
-        *)
-            echo "▦ Плитка"
-            ;;
-    esac
+    if [[ "$cur" == "floating" || "$cur" == "windows" ]]; then
+        set_floating
+    else
+        set_tiling
+    fi
 }
 
 case "${1:-status}" in
-    monocle)
-        set_monocle
-        ;;
-    windows)
-        set_windows
-        ;;
-    tiling)
+    tiling|default)
         set_tiling
         ;;
-    toggle_floating|float)
-        toggle_floating
+    floating|free|windows)
+        set_floating
         ;;
-    cycle)
+    cycle|toggle)
         cycle_mode
+        ;;
+    toggle_floating|float)
+        toggle_single_window
+        ;;
+    init)
+        init_mode
         ;;
     status)
         get_mode
         ;;
-    status_icon)
-        status_icon
-        ;;
     *)
-        echo "Использование: $0 [monocle | windows | tiling | toggle_floating | cycle | status | status_icon]"
+        echo "Использование: $0 [tiling | floating | cycle | toggle_floating | init | status]"
         exit 1
         ;;
 esac

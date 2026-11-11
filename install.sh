@@ -400,17 +400,17 @@ main() {
         echo -e "  • ${BOLD}Win + /  или  Win + F1${RESET} — Окно со всеми горячими клавишами"
         echo -e "  • ${BOLD}Win + P${RESET}               — Боковая панель настроек"
         echo -e "  • ${BOLD}Win + Shift + S${RESET}       — Скриншот области (сохранение в ~/Screenshots)"
-        echo -e "  • ${BOLD}Win + Z / M${RESET}           — На весь экран с сохранением Waybar"
-        echo -e "  • ${BOLD}Win + V${RESET}               — Плавающее окно (как в Windows)"
-        echo -e "  • ${BOLD}Win + W${RESET}               — Смена режима окон: [Плитка ↔ Макс с Waybar ↔ Windows]"
+        echo -e "  • ${BOLD}Win + W${RESET}               — Смена режима окон: [Обычный (тайлинг) ↔ Свободный (плавающий)]"
+        echo -e "  • ${BOLD}Win + V${RESET}               — Переключить выбранное окно (плавающее / тайл)"
+        echo -e "  • ${BOLD}Win + F${RESET}               — Полный экран"
     else
         echo -e "${CYAN}Keybindings Cheat Sheet:${RESET}"
         echo -e "  • ${BOLD}Win + /  or  Win + F1${RESET}  — Keybindings Help Window"
         echo -e "  • ${BOLD}Win + P${RESET}               — Control Sidebar"
         echo -e "  • ${BOLD}Win + Shift + S${RESET}       — Screenshot Area (saves to ~/Screenshots)"
-        echo -e "  • ${BOLD}Win + Z / M${RESET}           — Fullscreen WITH Waybar (Monocle)"
-        echo -e "  • ${BOLD}Win + V${RESET}               — Floating Window (like Windows)"
-        echo -e "  • ${BOLD}Win + W${RESET}               — Cycle Window Modes: [Tiling ↔ Max with Waybar ↔ Windows]"
+        echo -e "  • ${BOLD}Win + W${RESET}               — Cycle Window Mode: [Default (Tiling) ↔ Free (Floating)]"
+        echo -e "  • ${BOLD}Win + V${RESET}               — Toggle Active Window (Floating / Tiled)"
+        echo -e "  • ${BOLD}Win + F${RESET}               — Fullscreen Mode"
     fi
 }
 

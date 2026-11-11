@@ -80,6 +80,7 @@ init_theme() {
 start_polkit &
 start_wallpaper &
 init_theme
+"$HYPR_DIR/scripts/window_mode.sh" init &>/dev/null || true
 
 # Сетевой апплет
 if command -v nm-applet &>/dev/null; then
