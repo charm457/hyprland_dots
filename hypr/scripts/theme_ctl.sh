@@ -54,17 +54,22 @@ apply_theme() {
         hyprctl reload &>/dev/null
     fi
 
-    # 2. Waybar CSS
+    # 2. Waybar CSS (копируем файл целиком, чтобы GTK не кэшировал импорты)
     if [[ -f "$waybar_theme" ]]; then
-        echo "@import \"themes/${theme_key}.css\";" > "$WAYBAR_DIR/style.css"
+        cp -f "$waybar_theme" "$WAYBAR_DIR/style.css"
+        # Перезагружаем Waybar для 100% применения новых цветов и скруглений
         pkill -USR2 waybar 2>/dev/null || true
+        ( pkill -x waybar 2>/dev/null; sleep 0.15; waybar &>/dev/null & ) &
     fi
 
-    # 3. Kitty конфиг темы
+    # 3. Kitty конфиг темы (копируем файл напрямую, исключая сбои относительных путей)
     if [[ -f "$kitty_theme" ]]; then
-        echo "include ./themes/${theme_key}.conf" > "$KITTY_DIR/theme.conf"
-        # Перезагружаем открытые терминалы Kitty
-        pkill -SIGUSR1 kitty 2>/dev/null || true
+        cp -f "$kitty_theme" "$KITTY_DIR/theme.conf"
+        # 1. Мгновенное обновление через remote-control
+        kitty @ set-colors --all "$KITTY_DIR/theme.conf" 2>/dev/null || true
+        # 2. Сигнал SIGUSR1 всем запущенным процессам Kitty
+        pkill -SIGUSR1 -x kitty 2>/dev/null || true
+        pkill -SIGUSR1 -f kitty 2>/dev/null || true
     fi
 
     # 4. Сохраняем активную тему

@@ -2,11 +2,14 @@
 """
 Hyprland Sidebar — боковая панель управления (GtkLayerShell)
 Win+P → SIGUSR1 → быстрое открытие/закрытие
-Поддерживает: переключение языков (EN/RU), компактный плеер,
-анимированный эквалайзер, регуляторы громкости и яркости,
-выбор аудиовыхода (куда выводить звук) и расширенный набор тем.
+Включает:
+- Локализацию (EN / RU)
+- Компактный плеер со встроенным регулятором громкости
+- Надежное переключение устройств вывода звука (динамики / наушники / Bluetooth / HDMI)
+- Регулятор яркости
+- Режимы окон, Waybar позицию, галерею обоев, темы оформления
 """
-import gi, os, sys, signal, subprocess, glob, threading, time, json, random, re
+import gi, os, sys, signal, subprocess, glob, threading, time, json, re
 
 gi.require_version("Gtk",          "3.0")
 gi.require_version("GdkPixbuf",    "2.0")
@@ -42,11 +45,11 @@ LOCALES = {
         "mode_tiling_desc": "Automatic dynamic tiling",
         "mode_monocle_desc": "Maximize window, keep Waybar visible",
         "mode_windows_desc": "Floating stacking windows like Windows",
-        "music_title": "NOW PLAYING",
-        "drawer_btn": "🎚 Controls & Audio Output",
-        "vol_label": "🔊 Volume",
-        "bright_label": "☀️ Brightness",
-        "output_label": "🎧 Audio Output",
+        "music_title": "NOW PLAYING & VOLUME",
+        "output_title": "AUDIO OUTPUT DEVICE",
+        "output_connected": "Connected:",
+        "refresh_btn": "🔄 Refresh",
+        "bright_title": "BRIGHTNESS",
         "wireless_title": "CONNECTIVITY",
         "wifi": "󰤨  Wi-Fi",
         "bt": "󰂯  Bluetooth",
@@ -70,11 +73,11 @@ LOCALES = {
         "mode_tiling_desc": "Автоматическое разделение окон",
         "mode_monocle_desc": "Окна развернуты на экран, Waybar виден",
         "mode_windows_desc": "Плавающие окна, свободное перемещение",
-        "music_title": "МУЗЫКА",
-        "drawer_btn": "🎚 Управление и вывод звука",
-        "vol_label": "🔊 Громкость",
-        "bright_label": "☀️ Яркость",
-        "output_label": "🎧 Вывод звука",
+        "music_title": "МУЗЫКА И ГРОМКОСТЬ",
+        "output_title": "ВЫВОД ЗВУКА",
+        "output_connected": "Подключено:",
+        "refresh_btn": "🔄 Обновить",
+        "bright_title": "ЯРКОСТЬ",
         "wireless_title": "БЕСПРОВОДНАЯ СВЯЗЬ",
         "wifi": "󰤨  Wi-Fi",
         "bt": "󰂯  Bluetooth",
@@ -97,18 +100,29 @@ def get_current_lang():
             if l in LOCALES: return l
     except Exception:
         pass
-    return "en"
+    return "ru"
 
-# ─── 4 Основных стиля с расширенными подстилями ─────────────────────────────
+# ─── Стили оформления ────────────────────────────────────────────────────────
 STYLE_GROUPS = [
     {
-        "title_en": "⬛  TOTAL BLACK",
-        "title_ru": "⬛  ЧЁРНЫЙ СТИЛЬ (FULL BLACK)",
+        "title_en": "⬛  TOTAL BLACK (OLED)",
+        "title_ru": "⬛  ЧЁРНЫЙ СТИЛЬ (TOTAL BLACK)",
         "category": "black",
         "styles": [
-            ("solid",   "⬛ Pure OLED Black",    "⬛ Чистый OLED",      "100% solid, zero blur, maximum contrast"),
-            ("stealth", "🌑 Matte Stealth",      "🌑 Графитовый",       "Matte dark with soft ambient blur"),
+            ("solid",   "⬛ Pure OLED Black",    "⬛ Чистый OLED",      "100% solid pitch black, zero blur"),
+            ("stealth", "🌑 Matte Stealth",      "🌑 Графитовый",       "Matte dark graphite with subtle blur"),
             ("glass",   "🧊 Smoked Glass",       "🧊 Дымчатое стекло",  "Smoked obsidian glass with deep blur"),
+        ]
+    },
+    {
+        "title_en": "🍎  APPLE MACOS / IOS",
+        "title_ru": "🍎  APPLE MACOS / IOS",
+        "category": "macos",
+        "styles": [
+            ("pitch_dark", "🖤 macOS / iOS Total Black", "🖤 macOS Total Black (OLED)", "Pitch black OLED with crisp dark-white symbols"),
+            ("glass",      "💎 macOS Liquid Glass",       "💎 macOS Стекло (Glass)",      "Full transparency, 4-pass blur, floating island"),
+            ("dark",       "🌘 macOS Dark Glass",         "🌘 macOS Темная Sonoma",       "Sonoma dark frosted glass aesthetic"),
+            ("light",      "🌖 macOS Light Glass",        "🌖 macOS Светлая",             "Cupertino frosted light glass"),
         ]
     },
     {
@@ -119,17 +133,6 @@ STYLE_GROUPS = [
             ("clean", "⬜ Snow Clean",           "⬜ Чистый белый",      "High-contrast minimalist bright white"),
             ("glass", "🥛 Frosted Glass",        "🥛 Белое стекло",      "Frosted acrylic glass with soft glow"),
             ("latte", "☕ Catppuccin Latte",     "☕ Catppuccin Latte",  "Soothing warm pastel cream aesthetic"),
-        ]
-    },
-    {
-        "title_en": "🍎  APPLE MACOS (CUPERTINO)",
-        "title_ru": "🍎  APPLE MACOS (CUPERTINO)",
-        "category": "macos",
-        "styles": [
-            ("glass",      "💎 macOS Liquid Glass", "💎 macOS Стекло (Glass)", "Full transparency, 4-pass blur, floating island"),
-            ("pitch_dark", "🖤 macOS Pitch Dark",   "🖤 macOS Full Dark",      "Pitch black glass with muted dark-white symbols"),
-            ("dark",       "🌘 macOS Dark Glass",   "🌘 macOS Темная Sonoma",  "Sonoma dark frosted glass aesthetic"),
-            ("light",      "🌖 macOS Light Glass",  "🌖 macOS Светлая",        "Cupertino frosted light glass"),
         ]
     },
     {
@@ -147,17 +150,17 @@ STYLE_GROUPS = [
 GTK_CSS = """
 * { transition: none; font-family: "JetBrainsMono Nerd Font", "SF Pro Display", sans-serif; }
 window {
-    background-color: rgba(10, 10, 13, 0.96);
+    background-color: #000000;
     color: #d0d0d5;
     border-radius: 16px;
-    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    border-left: 1px solid #1a1a1e;
 }
 .root-box { background-color: transparent; }
 .section-label {
     color: #6a7080;
     font-size: 10px;
     font-weight: bold;
-    padding: 8px 2px 4px 2px;
+    padding: 7px 2px 3px 2px;
     letter-spacing: 1.2px;
 }
 .header-label {
@@ -167,22 +170,22 @@ window {
     padding: 4px 2px;
 }
 .lang-btn {
-    background-color: #1a1c24;
+    background-color: #141418;
     color: #64b5f6;
-    border-radius: 12px;
-    border: 1px solid #283448;
+    border-radius: 10px;
+    border: 1px solid #222530;
     padding: 2px 10px;
     font-size: 11px;
     font-weight: bold;
 }
-.lang-btn:hover { background-color: #242c3d; color: #ffffff; }
+.lang-btn:hover { background-color: #1e2230; color: #ffffff; }
 
-/* Компактный плеер */
+/* Плеер со встроенной громкостью */
 .player-box {
-    background-color: #121318;
-    border-radius: 10px;
-    border: 1px solid #1f212a;
-    padding: 6px 10px;
+    background-color: #0a0a0c;
+    border-radius: 12px;
+    border: 1px solid #1a1a20;
+    padding: 8px 10px 6px 10px;
     margin: 2px 0px 4px 0px;
 }
 .player-title {
@@ -201,57 +204,38 @@ window {
     border-radius: 14px;
     padding: 2px 6px;
     font-size: 13px;
-    min-width: 28px;
-    min-height: 28px;
+    min-width: 26px;
+    min-height: 26px;
 }
 .player-btn:hover {
-    background-color: #222532;
+    background-color: #1c1e28;
     color: #ffffff;
 }
 .player-btn.play {
     color: #ffffff;
     font-size: 15px;
 }
-
-/* Эквалайзер */
-.eq-box {
-    padding: 2px 0 4px 0;
+.vol-row {
+    margin-top: 4px;
+    padding-top: 4px;
+    border-top: 1px solid #14141a;
 }
-.eq-bar {
-    background-color: #388bfd;
-    border-radius: 2px;
-    min-width: 4px;
-    margin: 0 2px;
+.vol-mute-btn {
+    background-color: transparent;
+    color: #8c90a0;
+    border: none;
+    font-size: 13px;
+    padding: 0 4px;
 }
-
-/* Выдвижная панель управления плеера */
-.drawer-btn {
-    background-color: #151720;
-    color: #8c92a4;
-    border-radius: 8px;
-    border: 1px solid #222532;
-    padding: 4px 8px;
-    font-size: 11px;
-    margin: 2px 0 4px 0;
-}
-.drawer-btn:hover {
-    background-color: #1e202d;
-    color: #ffffff;
-}
-.drawer-content {
-    background-color: #111217;
-    border-radius: 10px;
-    border: 1px solid #1c1e26;
-    padding: 8px 10px;
-    margin: 2px 0 6px 0;
-}
-.control-label {
+.vol-mute-btn:hover { color: #ffffff; }
+.vol-lbl {
     font-size: 10px;
-    color: #8a90a0;
+    color: #7b8090;
     font-weight: bold;
+    min-width: 32px;
 }
 scale trough {
-    background-color: #1f222c;
+    background-color: #1a1a22;
     border-radius: 4px;
     min-height: 5px;
 }
@@ -260,83 +244,118 @@ scale highlight {
     border-radius: 4px;
 }
 
+/* Карточка аудиовыхода */
+.sink-box {
+    background-color: #0a0a0c;
+    border-radius: 12px;
+    border: 1px solid #1a1a20;
+    padding: 8px 10px;
+    margin: 2px 0 4px 0;
+}
+.sink-status-lbl {
+    font-size: 10px;
+    color: #4da3ff;
+    padding-top: 4px;
+}
+.sink-refresh-btn {
+    background-color: #14141a;
+    color: #8c90a0;
+    border-radius: 6px;
+    border: 1px solid #22222a;
+    padding: 3px 8px;
+    font-size: 10px;
+}
+.sink-refresh-btn:hover {
+    background-color: #1e202a;
+    color: #ffffff;
+}
+
+/* Карточка яркости */
+.bright-box {
+    background-color: #0a0a0c;
+    border-radius: 12px;
+    border: 1px solid #1a1a20;
+    padding: 6px 10px;
+    margin: 2px 0 4px 0;
+}
+
 /* Переключатели Wi-Fi / BT */
 .toggle-btn {
-    background-color: #13141a;
+    background-color: #0a0a0c;
     color: #8c90a0;
-    border-radius: 9px;
-    border: 1px solid #20222a;
+    border-radius: 10px;
+    border: 1px solid #1a1a20;
     padding: 6px;
     font-size: 11px;
-    min-height: 48px;
+    min-height: 44px;
 }
-.toggle-btn:hover { background-color: #1b1c24; color: #cccccc; }
+.toggle-btn:hover { background-color: #14141a; color: #cccccc; }
 .toggle-btn.on {
-    background-color: #102416;
+    background-color: #0d2212;
     color: #44dd66;
-    border: 1px solid #1e4428;
+    border: 1px solid #1a4022;
 }
 .toggle-btn.on-airplane {
-    background-color: #281a08;
+    background-color: #261805;
     color: #ffaa00;
-    border: 1px solid #503300;
+    border: 1px solid #482f00;
 }
 .toggle-btn.on-power {
-    background-color: #081d2e;
+    background-color: #061928;
     color: #33aaff;
-    border: 1px solid #104060;
+    border: 1px solid #0d3855;
 }
 
 /* Режимы окон */
 .mode-btn {
-    background-color: #13141a;
+    background-color: #0a0a0c;
     color: #9da2b0;
     border-radius: 8px;
-    border: 1px solid #20222a;
+    border: 1px solid #1a1a20;
     padding: 6px 8px;
     font-size: 11px;
     min-height: 32px;
 }
-.mode-btn:hover { background-color: #1e202a; color: #ffffff; }
+.mode-btn:hover { background-color: #161822; color: #ffffff; }
 .mode-btn.active-mode {
-    background-color: #0d2847;
+    background-color: #0c243f;
     color: #4da3ff;
-    border: 1px solid #1a5bb0;
+    border: 1px solid #164f99;
     font-weight: bold;
 }
 
 /* Темы */
 .theme-btn {
-    background-color: #13141a;
+    background-color: #0a0a0c;
     color: #a0a5b5;
     border-radius: 8px;
-    border: 1px solid #20222a;
+    border: 1px solid #1a1a20;
     padding: 6px 10px;
     font-size: 12px;
     min-height: 32px;
 }
-.theme-btn:hover { background-color: #1c1e28; color: #ffffff; }
+.theme-btn:hover { background-color: #161822; color: #ffffff; }
 .theme-btn.active-theme {
-    background-color: #162a4a;
+    background-color: #132238;
     color: #64b5f6;
-    border: 1px solid #2b5c9e;
+    border: 1px solid #244c82;
     font-weight: bold;
 }
 
 /* Waybar позиция */
 .pos-btn {
-    background-color: #13141a;
+    background-color: #0a0a0c;
     color: #8c90a0;
     border-radius: 6px;
-    border: 1px solid #20222a;
+    border: 1px solid #1a1a20;
     padding: 5px 8px;
     font-size: 11px;
 }
-.pos-btn:hover { background-color: #1c1e28; color: #ffffff; }
+.pos-btn:hover { background-color: #161822; color: #ffffff; }
 .pos-btn.active-pos {
-    background-color: #222532;
+    background-color: #181a24;
     color: #ffffff;
-    border: 1px solid #3d4455;
+    border: 1px solid #2d3240;
 }
 
 /* Обои */
@@ -346,10 +365,10 @@ scale highlight {
     border: 2px solid transparent;
     background-color: transparent;
 }
-.wp-btn:hover { border-color: #444c5c; }
+.wp-btn:hover { border-color: #383c48; }
 .wp-btn.active-wp { border-color: #4da3ff; }
 scrollbar { background-color: transparent; min-width: 4px; }
-scrollbar slider { background-color: #2a2e3a; border-radius: 3px; min-width: 4px; }
+scrollbar slider { background-color: #222530; border-radius: 3px; min-width: 4px; }
 """
 
 # ─── Вспомогательные функции ─────────────────────────────────────────────────
@@ -453,18 +472,31 @@ def toggle_power_saver():
     if p == "power-saver": run_bg("powerprofilesctl set balanced")
     else: run_bg("powerprofilesctl set power-saver")
 
-# ─── Аудио и Яркость ─────────────────────────────────────────────────────────
+# ─── Аудио и Яркость (через audio_output.sh) ─────────────────────────────────
 def get_volume():
-    try:
-        out = run_out("pactl get-sink-volume @DEFAULT_SINK@")
-        m = re.search(r'(\d+)%', out)
-        if m: return int(m.group(1))
-    except Exception:
-        pass
-    return 50
+    out = run_out(f'bash "{SCRIPTS_DIR}/audio_output.sh" volume')
+    try: return int(out)
+    except: return 50
 
 def set_volume(val):
-    run_bg(f"pactl set-sink-volume @DEFAULT_SINK@ {int(val)}%")
+    run_bg(f'bash "{SCRIPTS_DIR}/audio_output.sh" set_vol {int(val)}')
+
+def is_audio_muted():
+    return run_out(f'bash "{SCRIPTS_DIR}/audio_output.sh" is_muted') == "true"
+
+def toggle_audio_mute():
+    run_bg(f'bash "{SCRIPTS_DIR}/audio_output.sh" mute')
+
+def get_audio_sinks():
+    out = run_out(f'bash "{SCRIPTS_DIR}/audio_output.sh" list')
+    try: return json.loads(out)
+    except: return []
+
+def get_default_sink():
+    return run_out(f'bash "{SCRIPTS_DIR}/audio_output.sh" default')
+
+def switch_audio_sink(sink_name):
+    run_bg(f'bash "{SCRIPTS_DIR}/audio_output.sh" set "{sink_name}"')
 
 def get_brightness():
     try:
@@ -478,33 +510,8 @@ def get_brightness():
 def set_brightness(val):
     run_bg(f"brightnessctl set {int(val)}%")
 
-def get_audio_sinks():
-    """Возвращает список (sink_name, friendly_desc)"""
-    try:
-        out = run_out("pactl list sinks")
-        sinks = []
-        cur_name, cur_desc = None, None
-        for line in out.splitlines():
-            line = line.strip()
-            if line.startswith("Name:"):
-                cur_name = line.split(":", 1)[1].strip()
-            elif line.startswith("Description:"):
-                cur_desc = line.split(":", 1)[1].strip()
-                if cur_name and cur_desc:
-                    sinks.append((cur_name, cur_desc))
-                    cur_name, cur_desc = None, None
-        return sinks
-    except Exception:
-        return []
-
-def get_default_sink():
-    return run_out("pactl get-default-sink")
-
-def switch_audio_sink(sink_name):
-    run_bg(f"pactl set-default-sink '{sink_name}'; for i in $(pactl list short sink-inputs 2>/dev/null | cut -f1); do pactl move-sink-input $i '{sink_name}' 2>/dev/null; done")
-
 # ─── Плеер ───────────────────────────────────────────────────────────────────
-def player_get_title(lang="en"):
+def player_get_title(lang="ru"):
     no_m = LOCALES[lang]["no_music"]
     return run_out("playerctl metadata title 2>/dev/null") or no_m
 
@@ -528,13 +535,14 @@ class Sidebar:
         self._player_title_lbl  = None
         self._player_artist_lbl = None
         self._play_btn          = None
-        self._eq_bars           = []
-        self._drawer_box        = None
-        self._sink_combo        = None
         self._vol_scale         = None
+        self._vol_lbl           = None
+        self._vol_mute_btn      = None
+        self._sink_combo        = None
+        self._sink_status_lbl   = None
         self._bright_scale      = None
+        self._bright_lbl        = None
         self._refresh_timer     = None
-        self._eq_timer          = None
 
         self.window = Gtk.Window(type=Gtk.WindowType.TOPLEVEL)
         self.window.set_title("sidebar")
@@ -566,9 +574,7 @@ class Sidebar:
         self._build_ui()
         self.window.show_all()
 
-        # Таймеры
         self._refresh_timer = GLib.timeout_add(3000, self._refresh_dynamic)
-        self._eq_timer = GLib.timeout_add(150, self._animate_eq)
 
     def toggle(self):
         GLib.idle_add(self._do_toggle)
@@ -596,18 +602,6 @@ class Sidebar:
             pass
         Gtk.main_quit()
 
-    # Анимация эквалайзера
-    def _animate_eq(self):
-        status = player_get_status()
-        is_playing = (status == "Playing")
-        for bar in self._eq_bars:
-            if is_playing:
-                h = random.randint(4, 20)
-            else:
-                h = 3
-            bar.set_size_request(4, h)
-        return True
-
     def _refresh_dynamic(self):
         def _do():
             title  = player_get_title(self.lang)
@@ -625,25 +619,26 @@ class Sidebar:
             theme = get_active_theme()
             pos = get_waybar_pos()
             vol = get_volume()
+            muted = is_audio_muted()
             bright = get_brightness()
             sinks = get_audio_sinks()
             def_sink = get_default_sink()
 
-            GLib.idle_add(self._update_states_ui, states, mode, theme, pos, vol, bright, sinks, def_sink)
+            GLib.idle_add(self._update_states_ui, states, mode, theme, pos, vol, muted, bright, sinks, def_sink)
         threading.Thread(target=_do, daemon=True).start()
         return True
 
     def _update_player_ui(self, title, artist, status):
         if self._player_title_lbl:
-            self._player_title_lbl.set_text(title[:30] + "…" if len(title) > 30 else title)
+            self._player_title_lbl.set_text(title[:26] + "…" if len(title) > 26 else title)
         if self._player_artist_lbl:
-            self._player_artist_lbl.set_text(artist[:28] if artist else "")
+            self._player_artist_lbl.set_text(artist[:24] if artist else "")
         if self._play_btn:
             icon = "⏸" if status == "Playing" else "▶"
             self._play_btn.set_label(icon)
         return False
 
-    def _update_states_ui(self, states, active_mode, active_theme, waybar_pos, vol, bright, sinks, def_sink):
+    def _update_states_ui(self, states, active_mode, active_theme, waybar_pos, vol, muted, bright, sinks, def_sink):
         # Toggles
         mapping = {
             "wifi":     ("wifi",     "on"),
@@ -654,8 +649,7 @@ class Sidebar:
         for key, (bname, cls_on) in mapping.items():
             btn = self._tog_btns.get(bname)
             if not btn: continue
-            if states.get(key):
-                btn.get_style_context().add_class(cls_on)
+            if states.get(key): btn.get_style_context().add_class(cls_on)
             else:
                 btn.get_style_context().remove_class("on")
                 btn.get_style_context().remove_class("on-airplane")
@@ -676,22 +670,34 @@ class Sidebar:
             if p_name == waybar_pos: btn.get_style_context().add_class("active-pos")
             else: btn.get_style_context().remove_class("active-pos")
 
-        # Ползунки
+        # Громкость
         if self._vol_scale and not self._vol_scale.has_grab():
             self._vol_scale.set_value(vol)
+        if self._vol_lbl:
+            self._vol_lbl.set_text(f"{vol}%")
+        if self._vol_mute_btn:
+            self._vol_mute_btn.set_label("󰝟" if muted else "󰕾")
+
+        # Яркость
         if self._bright_scale and not self._bright_scale.has_grab():
             self._bright_scale.set_value(bright)
+        if self._bright_lbl:
+            self._bright_lbl.set_text(f"{bright}%")
 
-        # Выбор аудиовыхода
+        # Аудиовыходы
         if self._sink_combo and sinks:
             self._sink_combo.handler_block_by_func(self._on_sink_changed)
             self._sink_combo.remove_all()
             active_idx = 0
-            for i, (s_name, s_desc) in enumerate(sinks):
-                clean_desc = s_desc[:30]
-                self._sink_combo.append(s_name, clean_desc)
+            for i, s in enumerate(sinks):
+                s_name = s.get("name", "")
+                s_desc = s.get("desc", s_name)
+                self._sink_combo.append(s_name, s_desc[:30])
                 if s_name == def_sink:
                     active_idx = i
+                    if self._sink_status_lbl:
+                        conn_txt = LOCALES[self.lang]["output_connected"]
+                        self._sink_status_lbl.set_text(f"● {conn_txt} {s.get('raw_desc', s_name)[:26]}")
             self._sink_combo.set_active(active_idx)
             self._sink_combo.handler_unblock_by_func(self._on_sink_changed)
 
@@ -725,23 +731,31 @@ class Sidebar:
         root.pack_start(self._lbl(t["modes_title"]), False, False, 0)
         root.pack_start(self._make_window_modes(t), False, False, 0)
 
-        # 2. Плеер и выдвижное управление
+        # 2. Плеер со встроенным регулятором громкости
         root.pack_start(self._lbl(t["music_title"]), False, False, 0)
         root.pack_start(self._make_player(t), False, False, 0)
 
-        # 3. Переключатели Wi-Fi / BT
+        # 3. Выбор устройства вывода звука
+        root.pack_start(self._lbl(t["output_title"]), False, False, 0)
+        root.pack_start(self._make_audio_sinks(t), False, False, 0)
+
+        # 4. Яркость
+        root.pack_start(self._lbl(t["bright_title"]), False, False, 0)
+        root.pack_start(self._make_brightness(), False, False, 0)
+
+        # 5. Переключатели Wi-Fi / BT
         root.pack_start(self._lbl(t["wireless_title"]), False, False, 0)
         root.pack_start(self._make_toggles(t), False, False, 0)
 
-        # 4. Waybar позиция
+        # 6. Waybar позиция
         root.pack_start(self._lbl(t["waybar_title"]), False, False, 0)
         root.pack_start(self._make_waybar_pos(t), False, False, 0)
 
-        # 5. Обои
+        # 7. Обои
         root.pack_start(self._lbl(t["wp_title"]), False, False, 0)
         root.pack_start(self._make_wallpapers(), False, False, 0)
 
-        # 6. Стили и Темы
+        # 8. Стили и Темы
         root.pack_start(self._lbl(t["themes_title"]), False, False, 0)
         root.pack_start(self._make_themes(), True, True, 0)
 
@@ -754,7 +768,7 @@ class Sidebar:
         return l
 
     def _toggle_lang(self, _):
-        new_l = "ru" if self.lang == "en" else "en"
+        new_l = "en" if self.lang == "ru" else "ru"
         open(LANG_FILE, "w").write(new_l)
         run_bg(f'bash "{SCRIPTS_DIR}/lang_ctl.sh" set {new_l}')
 
@@ -789,17 +803,14 @@ class Sidebar:
         btn.get_style_context().add_class("active-mode")
         run_bg(f'bash "{SCRIPTS_DIR}/window_mode.sh" {m_key}')
 
-    # ─── 2. Компактный плеер + Выдвижной эквалайзер и управление ──────────────
+    # ─── 2. Плеер со встроенным регулятором громкости (без эквалайзера) ────────
     def _make_player(self, t):
-        main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=3)
-
-        # Компактный верхний блок плеера
-        pbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=3)
+        pbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
         pbox.get_style_context().add_class("player-box")
 
+        # 1-я строка: Название трека + управление (⏮ ▶ ⏭)
         top_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
 
-        # Тексты трека
         info_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=1)
         self._player_title_lbl = Gtk.Label(label=player_get_title(self.lang), xalign=0)
         self._player_title_lbl.get_style_context().add_class("player-title")
@@ -815,7 +826,6 @@ class Sidebar:
         info_box.pack_start(self._player_artist_lbl, False, False, 0)
         top_row.pack_start(info_box, True, True, 0)
 
-        # Кнопки управления (⏮ ▶ ⏭)
         ctrl = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         status = player_get_status()
         play_icon = "⏸" if status == "Playing" else "▶"
@@ -836,74 +846,111 @@ class Sidebar:
         top_row.pack_end(ctrl, False, False, 0)
         pbox.pack_start(top_row, False, False, 0)
 
-        # Анимированный эквалайзер
-        eq_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
-        eq_row.get_style_context().add_class("eq-box")
-        eq_row.set_halign(Gtk.Align.CENTER)
-        self._eq_bars = []
-        for _ in range(12):
-            b = Gtk.Box()
-            b.get_style_context().add_class("eq-bar")
-            b.set_size_request(4, 4)
-            eq_row.pack_start(b, False, False, 0)
-            self._eq_bars.append(b)
-        pbox.pack_start(eq_row, False, False, 0)
+        # 2-я строка: Встроенная громкость (вместо эквалайзера)
+        vol_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        vol_row.get_style_context().add_class("vol-row")
 
-        main_box.pack_start(pbox, False, False, 0)
+        self._vol_mute_btn = Gtk.Button(label="󰕾")
+        self._vol_mute_btn.get_style_context().add_class("vol-mute-btn")
+        self._vol_mute_btn.connect("clicked", self._on_mute_clicked)
+        vol_row.pack_start(self._vol_mute_btn, False, False, 0)
 
-        # Кнопка выдвижной панели (Drawer)
-        drawer_btn = Gtk.Button(label=t["drawer_btn"])
-        drawer_btn.get_style_context().add_class("drawer-btn")
-        main_box.pack_start(drawer_btn, False, False, 0)
-
-        # Выдвижная панель (Громкость, Яркость, Аудиовыход)
-        drawer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
-        drawer.get_style_context().add_class("drawer-content")
-        drawer.set_no_show_all(True)
-        drawer.hide()
-
-        drawer_btn.connect("clicked", lambda _: drawer.set_visible(not drawer.get_visible()))
-
-        # 1. Громкость
-        drawer.pack_start(Gtk.Label(label=t["vol_label"], xalign=0), False, False, 0)
-        vol_adj = Gtk.Adjustment(value=get_volume(), lower=0, upper=100, step_increment=2, page_increment=10)
+        cur_vol = get_volume()
+        vol_adj = Gtk.Adjustment(value=cur_vol, lower=0, upper=100, step_increment=2, page_increment=10)
         self._vol_scale = Gtk.Scale(orientation=Gtk.Orientation.HORIZONTAL, adjustment=vol_adj)
         self._vol_scale.set_draw_value(False)
-        self._vol_scale.connect("value-changed", lambda s: set_volume(s.get_value()))
-        drawer.pack_start(self._vol_scale, False, False, 0)
+        self._vol_scale.connect("value-changed", self._on_vol_changed)
+        vol_row.pack_start(self._vol_scale, True, True, 0)
 
-        # 2. Яркость
-        drawer.pack_start(Gtk.Label(label=t["bright_label"], xalign=0), False, False, 0)
-        bright_adj = Gtk.Adjustment(value=get_brightness(), lower=5, upper=100, step_increment=2, page_increment=10)
-        self._bright_scale = Gtk.Scale(orientation=Gtk.Orientation.HORIZONTAL, adjustment=bright_adj)
-        self._bright_scale.set_draw_value(False)
-        self._bright_scale.connect("value-changed", lambda s: set_brightness(s.get_value()))
-        drawer.pack_start(self._bright_scale, False, False, 0)
+        self._vol_lbl = Gtk.Label(label=f"{cur_vol}%", xalign=1)
+        self._vol_lbl.get_style_context().add_class("vol-lbl")
+        vol_row.pack_end(self._vol_lbl, False, False, 0)
 
-        # 3. Выбор аудиовыхода (куда выводить звук)
-        drawer.pack_start(Gtk.Label(label=t["output_label"], xalign=0), False, False, 0)
+        pbox.pack_start(vol_row, False, False, 0)
+        return pbox
+
+    def _on_vol_changed(self, scale):
+        val = int(scale.get_value())
+        if self._vol_lbl: self._vol_lbl.set_text(f"{val}%")
+        set_volume(val)
+
+    def _on_mute_clicked(self, _):
+        toggle_audio_mute()
+        time.sleep(0.15)
+        m = is_audio_muted()
+        if self._vol_mute_btn:
+            self._vol_mute_btn.set_label("󰝟" if m else "󰕾")
+
+    # ─── 3. Выбор устройства вывода звука (Надежное переключение) ─────────────
+    def _make_audio_sinks(self, t):
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+        box.get_style_context().add_class("sink-box")
+
+        row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
         self._sink_combo = Gtk.ComboBoxText()
+        row.pack_start(self._sink_combo, True, True, 0)
+
+        ref_btn = Gtk.Button(label=t["refresh_btn"])
+        ref_btn.get_style_context().add_class("sink-refresh-btn")
+        ref_btn.connect("clicked", lambda _: self._refresh_dynamic())
+        row.pack_end(ref_btn, False, False, 0)
+        box.pack_start(row, False, False, 0)
+
+        self._sink_status_lbl = Gtk.Label(label="", xalign=0)
+        self._sink_status_lbl.get_style_context().add_class("sink-status-lbl")
+        box.pack_start(self._sink_status_lbl, False, False, 0)
+
         sinks = get_audio_sinks()
         def_s = get_default_sink()
         active_idx = 0
-        for i, (s_name, s_desc) in enumerate(sinks):
+        for i, s in enumerate(sinks):
+            s_name = s.get("name", "")
+            s_desc = s.get("desc", s_name)
             self._sink_combo.append(s_name, s_desc[:30])
             if s_name == def_s:
                 active_idx = i
+                conn_txt = t["output_connected"]
+                self._sink_status_lbl.set_text(f"● {conn_txt} {s.get('raw_desc', s_name)[:26]}")
         if sinks:
             self._sink_combo.set_active(active_idx)
         self._sink_combo.connect("changed", self._on_sink_changed)
-        drawer.pack_start(self._sink_combo, False, False, 0)
 
-        main_box.pack_start(drawer, False, False, 0)
-        return main_box
+        return box
 
     def _on_sink_changed(self, combo):
         sink_name = combo.get_active_id()
         if sink_name:
             switch_audio_sink(sink_name)
+            time.sleep(0.2)
+            self._refresh_dynamic()
 
-    # ─── 3. Переключатели ────────────────────────────────────────────────────
+    # ─── 4. Регулятор яркости ────────────────────────────────────────────────
+    def _make_brightness(self):
+        box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        box.get_style_context().add_class("bright-box")
+
+        icon_lbl = Gtk.Label(label="☀️")
+        box.pack_start(icon_lbl, False, False, 0)
+
+        cur_b = get_brightness()
+        bright_adj = Gtk.Adjustment(value=cur_b, lower=5, upper=100, step_increment=2, page_increment=10)
+        self._bright_scale = Gtk.Scale(orientation=Gtk.Orientation.HORIZONTAL, adjustment=bright_adj)
+        self._bright_scale.set_draw_value(False)
+        self._bright_scale.connect("value-changed", self._on_bright_changed)
+        box.pack_start(self._bright_scale, True, True, 0)
+
+        self._bright_lbl = Gtk.Label(label=f"{cur_b}%", xalign=1)
+        self._bright_lbl.get_style_context().add_class("vol-lbl")
+        box.pack_end(self._bright_lbl, False, False, 0)
+
+        return box
+
+    def _on_bright_changed(self, scale):
+        val = int(scale.get_value())
+        if self._bright_lbl: self._bright_lbl.set_text(f"{val}%")
+        set_brightness(val)
+
+    # ─── 5. Переключатели Wi-Fi / BT ─────────────────────────────────────────
     def _make_toggles(self, t):
         grid = Gtk.Grid()
         grid.set_row_spacing(4); grid.set_column_spacing(4)
@@ -934,7 +981,7 @@ class Sidebar:
 
         return grid
 
-    # ─── 4. Waybar Позиция ───────────────────────────────────────────────────
+    # ─── 6. Waybar Позиция ───────────────────────────────────────────────────
     def _make_waybar_pos(self, t):
         box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
         box.set_margin_top(2); box.set_margin_bottom(4)
@@ -963,15 +1010,15 @@ class Sidebar:
         btn.get_style_context().add_class("active-pos")
         run_bg(f'bash "{SCRIPTS_DIR}/waybar_position.sh" {p_key}')
 
-    # ─── 5. Обои ─────────────────────────────────────────────────────────────
+    # ─── 7. Обои ─────────────────────────────────────────────────────────────
     def _make_wallpapers(self):
         wallpapers  = get_wallpapers()
         current_idx = get_current_wp_index()
 
         sw = Gtk.ScrolledWindow()
         sw.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        sw.set_min_content_height(110)
-        sw.set_max_content_height(110)
+        sw.set_min_content_height(100)
+        sw.set_max_content_height(100)
 
         fb = Gtk.FlowBox()
         fb.set_max_children_per_line(3); fb.set_min_children_per_line(3)
@@ -1022,11 +1069,11 @@ class Sidebar:
         btn.get_style_context().add_class("active-wp")
         set_wallpaper(path, idx)
 
-    # ─── 6. Стили и Темы ─────────────────────────────────────────────────────
+    # ─── 8. Стили и Темы ─────────────────────────────────────────────────────
     def _make_themes(self):
         sw = Gtk.ScrolledWindow()
         sw.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        sw.set_min_content_height(300)
+        sw.set_min_content_height(280)
 
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
         box.set_margin_top(2); box.set_margin_bottom(10)
