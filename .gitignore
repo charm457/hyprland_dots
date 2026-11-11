@@ -1,0 +1,32 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor / IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# Hyprland / runtime
+.cache/
+*.pid
+*.log
+
+# Waybar
+waybar/style.css.bak
+waybar/config.bak
+
+# Hyprland backups
+hypr/*.bak
+hypr/*-bak*
+
+# Wallpapers (не включаем в репо — личные файлы)
+wallpapers/
