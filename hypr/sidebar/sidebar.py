@@ -576,22 +576,29 @@ class Sidebar:
         self.window.connect("destroy", self._quit)
         self.window.connect("key-press-event", self._on_key)
 
+        # Поддержка прозрачности/скругления углов без артефактов
+        screen = self.window.get_screen()
+        visual = screen.get_rgba_visual()
+        if visual and self.window.is_composited():
+            self.window.set_visual(visual)
+        self.window.set_app_paintable(True)
+
         # LayerShell
         GtkLayerShell.init_for_window(self.window)
         GtkLayerShell.set_layer(self.window, GtkLayerShell.Layer.TOP)
-        GtkLayerShell.set_anchor(self.window, GtkLayerShell.Edge.LEFT,   True)
-        GtkLayerShell.set_anchor(self.window, GtkLayerShell.Edge.RIGHT,  False)
+        GtkLayerShell.set_anchor(self.window, GtkLayerShell.Edge.LEFT,   False)
+        GtkLayerShell.set_anchor(self.window, GtkLayerShell.Edge.RIGHT,  True)
         GtkLayerShell.set_anchor(self.window, GtkLayerShell.Edge.TOP,    True)
         GtkLayerShell.set_anchor(self.window, GtkLayerShell.Edge.BOTTOM, True)
 
-        # Отступы: располагается строго ниже Waybar (тачбара), на том же уровне что и обычные окна
+        # Отступы: вылезает справа строго ниже Waybar (тачбара), на той же высоте что и обычные окна
         pos = get_waybar_pos()
         top_m = 52 if pos != "bottom" else 12
         bot_m = 52 if pos == "bottom" else 12
         GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.TOP,    top_m)
         GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.BOTTOM, bot_m)
-        GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.LEFT,   12)
-        GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.RIGHT,  0)
+        GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.RIGHT,  12)
+        GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.LEFT,   0)
 
         # Эксклюзивная зона: в скрытом состоянии 0
         GtkLayerShell.set_exclusive_zone(self.window, 0)
@@ -630,20 +637,24 @@ class Sidebar:
             pos = get_waybar_pos()
             top_m = 52 if pos != "bottom" else 12
             bot_m = 52 if pos == "bottom" else 12
+            GtkLayerShell.set_anchor(self.window, GtkLayerShell.Edge.LEFT,   False)
+            GtkLayerShell.set_anchor(self.window, GtkLayerShell.Edge.RIGHT,  True)
+            GtkLayerShell.set_anchor(self.window, GtkLayerShell.Edge.TOP,    True)
+            GtkLayerShell.set_anchor(self.window, GtkLayerShell.Edge.BOTTOM, True)
             GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.TOP,    top_m)
             GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.BOTTOM, bot_m)
-            GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.LEFT,   12)
-            GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.RIGHT,  0)
-            # При открытии слева резервируем 308px под сайдбар:
-            # Hyprland автоматически ужимает обычные окна вправо на том же уровне!
-            GtkLayerShell.set_exclusive_zone(self.window, 308)
+            GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.RIGHT,  12)
+            GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.LEFT,   0)
+            # При открытии справа резервируем 316px под сайдбар:
+            # Hyprland автоматически ужимает обычные окна влево, они не накладываются друг на друга и на сайдбар!
+            GtkLayerShell.set_exclusive_zone(self.window, 316)
             self._refresh_dynamic()
             self.window.show_all()
             self.visible = True
         return False
 
     def _on_key(self, w, event):
-        if event.keyval == Gdk.KEY_Escape:
+        if event.keyval in (Gdk.KEY_Escape,):
             GtkLayerShell.set_exclusive_zone(self.window, 0)
             self.window.hide()
             self.visible = False

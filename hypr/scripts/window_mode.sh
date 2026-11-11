@@ -44,8 +44,8 @@ set_tiling() {
     fi
 
     # Исключения для системных диалогов сохраняем в float
-    hyprctl keyword windowrulev2 "float 1, match:class ^(pavucontrol|blueman-manager|nm-connection-editor|wlogout)$" &>/dev/null || true
-    hyprctl keyword windowrulev2 "float 1, match:title ^(Open File|Save File|Choose Wallpaper)$" &>/dev/null || true
+    hyprctl keyword windowrulev2 "float, class:^(pavucontrol|blueman-manager|nm-connection-editor|wlogout)$" &>/dev/null || true
+    hyprctl keyword windowrulev2 "float, title:^(Open File|Save File|Choose Wallpaper)$" &>/dev/null || true
 
     if command -v notify-send &>/dev/null; then
         if [[ "$APP_LANG" == "en" ]]; then
