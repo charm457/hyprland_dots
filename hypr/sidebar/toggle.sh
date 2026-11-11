@@ -19,7 +19,7 @@ if [[ -f "$PID_FILE" ]]; then
     rm -f "$PID_FILE"
 fi
 
-# Демон не запущен — стартуем
+# Демон не запущен — стартуем с открытием
 if [[ -f "$SCRIPT" ]]; then
-    python3 "$SCRIPT" &>> /tmp/sidebar.log &
+    python3 "$SCRIPT" --show &>> /tmp/sidebar.log &
 fi

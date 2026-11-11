@@ -18,7 +18,7 @@ window#waybar {
 
 #custom-menu {
     font-size: 15px;
-    color: #0066cc;
+    color: #4ea8de;
     padding: 0 10px 0 12px;
 }
 
@@ -33,10 +33,10 @@ window#waybar {
 }
 
 #workspaces button.active {
-    color: #0066cc;
-    background: #e8f2ff;
+    color: #2b88c4;
+    background: #eef6fc;
     font-weight: bold;
-    border-bottom: 2px solid #0066cc;
+    border-bottom: 2px solid #4ea8de;
 }
 
 #workspaces button:hover {

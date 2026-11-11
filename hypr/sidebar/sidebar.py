@@ -240,7 +240,7 @@ scale trough {
     min-height: 5px;
 }
 scale highlight {
-    background-color: #388bfd;
+    background-color: #70c0ff;
     border-radius: 4px;
 }
 
@@ -254,7 +254,7 @@ scale highlight {
 }
 .sink-status-lbl {
     font-size: 10px;
-    color: #4da3ff;
+    color: #80d0ff;
     padding-top: 4px;
 }
 .sink-refresh-btn {
@@ -301,9 +301,9 @@ scale highlight {
     border: 1px solid #482f00;
 }
 .toggle-btn.on-power {
-    background-color: #061928;
-    color: #33aaff;
-    border: 1px solid #0d3855;
+    background-color: #0c1a26;
+    color: #80d0ff;
+    border: 1px solid #163650;
 }
 
 /* Режимы окон */
@@ -318,9 +318,9 @@ scale highlight {
 }
 .mode-btn:hover { background-color: #161822; color: #ffffff; }
 .mode-btn.active-mode {
-    background-color: #0c243f;
-    color: #4da3ff;
-    border: 1px solid #164f99;
+    background-color: #101c28;
+    color: #80d0ff;
+    border: 1px solid #204060;
     font-weight: bold;
 }
 
@@ -525,7 +525,7 @@ def player_get_status():
 # ─── Класс Sidebar ───────────────────────────────────────────────────────────
 class Sidebar:
     def __init__(self):
-        self.visible   = True
+        self.visible   = False
         self.lang      = get_current_lang()
         self._wp_btns  = []
         self._th_btns  = {}
@@ -555,10 +555,20 @@ class Sidebar:
         GtkLayerShell.set_anchor(self.window, GtkLayerShell.Edge.RIGHT,  True)
         GtkLayerShell.set_anchor(self.window, GtkLayerShell.Edge.TOP,    True)
         GtkLayerShell.set_anchor(self.window, GtkLayerShell.Edge.BOTTOM, True)
-        GtkLayerShell.set_exclusive_zone(self.window, 320)
+
+        # Отступы: располагается строго ниже Waybar (тачбара), чтобы вообще его не задевать
+        pos = get_waybar_pos()
+        top_m = 50 if pos != "bottom" else 12
+        bot_m = 50 if pos == "bottom" else 12
+        GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.TOP,    top_m)
+        GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.BOTTOM, bot_m)
+        GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.RIGHT,  12)
+        GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.LEFT,   0)
+
+        # Эксклюзивная зона: в скрытом состоянии 0
+        GtkLayerShell.set_exclusive_zone(self.window, 0)
         GtkLayerShell.set_namespace(self.window, "sidebar")
         GtkLayerShell.set_keyboard_mode(self.window, GtkLayerShell.KeyboardMode.ON_DEMAND)
-        GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.TOP, 0)
 
         try:
             self.window.set_wmclass("sidebar", "Sidebar")
@@ -572,7 +582,10 @@ class Sidebar:
             Gdk.Screen.get_default(), prov, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
         self._build_ui()
-        self.window.show_all()
+
+        # При старте демон запускается скрытым в фоне, открывается только по Win+P
+        if "--show" in sys.argv:
+            self.toggle()
 
         self._refresh_timer = GLib.timeout_add(3000, self._refresh_dynamic)
 
@@ -581,10 +594,20 @@ class Sidebar:
 
     def _do_toggle(self):
         if self.visible:
+            GtkLayerShell.set_exclusive_zone(self.window, 0)
             self.window.hide()
             self.visible = False
         else:
             self.lang = get_current_lang()
+            pos = get_waybar_pos()
+            top_m = 50 if pos != "bottom" else 12
+            bot_m = 50 if pos == "bottom" else 12
+            GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.TOP,    top_m)
+            GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.BOTTOM, bot_m)
+            GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.RIGHT,  12)
+            # При открытии резервируем ровно 292px под сайдбар,
+            # чтобы Hyprland тайлил окна слева и сайдбар вообще не закрывал приложение!
+            GtkLayerShell.set_exclusive_zone(self.window, 292)
             self._refresh_dynamic()
             self.window.show_all()
             self.visible = True
@@ -592,6 +615,7 @@ class Sidebar:
 
     def _on_key(self, w, event):
         if event.keyval == Gdk.KEY_Escape:
+            GtkLayerShell.set_exclusive_zone(self.window, 0)
             self.window.hide()
             self.visible = False
 
@@ -707,11 +731,11 @@ class Sidebar:
     def _build_ui(self):
         sw = Gtk.ScrolledWindow()
         sw.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        sw.set_size_request(310, -1)
+        sw.set_size_request(268, -1)
 
         root = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
         root.get_style_context().add_class("root-box")
-        root.set_border_width(12)
+        root.set_border_width(10)
 
         t = LOCALES[self.lang]
 

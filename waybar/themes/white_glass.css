@@ -18,7 +18,7 @@ window#waybar {
 
 #custom-menu {
     font-size: 15px;
-    color: #0070e0;
+    color: #5dade2;
     padding: 0 10px 0 14px;
 }
 
@@ -33,9 +33,9 @@ window#waybar {
 }
 
 #workspaces button.active {
-    color: #0070e0;
-    background: rgba(0, 112, 224, 0.12);
-    border: 1px solid rgba(0, 112, 224, 0.25);
+    color: #3b9cd9;
+    background: rgba(93, 173, 226, 0.15);
+    border: 1px solid rgba(93, 173, 226, 0.35);
 }
 #clock {
     color: #111115;
