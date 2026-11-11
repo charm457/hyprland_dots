@@ -150,12 +150,40 @@ STYLE_GROUPS = [
 GTK_CSS = """
 * { transition: none; font-family: "JetBrainsMono Nerd Font", "SF Pro Display", sans-serif; }
 window {
-    background-color: #000000;
+    background-color: #0c0c0e;
     color: #d0d0d5;
     border-radius: 16px;
-    border-left: 1px solid #1a1a1e;
+    border: 2px solid #282830;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.75);
 }
 .root-box { background-color: transparent; }
+
+/* Всегда видимая полоса прокрутки */
+scrollbar, scrollbar.vertical {
+    background-color: transparent;
+    border: none;
+    min-width: 8px;
+    margin: 4px 2px;
+}
+scrollbar trough, scrollbar.vertical trough {
+    background-color: rgba(255, 255, 255, 0.06);
+    border-radius: 6px;
+    min-width: 8px;
+}
+scrollbar slider, scrollbar.vertical slider {
+    background-color: rgba(255, 255, 255, 0.28);
+    border-radius: 6px;
+    min-width: 6px;
+    min-height: 36px;
+    margin: 1px;
+}
+scrollbar slider:hover, scrollbar.vertical slider:hover {
+    background-color: rgba(255, 255, 255, 0.45);
+}
+scrollbar slider:active, scrollbar.vertical slider:active {
+    background-color: #70c0ff;
+}
+
 .section-label {
     color: #6a7080;
     font-size: 10px;
@@ -552,18 +580,19 @@ class Sidebar:
         # LayerShell
         GtkLayerShell.init_for_window(self.window)
         GtkLayerShell.set_layer(self.window, GtkLayerShell.Layer.TOP)
-        GtkLayerShell.set_anchor(self.window, GtkLayerShell.Edge.RIGHT,  True)
+        GtkLayerShell.set_anchor(self.window, GtkLayerShell.Edge.LEFT,   True)
+        GtkLayerShell.set_anchor(self.window, GtkLayerShell.Edge.RIGHT,  False)
         GtkLayerShell.set_anchor(self.window, GtkLayerShell.Edge.TOP,    True)
         GtkLayerShell.set_anchor(self.window, GtkLayerShell.Edge.BOTTOM, True)
 
-        # Отступы: располагается строго ниже Waybar (тачбара), чтобы вообще его не задевать
+        # Отступы: располагается строго ниже Waybar (тачбара), на том же уровне что и обычные окна
         pos = get_waybar_pos()
-        top_m = 50 if pos != "bottom" else 12
-        bot_m = 50 if pos == "bottom" else 12
+        top_m = 52 if pos != "bottom" else 12
+        bot_m = 52 if pos == "bottom" else 12
         GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.TOP,    top_m)
         GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.BOTTOM, bot_m)
-        GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.RIGHT,  12)
-        GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.LEFT,   0)
+        GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.LEFT,   12)
+        GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.RIGHT,  0)
 
         # Эксклюзивная зона: в скрытом состоянии 0
         GtkLayerShell.set_exclusive_zone(self.window, 0)
@@ -600,14 +629,15 @@ class Sidebar:
         else:
             self.lang = get_current_lang()
             pos = get_waybar_pos()
-            top_m = 50 if pos != "bottom" else 12
-            bot_m = 50 if pos == "bottom" else 12
+            top_m = 52 if pos != "bottom" else 12
+            bot_m = 52 if pos == "bottom" else 12
             GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.TOP,    top_m)
             GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.BOTTOM, bot_m)
-            GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.RIGHT,  12)
-            # При открытии резервируем ровно 292px под сайдбар,
-            # чтобы Hyprland тайлил окна слева и сайдбар вообще не закрывал приложение!
-            GtkLayerShell.set_exclusive_zone(self.window, 292)
+            GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.LEFT,   12)
+            GtkLayerShell.set_margin(self.window, GtkLayerShell.Edge.RIGHT,  0)
+            # При открытии слева резервируем 308px под сайдбар:
+            # Hyprland автоматически ужимает обычные окна вправо на том же уровне!
+            GtkLayerShell.set_exclusive_zone(self.window, 308)
             self._refresh_dynamic()
             self.window.show_all()
             self.visible = True
@@ -730,8 +760,9 @@ class Sidebar:
     # ─── UI ──────────────────────────────────────────────────────────────────
     def _build_ui(self):
         sw = Gtk.ScrolledWindow()
-        sw.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        sw.set_size_request(268, -1)
+        sw.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS)
+        sw.set_overlay_scrolling(False)
+        sw.set_size_request(280, -1)
 
         root = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
         root.get_style_context().add_class("root-box")
