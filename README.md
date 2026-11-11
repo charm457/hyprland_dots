@@ -1,66 +1,16 @@
-# 🌟 Hyprland Custom Dotfiles
+# Hyprland Custom Dotfiles
 
-[![English](https://img.shields.io/badge/Language-English-blue)](#-english-version)
-[![Russian](https://img.shields.io/badge/Language-Русский-red)](#-hyprland-custom-dotfiles-русский)
+Modular, high-performance configuration framework for **Hyprland** (Wayland) featuring dynamic theme switching, multiple window layout modes, GtkLayerShell control center, PipeWire audio routing, and bilingual localization (EN / RU).
 
-A modern, highly modular configuration for **Hyprland** (Wayland) featuring:
-- **Interactive Control Sidebar** powered by **GtkLayerShell** with audio visualizer, volume & brightness sliders, and audio output sink switcher.
-- **Bilingual Interface** with on-the-fly language switching (English / Russian).
-- **4 Design Families with Extended Sub-themes**: Total Black, Total White, Apple macOS (Liquid Glass & Full Pitch Dark), and Cyberpunk/Nord.
-- **Window Layout Modes**: Auto-Tiling, Monocle (Fullscreen **with Waybar visible**), and Windows Mode (Stacking floating windows with mouse drag/resize).
-- **Screenshots System**: Automatically saved to `~/Screenshots/` and copied to clipboard.
-- **Keybindings Cheatsheet Window**: Accessible via `Super + /` or `Super + F1`.
-- **Universal Installer (`install.sh`)**: For both clean installations and updating existing setups with automatic timestamped backups.
+[English](#installation--quick-start) | [Русская документация](#установка-и-быстрый-старт)
 
 ---
 
-## 🇬🇧 English Version
+## Installation & Quick Start
 
-### ✨ Key Features
+### 1. Automated Installation (Recommended)
 
-1. **Dual Language Support (EN / RU)**:
-   - Language prompt upon running `./install.sh`.
-   - On-the-fly UI language toggle in the sidebar (`[ 🌐 EN | RU ]`) or via shortcut `Super + Alt + L`.
-
-2. **Window Layout Modes**:
-   - ⛶ **Fullscreen with Waybar (Monocle / Maximize)**: Windows expand to full screen while keeping **Waybar interactive and visible** (`fullscreen 1`).
-   - 🪟 **Windows Mode (Floating)**: All windows float freely, can overlap, and can be dragged (`Super + LMB`) or resized (`Super + RMB`). New windows open floating automatically.
-   - ▦ **Tiling Mode**: Standard Hyprland dynamic dwindle tiling.
-   - Interactive switcher in Waybar (`[ ▦ Tiling | ⛶ Max | 🪟 Win ]`) and Sidebar.
-
-3. **4 Theme Families & Sub-themes**:
-   - ⬛ **Total Black**:
-     - *Pure OLED*: 100% solid pitch black, zero blur, maximum contrast.
-     - *Matte Stealth*: Dark graphite with subtle blur.
-     - *Smoked Glass*: Translucent dark obsidian glass with deep blur.
-   - ⬜ **Total White**:
-     - *Snow Clean*: Crisp bright white minimalism with high contrast dark text.
-     - *Frosted Glass*: Translucent acrylic white glass.
-     - *Catppuccin Latte*: Warm soothing cream pastel.
-   - 🍎 **Apple macOS**:
-     - *macOS Liquid Glass*: Full window and bar transparency, 4-pass blur, floating pill island,  menu.
-     - *macOS Pitch Dark*: Full dark glass with soft dark-white/silver symbols and icons.
-     - *macOS Dark Glass*: Sonoma-style dark glass.
-     - *macOS Light Glass*: Cupertino light frosted glass.
-   - ⚡ **Cyber & Nord**:
-     - *Cyber Neon*: High-voltage cyan/magenta synthwave glow.
-     - *Nord Arctic*: Polar ice-blue aesthetic.
-
-4. **Compact Player & Control Center (Sidebar)**:
-   - Sleek compact height.
-   - Live animated visualizer / equalizer bars when music is playing.
-   - Expandable drawer with:
-     - Volume slider (`pactl`).
-     - Brightness slider (`brightnessctl`).
-     - **Audio Output Selector**: easily switch between Speakers, Headphones, Bluetooth, and HDMI with live stream routing.
-
-5. **Screenshots & Keybindings Cheatsheet**:
-   - All screenshots saved directly to `~/Screenshots/Screenshot_YYYY-MM-DD_HH-MM-SS.png` and copied to clipboard.
-   - Floating keybindings help cheatsheet available at `Super + /` or `Super + F1`.
-
----
-
-### 🚀 Quick Start & Installation
+Run the automated installer. It supports fresh systems as well as updating over existing configurations with automatic timestamped backups:
 
 ```bash
 git clone https://github.com/charm457/hyprland_dots.git ~/hyprland_dots
@@ -69,81 +19,239 @@ chmod +x install.sh
 ./install.sh
 ```
 
-Choose your preferred language (**English** or **Русский**), then select:
-- **1) Clean Install**: Checks and installs missing packages, deploys modular configs.
-- **2) Update Existing**: Creates a timestamped backup in `~/.config/hypr_backup_...` and cleanly applies new configs with live reload.
+### 2. Non-Interactive CLI Execution
+
+```bash
+# Clean install with dependency check (English)
+./install.sh --fresh --lang=en
+
+# Clean install with dependency check (Russian)
+./install.sh --fresh --lang=ru
+
+# Fast update over existing setup (auto-backup, config deploy, live reload)
+./install.sh --update
+
+# Restore previous backup
+./install.sh --restore
+```
+
+### 3. Package Dependencies
+
+If performing a manual installation, ensure the following packages are present:
+
+#### Arch Linux (pacman & yay)
+```bash
+sudo pacman -S --needed hyprland waybar kitty rofi-wayland grim slurp \
+    wl-clipboard swww swaync pipewire pipewire-pulse wireplumber \
+    brightnessctl playerctl python python-gobject gtk3 gtk-layer-shell jq
+```
+
+#### Fedora (dnf)
+```bash
+sudo dnf install hyprland waybar kitty rofi-wayland grim slurp \
+    wl-clipboard swww swaync pulseaudio-utils brightnessctl playerctl \
+    python3 python3-gobject gtk3 gtk-layer-shell jq
+```
 
 ---
 
-### ⌨️ Keybindings (Cheatsheet)
+## Screenshots & Gallery
 
-| Shortcut | Description |
+> Drop your screenshots into the `docs/screenshots/` directory or replace the image links below.
+
+| Total Black (Solid OLED) | macOS Liquid Glass |
+| :---: | :---: |
+| ![Total Black OLED](docs/screenshots/total_black.png) | ![macOS Liquid Glass](docs/screenshots/macos_glass.png) |
+
+| Total White Clean | Cyber Neon / Nord Frost |
+| :---: | :---: |
+| ![Total White Clean](docs/screenshots/total_white.png) | ![Cyber Neon / Nord](docs/screenshots/cyber_nord.png) |
+
+| Control Sidebar & Audio Output Switcher | Keybindings Cheatsheet (Super + /) |
+| :---: | :---: |
+| ![Sidebar](docs/screenshots/sidebar.png) | ![Keybindings Help](docs/screenshots/cheatsheet.png) |
+
+---
+
+## Keybindings Reference
+
+### General & System
+
+| Keybinding | Action |
 |---|---|
-| **`Super + /`** or **`Super + F1`** | **Show Keybindings Cheatsheet Window** |
-| **`Super + P`** | Toggle Control Sidebar |
-| **`Super + Shift + S`** | Screenshot area (copied & saved to `~/Screenshots`) |
-| **`Print`** | Screenshot full screen |
-| **`Super + Print`** | Screenshot active window |
-| **`Super + Alt + S`** | Interactive screenshot menu |
-| **`Super + Z`** or **`Super + M`** | **Fullscreen WITH Waybar** (Monocle) |
-| **`Super + F`** | Fullscreen **WITHOUT** Waybar |
-| **`Super + V`** | Toggle current window Floating / Tiled |
-| **`Super + W`** | Cycle window modes: [Tiling ↔ Fullscreen with Waybar ↔ Windows Floating] |
-| **`Super + Shift + W`** | Enable Windows floating mode on active workspace |
-| **`Super + Shift + T`** | Reset active workspace to Tiling |
-| **`Super + LMB (drag)`** | Drag floating windows with mouse |
-| **`Super + RMB (drag)`** | Resize floating windows with mouse |
-| **`Super + Alt + L`** | Toggle interface language (EN / RU) |
-| **`Super + Alt + P`** | Cycle Waybar position (Top ↔ Bottom ↔ Hide) |
-| **`Super + ]`** / **`[`** | Next / previous wallpaper in `~/wallpapers` |
-| **`Super + Return`** | Kitty terminal |
-| **`Super + Space`** / **`D`** | Rofi application launcher |
-| **`Super + Q`** | Close focused window |
-| **`Super + Shift + M`** | Safe exit from Hyprland |
+| `Super + /` or `Super + F1` | Open floating Keybindings Cheatsheet window |
+| `Super + P` | Toggle Control Sidebar (GtkLayerShell) |
+| `Super + Return` | Launch Kitty terminal |
+| `Super + Space` or `Super + D` | Launch Rofi application menu |
+| `Super + Q` | Close focused window |
+| `Super + Shift + M` | Graceful exit from Hyprland |
+| `Super + L` | Lock screen (`swaylock` or `hyprlock`) |
+| `Super + Alt + L` | Toggle interface language (`EN` ↔ `RU`) |
+| `Super + Alt + P` | Cycle Waybar position (`Top` ↔ `Bottom` ↔ `Hidden`) |
+
+### Window Layout & Modes
+
+| Keybinding | Action |
+|---|---|
+| `Super + Z` or `Super + M` | **Monocle Mode**: Maximize window **WITH Waybar visible** (`fullscreen 1`) |
+| `Super + F` | **Exclusive Fullscreen**: Maximize window **WITHOUT** Waybar (`fullscreen 0`) |
+| `Super + V` | Toggle active window between Floating and Tiled |
+| `Super + W` | Cycle window layout mode (`Tiling` ↔ `Monocle` ↔ `Windows Floating`) |
+| `Super + Shift + W` | Force Windows floating mode across current workspace |
+| `Super + Shift + T` | Reset current workspace back to Tiling mode |
+| `Super + LMB (drag)` | Move floating window |
+| `Super + RMB (drag)` | Resize floating window |
+
+### Screenshots
+
+All captures are automatically copied to the clipboard and saved to `~/Screenshots/Screenshot_YYYY-MM-DD_HH-MM-SS.png`:
+
+| Keybinding | Action |
+|---|---|
+| `Super + Shift + S` | Select area to capture |
+| `Print` | Capture entire screen |
+| `Super + Print` | Capture currently focused window |
+| `Super + Alt + S` | Open interactive screenshot menu (Rofi) |
+
+### Audio, Brightness & Media
+
+| Keybinding | Action |
+|---|---|
+| `XF86AudioRaiseVolume` | Volume +5% |
+| `XF86AudioLowerVolume` | Volume -5% |
+| `XF86AudioMute` | Toggle audio mute |
+| `XF86MonBrightnessUp` | Brightness +5% |
+| `XF86MonBrightnessDown` | Brightness -5% |
+| `XF86AudioPlay` | Play / Pause media |
+| `XF86AudioNext` | Next track |
+| `XF86AudioPrev` | Previous track |
+| `Super + ]` / `Super + [` | Next / previous wallpaper from `~/wallpapers` |
+
+---
+
+## Management CLI Commands
+
+Every subsystem provides dedicated shell scripts for scripting and terminal management:
+
+### Theme Management
+```bash
+# Open interactive theme switcher menu
+~/.config/hypr/scripts/theme_ctl.sh menu
+
+# Apply a specific theme by key
+~/.config/hypr/scripts/theme_ctl.sh set macos_pitch_dark
+~/.config/hypr/scripts/theme_ctl.sh set black_solid
+~/.config/hypr/scripts/theme_ctl.sh set white_clean
+~/.config/hypr/scripts/theme_ctl.sh set cyber_neon
+
+# Re-apply current theme
+~/.config/hypr/scripts/theme_ctl.sh apply
+
+# List all available themes
+~/.config/hypr/scripts/theme_ctl.sh list
+```
+
+### Audio Routing & Volume
+```bash
+# List all audio output sinks in JSON format
+~/.config/hypr/scripts/audio_output.sh list
+
+# Get active default output sink
+~/.config/hypr/scripts/audio_output.sh default
+
+# Switch audio output and move all active audio streams live
+~/.config/hypr/scripts/audio_output.sh set <sink_name>
+
+# Get or set volume percentage (0-100)
+~/.config/hypr/scripts/audio_output.sh volume
+~/.config/hypr/scripts/audio_output.sh set_vol 65
+
+# Toggle mute
+~/.config/hypr/scripts/audio_output.sh mute
+```
+
+### Window Layout Modes
+```bash
+# Cycle layout mode (Tiling -> Monocle -> Windows)
+~/.config/hypr/scripts/window_mode.sh cycle
+
+# Switch explicitly
+~/.config/hypr/scripts/window_mode.sh tiling
+~/.config/hypr/scripts/window_mode.sh monocle
+~/.config/hypr/scripts/window_mode.sh windows
+
+# Print current mode
+~/.config/hypr/scripts/window_mode.sh status
+```
+
+### Screenshots
+```bash
+# Capture area, full screen, or window
+~/.config/hypr/scripts/screenshot.sh area
+~/.config/hypr/scripts/screenshot.sh full
+~/.config/hypr/scripts/screenshot.sh window
+~/.config/hypr/scripts/screenshot.sh menu
+```
+
+### Localization
+```bash
+# Toggle between English and Russian
+~/.config/hypr/scripts/lang_ctl.sh toggle
+
+# Set explicitly
+~/.config/hypr/scripts/lang_ctl.sh en
+~/.config/hypr/scripts/lang_ctl.sh ru
+```
+
+### Waybar & Wallpapers
+```bash
+# Cycle Waybar position: Top -> Bottom -> Hidden
+~/.config/hypr/scripts/waybar_position.sh cycle
+
+# Cycle wallpapers from ~/wallpapers
+~/.config/hypr/scripts/wallpaper_cycle.sh next
+~/.config/hypr/scripts/wallpaper_cycle.sh prev
+```
+
+---
+
+## Theme Families & Styles
+
+1. **Total Black**:
+   - `black_solid`: Solid OLED pure pitch black (`#000000`), zero blur, dark-white symbols (`#b0b0b8`), zero eye strain.
+   - `black_stealth`: Matte dark graphite (`#121316`) with subtle blur.
+   - `black_glass`: Obsidian dark glass (`#0a0a0d`) with blur and saturation.
+
+2. **Total White**:
+   - `white_clean`: High-contrast pure white minimalism with crisp dark typography.
+   - `white_glass`: Frosted translucent acrylic white glass.
+   - `white_latte`: Warm soothing cream pastel (Catppuccin Latte palette).
+
+3. **Apple macOS / iOS**:
+   - `macos_pitch_dark`: OLED pitch black (`#000000`), rounded iOS floating bar, dark-white/silver symbols (`#e5e5ea` / `#636366`).
+   - `macos_glass`: Transparent liquid glass with 4-pass blur and macOS pill geometry.
+   - `macos_dark`: Cupertino dark glass.
+   - `macos_light`: Cupertino frosted light glass.
+
+4. **Cyber & Nord**:
+   - `cyber_neon`: Synthwave aesthetic with cyan and magenta accents.
+   - `nord_frost`: Arctic blue palette with polar contrast.
 
 ---
 
 <br>
 
-## 🇷🇺 Hyprland Custom Dotfiles (Русский)
+# Установка и быстрый старт (Русский)
 
-Модульная сборка для **Hyprland** (Wayland) с интерактивной боковой панелью управления на **GtkLayerShell**, переключателем стилей, режимами окон и поддержкой двух языков.
-
-### ✨ Главные возможности
-
-1. **Поддержка двух языков (RU / EN)**:
-   - Выбор языка в начале работы `install.sh`.
-   - Мгновенное переключение языка прямо в сайдбаре (`[ 🌐 EN | RU ]`) или по клавише `Super + Alt + L`.
-
-2. **Режимы окон**:
-   - ⛶ **На весь экран с Waybar (Monocle / Maximize)**: Окно раскрывается на весь экран, но **Waybar остается на виду и доступен для кликов** (`fullscreen 1`).
-   - 🪟 **Как в обычной Windows (Плавающие окна)**: Окна свободно плавают, перекрываются, перемещаются мышью (`Super + ЛКМ`) и масштабируются (`Super + ПКМ`). Новые окна открываются плавающими.
-   - ▦ **Тайлинг (Плитка)**: Классический тайлинг Hyprland (dwindle).
-
-3. **4 Семейства тем с подстилями**:
-   - ⬛ **Total Black**: Чистый OLED без размытия, Графитовый Stealth, Дымчатое стекло.
-   - ⬜ **Total White**: Чистый белый Snow Clean, Белое стекло, Catppuccin Latte.
-   - 🍎 **Apple macOS**:
-     - *macOS Liquid Glass*: полная прозрачность, 4-проходный блюр, значок ``.
-     - *macOS Pitch Dark*: глубокое темное стекло со спокойными темно-белыми/серебряными символами.
-     - *macOS Dark / Light*: темное и светлое матовое стекло Sonoma/Cupertino.
-   - ⚡ **Кибер & Норд**: Cyber Neon (киберпанк), Nord Arctic (ледяной синий).
-
-4. **Компактный плеер и Центр управления (Сайдбар Win+P)**:
-   - Уменьшенная высота плеера.
-   - Анимированный эквалайзер.
-   - Выдвижной отсек:
-     - Ползунок громкости (`pactl`).
-     - Ползунок яркости (`brightnessctl`).
-     - **Выбор аудиовыхода**: переключение вывода звука между динамиками, наушниками, Bluetooth и HDMI.
-
-5. **Скриншоты и Шпаргалка клавиш**:
-   - Скриншоты автоматически сохраняются в `~/Screenshots/` и копируются в буфер обмена.
-   - Всплывающее окно со всеми комбинациями клавиш вызывается по `Super + /` или `Super + F1`.
+Модульная конфигурация для **Hyprland** (Wayland): система тем оформления с живым переключением, режимы компоновки окон, боковая панель управления (GtkLayerShell), роутинг аудиопотоков PipeWire и двуязычный интерфейс (RU / EN).
 
 ---
 
-### 🚀 Установка
+## Установка и обновление
+
+### 1. Автоматическая установка
+
+Скрипт поддерживает чистую установку с установкой зависимостей и обновление поверх готовой сборки с автоматическим созданием бэкапа:
 
 ```bash
 git clone https://github.com/charm457/hyprland_dots.git ~/hyprland_dots
@@ -152,9 +260,153 @@ chmod +x install.sh
 ./install.sh
 ```
 
-Выберите язык и желаемый тип установки (чистая или обновление с авто-бэкапом).
+### 2. Неинтерактивные команды CLI
+
+```bash
+# Чистая установка с проверкой пакетов на русском
+./install.sh --fresh --lang=ru
+
+# Чистая установка на английском
+./install.sh --fresh --lang=en
+
+# Быстрое обновление поверх существующей сборки (бэкап + авто-перезагрузка)
+./install.sh --update
+
+# Восстановление конфигурации из последнего бэкапа
+./install.sh --restore
+```
+
+### 3. Зависимости пакетов
+
+#### Arch Linux
+```bash
+sudo pacman -S --needed hyprland waybar kitty rofi-wayland grim slurp \
+    wl-clipboard swww swaync pipewire pipewire-pulse wireplumber \
+    brightnessctl playerctl python python-gobject gtk3 gtk-layer-shell jq
+```
+
+#### Fedora
+```bash
+sudo dnf install hyprland waybar kitty rofi-wayland grim slurp \
+    pulseaudio-utils brightnessctl playerctl python3 python3-gobject \
+    gtk3 gtk-layer-shell jq
+```
 
 ---
 
-## 📄 License
+## Место для скриншотов
+
+> Поместите ваши скриншоты в папку `docs/screenshots/` или укажите нужные пути в таблице ниже:
+
+| Total Black (Чистый OLED) | macOS Liquid Glass |
+| :---: | :---: |
+| ![Total Black OLED](docs/screenshots/total_black.png) | ![macOS Liquid Glass](docs/screenshots/macos_glass.png) |
+
+| Total White Clean | Cyber Neon / Nord Frost |
+| :---: | :---: |
+| ![Total White Clean](docs/screenshots/total_white.png) | ![Cyber Neon / Nord](docs/screenshots/cyber_nord.png) |
+
+| Боковая панель управления и аудиовыходы | Шпаргалка горячих клавиш (Super + /) |
+| :---: | :---: |
+| ![Sidebar](docs/screenshots/sidebar.png) | ![Keybindings Help](docs/screenshots/cheatsheet.png) |
+
+---
+
+## Таблица горячих клавиш
+
+### Система и запуск
+
+| Сочетание клавиш | Описание |
+|---|---|
+| `Super + /` или `Super + F1` | Всплывающее окно со всеми горячими клавишами |
+| `Super + P` | Открыть / закрыть боковую панель управления |
+| `Super + Return` | Терминал Kitty |
+| `Super + Space` или `Super + D` | Меню приложений Rofi |
+| `Super + Q` | Закрыть текущее окно |
+| `Super + Shift + M` | Безопасный выход из Hyprland |
+| `Super + Alt + L` | Переключение языка интерфейса (`RU` ↔ `EN`) |
+| `Super + Alt + P` | Переключение положения Waybar (`Сверху` ↔ `Снизу` ↔ `Скрыть`) |
+
+### Управление окнами и режимы
+
+| Сочетание клавиш | Описание |
+|---|---|
+| `Super + Z` или `Super + M` | **Режим Monocle**: окно на весь экран **с сохранением Waybar** (`fullscreen 1`) |
+| `Super + F` | Полный экран **БЕЗ** Waybar (`fullscreen 0`) |
+| `Super + V` | Переключить текущее окно между плавающим и тайловым |
+| `Super + W` | Сменить режим окон (`Плитка` ↔ `Monocle` ↔ `Плавающие окна Windows`) |
+| `Super + Shift + W` | Принудительно включить плавающий режим Windows на текущем рабочем столе |
+| `Super + Shift + T` | Сбросить текущий рабочий стол в тайлинг |
+| `Super + ЛКМ (тянуть)` | Перемещение плавающего окна мышью |
+| `Super + ПКМ (тянуть)` | Изменение размера окна мышью |
+
+### Скриншоты
+
+Все скриншоты копируются в буфер обмена и сохраняются в `~/Screenshots/Screenshot_YYYY-MM-DD_HH-MM-SS.png`:
+
+| Сочетание клавиш | Описание |
+|---|---|
+| `Super + Shift + S` | Снимок выделенной области |
+| `Print` | Снимок всего экрана |
+| `Super + Print` | Снимок активного окна |
+| `Super + Alt + S` | Меню скриншотов (Rofi) |
+
+### Звук, яркость и медиа
+
+| Сочетание клавиш | Описание |
+|---|---|
+| `XF86AudioRaiseVolume` | Громкость +5% |
+| `XF86AudioLowerVolume` | Громкость -5% |
+| `XF86AudioMute` | Отключение / включение звука |
+| `XF86MonBrightnessUp` | Яркость экрана +5% |
+| `XF86MonBrightnessDown` | Яркость экрана -5% |
+| `Super + ]` / `Super + [` | Следующие / предыдущие обои из папки `~/wallpapers` |
+
+---
+
+## Команды управления из консоли
+
+### Управление темами
+```bash
+# Меню выбора темы
+~/.config/hypr/scripts/theme_ctl.sh menu
+
+# Прямое применение темы
+~/.config/hypr/scripts/theme_ctl.sh set macos_pitch_dark
+~/.config/hypr/scripts/theme_ctl.sh set black_solid
+~/.config/hypr/scripts/theme_ctl.sh set white_clean
+
+# Список всех доступных тем
+~/.config/hypr/scripts/theme_ctl.sh list
+```
+
+### Управление аудиовыходами
+```bash
+# Список подключенных устройств вывода в JSON
+~/.config/hypr/scripts/audio_output.sh list
+
+# Переключение вывода звука с миграцией всех играющих потоков на лету
+~/.config/hypr/scripts/audio_output.sh set <имя_синка>
+
+# Установка громкости (0-100)
+~/.config/hypr/scripts/audio_output.sh set_vol 70
+
+# Заглушить / включить звук
+~/.config/hypr/scripts/audio_output.sh mute
+```
+
+### Режимы компоновки окон
+```bash
+# Циклическое переключение режимов
+~/.config/hypr/scripts/window_mode.sh cycle
+
+# Установка конкретного режима
+~/.config/hypr/scripts/window_mode.sh tiling
+~/.config/hypr/scripts/window_mode.sh monocle
+~/.config/hypr/scripts/window_mode.sh windows
+```
+
+---
+
+## Лицензия
 MIT License

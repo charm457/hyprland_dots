@@ -312,23 +312,34 @@ restore_backup() {
 }
 
 main() {
+    local action=""
+    for arg in "$@"; do
+        case "$arg" in
+            --lang=ru|-ru) FORCE_LANG="ru" ;;
+            --lang=en|-en) FORCE_LANG="en" ;;
+            --fresh) action="fresh" ;;
+            --update) action="update" ;;
+            --restore) action="restore" ;;
+        esac
+    done
+
     select_language
 
-    case "${1:-}" in
-        --fresh)
+    case "$action" in
+        fresh)
             check_and_install_deps
             backup_existing_configs
             deploy_configs
             reload_environment
             exit 0
             ;;
-        --update)
+        update)
             backup_existing_configs
             deploy_configs
             reload_environment
             exit 0
             ;;
-        --restore)
+        restore)
             restore_backup
             exit 0
             ;;

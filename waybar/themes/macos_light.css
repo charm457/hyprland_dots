@@ -45,16 +45,6 @@ window#waybar {
     background: rgba(0, 122, 255, 0.12);
     font-weight: 600;
 }
-
-#custom-window_mode {
-    background: rgba(0, 122, 255, 0.1);
-    color: #007aff;
-    padding: 2px 12px;
-    margin: 4px 6px;
-    border-radius: 10px;
-    border: 1px solid rgba(0, 122, 255, 0.2);
-}
-
 #clock {
     color: #1d1d1f;
     font-weight: 600;

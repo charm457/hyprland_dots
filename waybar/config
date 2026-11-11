@@ -9,7 +9,6 @@
     "modules-left": [
         "custom/menu",
         "hyprland/workspaces",
-        "custom/window_mode",
         "hyprland/window"
     ],
     "modules-center": [
@@ -50,14 +49,6 @@
         "on-scroll-up": "hyprctl dispatch workspace e+1",
         "on-scroll-down": "hyprctl dispatch workspace e-1",
         "persistent-workspaces": {}
-    },
-    "custom/window_mode": {
-        "format": "{}",
-        "exec": "~/.config/hypr/scripts/window_mode.sh status_icon",
-        "interval": 2,
-        "signal": 8,
-        "on-click": "~/.config/hypr/scripts/window_mode.sh cycle",
-        "tooltip-format": "Режим окон:\n- Плитка (Tiling)\n- На весь экран с Waybar (Monocle)\n- Как в Windows (Плавающий)\nКлик: переключить"
     },
     "hyprland/window": {
         "format": " {}",

@@ -37,16 +37,6 @@ window#waybar {
     background: rgba(0, 112, 224, 0.12);
     border: 1px solid rgba(0, 112, 224, 0.25);
 }
-
-#custom-window_mode {
-    background: rgba(0, 112, 224, 0.08);
-    color: #0070e0;
-    padding: 2px 10px;
-    margin: 5px 6px;
-    border-radius: 8px;
-    border: 1px solid rgba(0, 112, 224, 0.18);
-}
-
 #clock {
     color: #111115;
     font-weight: bold;

@@ -55,16 +55,6 @@ window#waybar {
     color: #ffffff;
     background: rgba(255, 255, 255, 0.15);
 }
-
-#custom-window_mode {
-    background: rgba(0, 122, 255, 0.22);
-    color: #64d2ff;
-    padding: 2px 12px;
-    margin: 4px 6px;
-    border-radius: 14px;
-    border: 1px solid rgba(100, 210, 255, 0.35);
-}
-
 #clock {
     color: #ffffff;
     font-weight: 600;

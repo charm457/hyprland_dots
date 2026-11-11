@@ -19,7 +19,7 @@ window#waybar {
 
 #custom-menu {
     font-size: 16px;
-    color: #ffffff;
+    color: #c7c7cf;
     padding: 0 14px 0 16px;
 }
 
@@ -46,28 +46,18 @@ window#waybar {
 }
 
 #workspaces button.active {
-    color: #ffffff;
+    color: #d8d8de;
     background: #18181c;
     border: 1px solid #2c2c30;
     font-weight: 600;
 }
 
 #workspaces button:hover {
-    color: #e5e5ea;
+    color: #c7c7cf;
     background: #121214;
 }
-
-#custom-window_mode {
-    background: #000000;
-    color: #e5e5ea;
-    padding: 2px 12px;
-    margin: 4px 6px;
-    border-radius: 12px;
-    border: 1px solid #1e1e24;
-}
-
 #clock {
-    color: #ffffff;
+    color: #d8d8de;
     font-weight: 600;
     font-size: 13px;
     padding: 0 16px;
@@ -79,7 +69,7 @@ window#waybar {
 
 #pulseaudio, #network, #battery, #custom-theme, #tray, #custom-power {
     padding: 0 10px;
-    color: #d1d1d6;
+    color: #b0b0b8;
     background: #000000;
     border-radius: 12px;
     margin: 4px 2px;
@@ -87,7 +77,7 @@ window#waybar {
 }
 
 #pulseaudio:hover, #network:hover, #battery:hover, #custom-theme:hover, #custom-power:hover {
-    color: #ffffff;
+    color: #d8d8de;
     background: #141418;
 }
 
@@ -98,7 +88,7 @@ window#waybar {
 #battery.charging { color: #30d158; }
 
 #custom-power {
-    color: #e5e5ea;
+    color: #b0b0b8;
     font-size: 14px;
     padding: 0 12px;
 }
@@ -107,5 +97,5 @@ tooltip {
     background: #000000;
     border: 1px solid #2c2c30;
     border-radius: 12px;
-    color: #ffffff;
+    color: #d8d8de;
 }

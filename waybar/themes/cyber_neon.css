@@ -39,16 +39,6 @@ window#waybar {
     border: 1px solid #00f0ff;
     box-shadow: 0 0 6px rgba(0, 240, 255, 0.4);
 }
-
-#custom-window_mode {
-    background: rgba(255, 0, 127, 0.15);
-    color: #ff007f;
-    padding: 2px 10px;
-    margin: 5px 6px;
-    border-radius: 6px;
-    border: 1px solid #ff007f;
-}
-
 #clock {
     color: #00f0ff;
     font-weight: bold;
