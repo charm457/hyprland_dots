@@ -1,0 +1,37 @@
+# ==============================================================================
+# YAZI CONFIGURATION — Кастомизированный современный файловый менеджер
+# ==============================================================================
+[manager]
+layout         = [ 1, 4, 3 ]
+sort_by        = "alphabetical"
+sort_sensitive = false
+sort_reverse   = false
+sort_dir_first = true
+linemode       = "size"
+show_hidden    = true
+show_symlink   = true
+
+[preview]
+tab_size        = 4
+max_width       = 1200
+max_height      = 900
+cache_dir       = ""
+
+[opener]
+edit = [
+    { run = '${EDITOR:-nano} "$@"', block = true, desc = "Edit" },
+]
+open = [
+    { run = 'xdg-open "$@"', desc = "Open" },
+]
+
+[open]
+rules = [
+    { name = "*/", use = [ "edit", "open" ] },
+    { mime = "text/*", use = [ "edit", "open" ] },
+    { mime = "image/*", use = [ "open" ] },
+    { mime = "video/*", use = [ "open" ] },
+    { mime = "audio/*", use = [ "open" ] },
+    { mime = "application/pdf", use = [ "open" ] },
+    { mime = "*", use = [ "open" ] },
+]

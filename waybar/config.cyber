@@ -1,0 +1,120 @@
+{
+    "layer": "top",
+    "position": "bottom",
+    "height": 38,
+    "spacing": 4,
+    "margin-bottom": 6,
+    "margin-top": 0,
+    "margin-left": 10,
+    "margin-right": 10,
+    "modules-left": [
+        "custom/menu",
+        "hyprland/workspaces",
+        "hyprland/window"
+    ],
+    "modules-center": [
+        "clock"
+    ],
+    "modules-right": [
+        "pulseaudio",
+        "network",
+        "battery",
+        "custom/theme",
+        "tray",
+        "custom/power"
+    ],
+    "custom/menu": {
+        "format": "⚡ CYBER",
+        "interval": 3600,
+        "on-click": "~/.config/hypr/sidebar/toggle.sh",
+        "tooltip-format": "Cyberpunk Control Center (Super+P)"
+    },
+    "hyprland/workspaces": {
+        "format": "{icon}",
+        "format-icons": {
+            "1": "01",
+            "2": "02",
+            "3": "03",
+            "4": "04",
+            "5": "05",
+            "6": "06",
+            "7": "07",
+            "8": "08",
+            "9": "09",
+            "10": "10",
+            "active": "󰮯",
+            "default": "󰊠"
+        },
+        "on-scroll-up": "hyprctl dispatch workspace e+1",
+        "on-scroll-down": "hyprctl dispatch workspace e-1",
+        "persistent-workspaces": {}
+    },
+    "hyprland/window": {
+        "format": " {}",
+        "max-length": 40,
+        "separate-outputs": true
+    },
+    "clock": {
+        "format": "󱑍 {:%H:%M}",
+        "format-alt": "󰃭 {:%a, %d %b %Y}",
+        "tooltip-format": "<tt><small>{calendar}</small></tt>",
+        "interval": 30
+    },
+    "pulseaudio": {
+        "format": "{icon} {volume}%",
+        "format-muted": "󰝟 muted",
+        "format-icons": {
+            "default": [
+                "󰕿",
+                "󰖀",
+                "󰕾"
+            ]
+        },
+        "on-click": "pavucontrol",
+        "scroll-step": 5
+    },
+    "network": {
+        "format-wifi": "󰤨 {essid}",
+        "format-ethernet": "󰈀 CYBER-LAN",
+        "format-disconnected": "󰤭 offline",
+        "tooltip-format": "{ipaddr}  {signalStrength}%",
+        "interval": 5
+    },
+    "battery": {
+        "format": "{icon} {capacity}%",
+        "format-charging": "󰂄 {capacity}%",
+        "format-full": "󰁹 full",
+        "format-icons": [
+            "󰁺",
+            "󰁻",
+            "󰁼",
+            "󰁽",
+            "󰁾",
+            "󰁿",
+            "󰂀",
+            "󰂁",
+            "󰂂",
+            "󰁹"
+        ],
+        "states": {
+            "warning": 30,
+            "critical": 15
+        },
+        "interval": 30
+    },
+    "custom/theme": {
+        "format": "󰏘 CYBER",
+        "on-click": "~/.config/hypr/sidebar/toggle.sh",
+        "tooltip-format": "Дизайн и стилизация (Super+P)"
+    },
+    "tray": {
+        "icon-size": 16,
+        "spacing": 6
+    },
+    "custom/power": {
+        "format": "⏻",
+        "on-click": "wlogout",
+        "tooltip": false
+    }
+}
+

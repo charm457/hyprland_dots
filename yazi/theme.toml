@@ -1,0 +1,49 @@
+# ==============================================================================
+# YAZI THEME — Стилизация и оформление менеджера файлов
+# ==============================================================================
+[manager]
+cwd = { fg = "#00f0ff", bold = true }
+
+# Hovered and selected
+hovered         = { fg = "#ffffff", bg = "#282a36", bold = true }
+preview_hovered = { underline = true }
+
+# Find
+find_keyword  = { fg = "#ffff00", bold = true, italic = true }
+find_position = { fg = "#ff79c6", bold = true }
+
+# Marker
+marker_copied   = { fg = "#50fa7b", bg = "#50fa7b" }
+marker_cut      = { fg = "#ff5555", bg = "#ff5555" }
+marker_selected = { fg = "#bd93f9", bg = "#bd93f9" }
+
+# Tab
+tab_active   = { fg = "#ffffff", bg = "#44475a", bold = true }
+tab_inactive = { fg = "#6272a4", bg = "#21222c" }
+tab_width    = 1
+
+# Border
+border_symbol = "│"
+border_style  = { fg = "#6272a4" }
+
+[status]
+separator_open  = ""
+separator_close = ""
+separator_style = { fg = "#44475a", bg = "#44475a" }
+
+mode_normal = { fg = "#282a36", bg = "#bd93f9", bold = true }
+mode_select = { fg = "#282a36", bg = "#50fa7b", bold = true }
+mode_unset  = { fg = "#282a36", bg = "#ff5555", bold = true }
+
+progress_label  = { fg = "#ffffff", bold = true }
+progress_normal = { fg = "#bd93f9", bg = "#44475a" }
+progress_error  = { fg = "#ff5555", bg = "#44475a" }
+
+[which]
+cols = 3
+mask            = { bg = "#282a36" }
+cand            = { fg = "#8be9fd" }
+rest            = { fg = "#bd93f9" }
+desc            = { fg = "#f8f8f2" }
+separator       = "  "
+separator_style = { fg = "#6272a4" }
