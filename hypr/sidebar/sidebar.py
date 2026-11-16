@@ -49,10 +49,10 @@ LOCALES = {
         "refresh_btn": "🔄 Refresh",
         "bright_title": "BRIGHTNESS",
         "wireless_title": "CONNECTIVITY",
-        "wifi": "󰤨  Wi-Fi",
-        "bt": "󰂯  Bluetooth",
-        "airplane": "✈  Airplane",
-        "power": "🔋 Battery Saver",
+        "wifi": "󰤨 Wi-Fi",
+        "bt": "󰂯 BT",
+        "airplane": "✈ Flight",
+        "power": "󰁹 Eco",
         "waybar_title": "WAYBAR POSITION",
         "wb_top": "⬆ Top",
         "wb_bottom": "⬇ Bottom",
@@ -81,10 +81,10 @@ LOCALES = {
         "refresh_btn": "🔄 Обновить",
         "bright_title": "ЯРКОСТЬ",
         "wireless_title": "БЕСПРОВОДНАЯ СВЯЗЬ",
-        "wifi": "󰤨  Wi-Fi",
-        "bt": "󰂯  Bluetooth",
-        "airplane": "✈  Авиарежим",
-        "power": "🔋 Экономия",
+        "wifi": "󰤨 Wi-Fi",
+        "bt": "󰂯 BT",
+        "airplane": "✈ Авиа",
+        "power": "󰁹 Эко",
         "waybar_title": "ПАНЕЛЬ WAYBAR",
         "wb_top": "⬆ Вверху",
         "wb_bottom": "⬇ Внизу",
@@ -112,7 +112,9 @@ def get_current_lang():
 
 def get_current_profile():
     try:
-        repo_dir = os.path.join(HOME, "hyprland_configs")
+        repo_dir = os.path.join(HOME, "hyprland_dots")
+        if not os.path.isdir(repo_dir):
+            repo_dir = os.path.join(HOME, "hyprland_configs")
         branch = subprocess.check_output(
             ["git", "-C", repo_dir, "rev-parse", "--abbrev-ref", "HEAD"],
             stderr=subprocess.DEVNULL, timeout=1.0
@@ -168,287 +170,622 @@ STYLE_GROUPS = [
 ]
 
 # ─── GTK CSS ─────────────────────────────────────────────────────────────────
-GTK_CSS = """
-* { transition: none; font-family: "JetBrainsMono Nerd Font", "SF Pro Display", sans-serif; }
+GTK_CSS_DARK = """
+* {
+    transition: none;
+    font-family: "JetBrainsMono Nerd Font", "SF Pro Display", sans-serif;
+}
 window {
     background-color: #000000;
     color: #ffffff;
-    border-radius: 0px;
-    border: 1px solid #282830;
+    border-radius: 12px;
+    border: 1px solid #222222;
 }
-.root-box { background-color: transparent; }
+.root-box {
+    background-color: transparent;
+}
 
-/* Всегда видимая полоса прокрутки */
 scrollbar, scrollbar.vertical {
     background-color: transparent;
     border: none;
-    min-width: 8px;
-    margin: 4px 2px;
+    min-width: 6px;
+    margin: 2px 1px;
 }
 scrollbar trough, scrollbar.vertical trough {
-    background-color: rgba(255, 255, 255, 0.06);
-    border-radius: 6px;
-    min-width: 8px;
+    background-color: #0c0c0c;
+    border-radius: 4px;
+    min-width: 6px;
 }
 scrollbar slider, scrollbar.vertical slider {
-    background-color: rgba(255, 255, 255, 0.28);
-    border-radius: 6px;
+    background-color: #333333;
+    border-radius: 4px;
     min-width: 6px;
-    min-height: 36px;
-    margin: 1px;
+    min-height: 28px;
+    margin: 0px;
 }
 scrollbar slider:hover, scrollbar.vertical slider:hover {
-    background-color: rgba(255, 255, 255, 0.45);
+    background-color: #555555;
 }
 scrollbar slider:active, scrollbar.vertical slider:active {
-    background-color: #70c0ff;
+    background-color: #ffffff;
 }
 
 .section-label {
-    color: #6a7080;
-    font-size: 10px;
+    color: #666666;
+    font-size: 9px;
     font-weight: bold;
-    padding: 7px 2px 3px 2px;
-    letter-spacing: 1.2px;
+    padding: 4px 2px 2px 2px;
+    letter-spacing: 1px;
 }
 .header-label {
     color: #ffffff;
-    font-size: 15px;
+    font-size: 13px;
     font-weight: bold;
-    padding: 4px 2px;
+    padding: 2px 0px;
+    letter-spacing: 0.5px;
 }
 .lang-btn {
-    background-color: #141418;
-    color: #64b5f6;
-    border-radius: 10px;
-    border: 1px solid #222530;
-    padding: 2px 10px;
-    font-size: 11px;
+    background-color: #111111;
+    color: #cccccc;
+    border-radius: 6px;
+    border: 1px solid #282828;
+    padding: 2px 8px;
+    font-size: 10px;
     font-weight: bold;
 }
-.lang-btn:hover { background-color: #1e2230; color: #ffffff; }
+.lang-btn:hover {
+    background-color: #222222;
+    color: #ffffff;
+    border-color: #444444;
+}
 
-/* Плеер со встроенной громкостью */
 .player-box {
-    background-color: #0a0a0c;
-    border-radius: 12px;
-    border: 1px solid #1a1a20;
-    padding: 8px 10px 6px 10px;
-    margin: 2px 0px 4px 0px;
+    background-color: #0c0c0c;
+    border-radius: 8px;
+    border: 1px solid #1c1c1c;
+    padding: 5px 8px 4px 8px;
+    margin: 1px 0px 3px 0px;
 }
 .player-title {
     color: #ffffff;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: bold;
 }
 .player-artist {
-    color: #7b8090;
-    font-size: 10px;
+    color: #777777;
+    font-size: 9px;
 }
 .player-btn {
     background-color: transparent;
-    color: #9da3b4;
+    color: #888888;
     border: none;
-    border-radius: 14px;
-    padding: 2px 6px;
-    font-size: 13px;
-    min-width: 26px;
-    min-height: 26px;
+    border-radius: 4px;
+    padding: 1px 4px;
+    font-size: 11px;
+    min-width: 22px;
+    min-height: 22px;
 }
 .player-btn:hover {
-    background-color: #1c1e28;
+    background-color: #222222;
     color: #ffffff;
 }
 .player-btn.play {
     color: #ffffff;
-    font-size: 15px;
+    font-size: 13px;
 }
 .vol-row {
-    margin-top: 4px;
-    padding-top: 4px;
-    border-top: 1px solid #14141a;
+    margin-top: 3px;
+    padding-top: 3px;
+    border-top: 1px solid #161616;
 }
 .vol-mute-btn {
     background-color: transparent;
-    color: #8c90a0;
+    color: #777777;
     border: none;
-    font-size: 13px;
-    padding: 0 4px;
+    font-size: 11px;
+    padding: 0 3px;
 }
 .vol-mute-btn:hover { color: #ffffff; }
 .vol-lbl {
-    font-size: 10px;
-    color: #7b8090;
+    font-size: 9px;
+    color: #888888;
     font-weight: bold;
-    min-width: 32px;
+    min-width: 28px;
 }
+
 scale trough {
-    background-color: #1a1a22;
-    border-radius: 4px;
-    min-height: 5px;
+    background-color: #161616;
+    border-radius: 3px;
+    min-height: 4px;
 }
 scale highlight {
-    background-color: #70c0ff;
-    border-radius: 4px;
+    background-color: #ffffff;
+    border-radius: 3px;
+}
+scale slider {
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    border-radius: 6px;
+    min-width: 10px;
+    min-height: 10px;
+    margin: -3px;
 }
 
-/* Карточка аудиовыхода */
 .sink-box {
-    background-color: #0a0a0c;
-    border-radius: 12px;
-    border: 1px solid #1a1a20;
-    padding: 8px 10px;
-    margin: 2px 0 4px 0;
+    background-color: #0c0c0c;
+    border-radius: 8px;
+    border: 1px solid #1c1c1c;
+    padding: 5px 8px;
+    margin: 1px 0 3px 0;
 }
 .sink-status-lbl {
-    font-size: 10px;
-    color: #80d0ff;
-    padding-top: 4px;
+    font-size: 9px;
+    color: #aaaaaa;
+    padding-top: 2px;
 }
 .sink-refresh-btn {
-    background-color: #14141a;
-    color: #8c90a0;
-    border-radius: 6px;
-    border: 1px solid #22222a;
-    padding: 3px 8px;
-    font-size: 10px;
+    background-color: #141414;
+    color: #888888;
+    border-radius: 5px;
+    border: 1px solid #222222;
+    padding: 2px 6px;
+    font-size: 9px;
 }
 .sink-refresh-btn:hover {
-    background-color: #1e202a;
+    background-color: #242424;
     color: #ffffff;
+    border-color: #444444;
 }
 
-/* Карточка яркости */
 .bright-box {
-    background-color: #0a0a0c;
-    border-radius: 12px;
-    border: 1px solid #1a1a20;
-    padding: 6px 10px;
-    margin: 2px 0 4px 0;
-}
-
-/* Переключатели Wi-Fi / BT */
-.toggle-btn {
-    background-color: #0a0a0c;
-    color: #8c90a0;
-    border-radius: 10px;
-    border: 1px solid #1a1a20;
-    padding: 6px;
-    font-size: 11px;
-    min-height: 44px;
-}
-.toggle-btn:hover { background-color: #14141a; color: #cccccc; }
-.toggle-btn.on {
-    background-color: #0d2212;
-    color: #44dd66;
-    border: 1px solid #1a4022;
-}
-.toggle-btn.on-airplane {
-    background-color: #261805;
-    color: #ffaa00;
-    border: 1px solid #482f00;
-}
-.toggle-btn.on-power {
-    background-color: #0c1a26;
-    color: #80d0ff;
-    border: 1px solid #163650;
-}
-
-/* Режимы окон */
-.mode-btn {
-    background-color: #0a0a0c;
-    color: #9da2b0;
+    background-color: #0c0c0c;
     border-radius: 8px;
-    border: 1px solid #1a1a20;
-    padding: 6px 8px;
-    font-size: 11px;
-    min-height: 32px;
+    border: 1px solid #1c1c1c;
+    padding: 4px 8px;
+    margin: 1px 0 3px 0;
 }
-.mode-btn:hover { background-color: #161822; color: #ffffff; }
-.mode-btn.active-mode {
-    background-color: #101c28;
-    color: #80d0ff;
-    border: 1px solid #204060;
+
+.toggle-btn {
+    background-color: #0c0c0c;
+    color: #777777;
+    border-radius: 6px;
+    border: 1px solid #1c1c1c;
+    padding: 4px 2px;
+    font-size: 10px;
+    min-height: 28px;
+}
+.toggle-btn:hover {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    border-color: #333333;
+}
+.toggle-btn.on, .toggle-btn.on-airplane, .toggle-btn.on-power {
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid #ffffff;
     font-weight: bold;
 }
 
-/* Профили системы (Киберпанк / Классический) */
+.mode-btn {
+    background-color: #0c0c0c;
+    color: #888888;
+    border-radius: 6px;
+    border: 1px solid #1c1c1c;
+    padding: 4px 6px;
+    font-size: 10px;
+    min-height: 26px;
+}
+.mode-btn:hover {
+    background-color: #1a1a1a;
+    color: #ffffff;
+}
+.mode-btn.active-mode {
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid #ffffff;
+    font-weight: bold;
+}
+
 .profile-btn {
-    background-color: #0d0f17;
-    color: #c0c6d8;
-    border-radius: 9px;
-    border: 1px solid #1f2536;
-    padding: 8px 12px;
-    font-size: 12px;
-    min-height: 38px;
-    font-weight: 500;
+    background-color: #0c0c0c;
+    color: #888888;
+    border-radius: 6px;
+    border: 1px solid #1c1c1c;
+    padding: 5px 8px;
+    font-size: 10px;
+    min-height: 28px;
 }
 .profile-btn:hover {
-    background-color: #171d2b;
+    background-color: #1a1a1a;
     color: #ffffff;
-    border-color: #00f0ff;
+    border-color: #333333;
 }
 .profile-btn.active-profile {
-    background: linear-gradient(135deg, rgba(255, 0, 127, 0.28), rgba(0, 240, 255, 0.28));
-    border: 1px solid #00f0ff;
-    color: #00f0ff;
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid #ffffff;
     font-weight: bold;
-    box-shadow: 0 0 10px rgba(0, 240, 255, 0.35);
 }
 
 .sub-section-label {
-    font-size: 10px;
+    font-size: 9px;
     font-weight: bold;
-    color: #64708a;
+    color: #666666;
     letter-spacing: 0.8px;
 }
 
-/* Темы */
 .theme-btn {
-    background-color: #0a0a0c;
-    color: #a0a5b5;
-    border-radius: 8px;
-    border: 1px solid #1a1a20;
-    padding: 6px 10px;
-    font-size: 12px;
-    min-height: 32px;
+    background-color: #0c0c0c;
+    color: #888888;
+    border-radius: 6px;
+    border: 1px solid #1c1c1c;
+    padding: 4px 8px;
+    font-size: 10px;
+    min-height: 26px;
+    margin-bottom: 2px;
 }
-.theme-btn:hover { background-color: #161822; color: #ffffff; }
+.theme-btn:hover {
+    background-color: #1a1a1a;
+    color: #ffffff;
+}
 .theme-btn.active-theme {
-    background-color: #132238;
-    color: #64b5f6;
-    border: 1px solid #244c82;
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid #ffffff;
     font-weight: bold;
 }
 
-/* Waybar позиция */
 .pos-btn {
-    background-color: #0a0a0c;
-    color: #8c90a0;
+    background-color: #0c0c0c;
+    color: #888888;
     border-radius: 6px;
-    border: 1px solid #1a1a20;
-    padding: 5px 8px;
-    font-size: 11px;
+    border: 1px solid #1c1c1c;
+    padding: 4px 6px;
+    font-size: 10px;
+    min-height: 26px;
 }
-.pos-btn:hover { background-color: #161822; color: #ffffff; }
-.pos-btn.active-pos {
-    background-color: #181a24;
+.pos-btn:hover {
+    background-color: #1a1a1a;
     color: #ffffff;
-    border: 1px solid #2d3240;
+}
+.pos-btn.active-pos {
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid #ffffff;
+    font-weight: bold;
 }
 
-/* Обои */
 .wp-btn {
-    padding: 2px;
-    border-radius: 6px;
+    padding: 1px;
+    border-radius: 5px;
     border: 2px solid transparent;
     background-color: transparent;
 }
-.wp-btn:hover { border-color: #383c48; }
-.wp-btn.active-wp { border-color: #4da3ff; }
-scrollbar { background-color: transparent; min-width: 4px; }
-scrollbar slider { background-color: #222530; border-radius: 3px; min-width: 4px; }
+.wp-btn:hover { border-color: #444444; }
+.wp-btn.active-wp { border-color: #ffffff; }
+
+combobox button.combo {
+    background-color: #141414;
+    color: #ffffff;
+    border: 1px solid #282828;
+    border-radius: 6px;
+    padding: 2px 6px;
+    font-size: 10px;
+}
+combobox button.combo:hover {
+    background-color: #222222;
+    border-color: #444444;
+}
 """
+
+GTK_CSS_LIGHT = """
+* {
+    transition: none;
+    font-family: "JetBrainsMono Nerd Font", "SF Pro Display", sans-serif;
+}
+window {
+    background-color: #ffffff;
+    color: #000000;
+    border-radius: 12px;
+    border: 1px solid #d0d0d5;
+}
+.root-box {
+    background-color: transparent;
+}
+
+scrollbar, scrollbar.vertical {
+    background-color: transparent;
+    border: none;
+    min-width: 6px;
+    margin: 2px 1px;
+}
+scrollbar trough, scrollbar.vertical trough {
+    background-color: #f0f0f4;
+    border-radius: 4px;
+    min-width: 6px;
+}
+scrollbar slider, scrollbar.vertical slider {
+    background-color: #bbbbbf;
+    border-radius: 4px;
+    min-width: 6px;
+    min-height: 28px;
+    margin: 0px;
+}
+scrollbar slider:hover, scrollbar.vertical slider:hover {
+    background-color: #88888c;
+}
+scrollbar slider:active, scrollbar.vertical slider:active {
+    background-color: #000000;
+}
+
+.section-label {
+    color: #888888;
+    font-size: 9px;
+    font-weight: bold;
+    padding: 4px 2px 2px 2px;
+    letter-spacing: 1px;
+}
+.header-label {
+    color: #000000;
+    font-size: 13px;
+    font-weight: bold;
+    padding: 2px 0px;
+    letter-spacing: 0.5px;
+}
+.lang-btn {
+    background-color: #f0f0f4;
+    color: #222222;
+    border-radius: 6px;
+    border: 1px solid #dcdce0;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: bold;
+}
+.lang-btn:hover {
+    background-color: #e2e2e6;
+    color: #000000;
+    border-color: #b0b0b5;
+}
+
+.player-box {
+    background-color: #f4f4f6;
+    border-radius: 8px;
+    border: 1px solid #e4e4e8;
+    padding: 5px 8px 4px 8px;
+    margin: 1px 0px 3px 0px;
+}
+.player-title {
+    color: #000000;
+    font-size: 10px;
+    font-weight: bold;
+}
+.player-artist {
+    color: #666666;
+    font-size: 9px;
+}
+.player-btn {
+    background-color: transparent;
+    color: #666666;
+    border: none;
+    border-radius: 4px;
+    padding: 1px 4px;
+    font-size: 11px;
+    min-width: 22px;
+    min-height: 22px;
+}
+.player-btn:hover {
+    background-color: #e4e4e8;
+    color: #000000;
+}
+.player-btn.play {
+    color: #000000;
+    font-size: 13px;
+}
+.vol-row {
+    margin-top: 3px;
+    padding-top: 3px;
+    border-top: 1px solid #e4e4e8;
+}
+.vol-mute-btn {
+    background-color: transparent;
+    color: #666666;
+    border: none;
+    font-size: 11px;
+    padding: 0 3px;
+}
+.vol-mute-btn:hover { color: #000000; }
+.vol-lbl {
+    font-size: 9px;
+    color: #555555;
+    font-weight: bold;
+    min-width: 28px;
+}
+
+scale trough {
+    background-color: #e0e0e4;
+    border-radius: 3px;
+    min-height: 4px;
+}
+scale highlight {
+    background-color: #000000;
+    border-radius: 3px;
+}
+scale slider {
+    background-color: #000000;
+    border: 1px solid #444444;
+    border-radius: 6px;
+    min-width: 10px;
+    min-height: 10px;
+    margin: -3px;
+}
+
+.sink-box {
+    background-color: #f4f4f6;
+    border-radius: 8px;
+    border: 1px solid #e4e4e8;
+    padding: 5px 8px;
+    margin: 1px 0 3px 0;
+}
+.sink-status-lbl {
+    font-size: 9px;
+    color: #444444;
+    padding-top: 2px;
+}
+.sink-refresh-btn {
+    background-color: #f0f0f4;
+    color: #444444;
+    border-radius: 5px;
+    border: 1px solid #dcdce0;
+    padding: 2px 6px;
+    font-size: 9px;
+}
+.sink-refresh-btn:hover {
+    background-color: #e2e2e6;
+    color: #000000;
+    border-color: #b0b0b5;
+}
+
+.bright-box {
+    background-color: #f4f4f6;
+    border-radius: 8px;
+    border: 1px solid #e4e4e8;
+    padding: 4px 8px;
+    margin: 1px 0 3px 0;
+}
+
+.toggle-btn {
+    background-color: #f0f0f4;
+    color: #555555;
+    border-radius: 6px;
+    border: 1px solid #d8d8de;
+    padding: 4px 2px;
+    font-size: 10px;
+    min-height: 28px;
+}
+.toggle-btn:hover {
+    background-color: #e2e2e6;
+    color: #000000;
+    border-color: #b0b0b5;
+}
+.toggle-btn.on, .toggle-btn.on-airplane, .toggle-btn.on-power {
+    background-color: #000000;
+    color: #ffffff;
+    border: 1px solid #000000;
+    font-weight: bold;
+}
+
+.mode-btn {
+    background-color: #f0f0f4;
+    color: #555555;
+    border-radius: 6px;
+    border: 1px solid #d8d8de;
+    padding: 4px 6px;
+    font-size: 10px;
+    min-height: 26px;
+}
+.mode-btn:hover {
+    background-color: #e2e2e6;
+    color: #000000;
+}
+.mode-btn.active-mode {
+    background-color: #000000;
+    color: #ffffff;
+    border: 1px solid #000000;
+    font-weight: bold;
+}
+
+.profile-btn {
+    background-color: #f0f0f4;
+    color: #555555;
+    border-radius: 6px;
+    border: 1px solid #d8d8de;
+    padding: 5px 8px;
+    font-size: 10px;
+    min-height: 28px;
+}
+.profile-btn:hover {
+    background-color: #e2e2e6;
+    color: #000000;
+    border-color: #b0b0b5;
+}
+.profile-btn.active-profile {
+    background-color: #000000;
+    color: #ffffff;
+    border: 1px solid #000000;
+    font-weight: bold;
+}
+
+.sub-section-label {
+    font-size: 9px;
+    font-weight: bold;
+    color: #888888;
+    letter-spacing: 0.8px;
+}
+
+.theme-btn {
+    background-color: #f0f0f4;
+    color: #555555;
+    border-radius: 6px;
+    border: 1px solid #d8d8de;
+    padding: 4px 8px;
+    font-size: 10px;
+    min-height: 26px;
+    margin-bottom: 2px;
+}
+.theme-btn:hover {
+    background-color: #e2e2e6;
+    color: #000000;
+}
+.theme-btn.active-theme {
+    background-color: #000000;
+    color: #ffffff;
+    border: 1px solid #000000;
+    font-weight: bold;
+}
+
+.pos-btn {
+    background-color: #f0f0f4;
+    color: #555555;
+    border-radius: 6px;
+    border: 1px solid #d8d8de;
+    padding: 4px 6px;
+    font-size: 10px;
+    min-height: 26px;
+}
+.pos-btn:hover {
+    background-color: #e2e2e6;
+    color: #000000;
+}
+.pos-btn.active-pos {
+    background-color: #000000;
+    color: #ffffff;
+    border: 1px solid #000000;
+    font-weight: bold;
+}
+
+.wp-btn {
+    padding: 1px;
+    border-radius: 5px;
+    border: 2px solid transparent;
+    background-color: transparent;
+}
+.wp-btn:hover { border-color: #b0b0b5; }
+.wp-btn.active-wp { border-color: #000000; }
+
+combobox button.combo {
+    background-color: #f0f0f4;
+    color: #000000;
+    border: 1px solid #d8d8de;
+    border-radius: 6px;
+    padding: 2px 6px;
+    font-size: 10px;
+}
+combobox button.combo:hover {
+    background-color: #e2e2e6;
+    border-color: #b0b0b5;
+}
+"""
+
 
 # ─── Вспомогательные функции ─────────────────────────────────────────────────
 def run_bg(cmd):
@@ -605,6 +942,18 @@ def player_get_status():
 
 
 # ─── Класс Sidebar ───────────────────────────────────────────────────────────
+
+def is_light_theme():
+    if os.path.exists(THEME_FILE):
+        try:
+            with open(THEME_FILE, "r") as f:
+                th = f.read().strip()
+                if th.startswith("white") or th == "macos_light":
+                    return True
+        except Exception:
+            pass
+    return False
+
 class Sidebar:
     def __init__(self):
         self.visible   = False
@@ -667,10 +1016,10 @@ class Sidebar:
             pass
 
         # CSS
-        prov = Gtk.CssProvider()
-        prov.load_from_data(GTK_CSS.encode())
+        self._css_provider = Gtk.CssProvider()
         Gtk.StyleContext.add_provider_for_screen(
-            Gdk.Screen.get_default(), prov, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+            Gdk.Screen.get_default(), self._css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        self._apply_theme_mode()
 
         self._build_ui()
 
@@ -679,6 +1028,10 @@ class Sidebar:
             self.toggle()
 
         self._refresh_timer = GLib.timeout_add(3000, self._refresh_dynamic)
+
+    def _apply_theme_mode(self):
+        css = GTK_CSS_LIGHT if is_light_theme() else GTK_CSS_DARK
+        self._css_provider.load_from_data(css.encode())
 
     def toggle(self):
         GLib.idle_add(self._do_toggle)
@@ -707,6 +1060,7 @@ class Sidebar:
                 GtkLayerShell.auto_exclusive_zone_enable(self.window)
             except Exception:
                 GtkLayerShell.set_exclusive_zone(self.window, 316)
+            self._apply_theme_mode()
             self._refresh_dynamic()
             self.window.show_all()
             self.visible = True
@@ -1081,24 +1435,30 @@ class Sidebar:
         if self._bright_lbl: self._bright_lbl.set_text(f"{val}%")
         set_brightness(val)
 
-    # ─── 5. Переключатели Wi-Fi / BT ─────────────────────────────────────────
+    # ─── 5. Переключатели связи (Все в одну строку) ───────────────────────────
     def _make_toggles(self, t):
-        grid = Gtk.Grid()
-        grid.set_row_spacing(4); grid.set_column_spacing(4)
-        grid.set_margin_top(2); grid.set_margin_bottom(4)
-        grid.set_column_homogeneous(True); grid.set_row_homogeneous(True)
+        box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=3)
+        box.set_margin_top(2); box.set_margin_bottom(3)
+        box.set_homogeneous(True)
+
+        tips = {
+            "wifi":     "Wi-Fi (Вкл/Выкл)" if self.lang == "ru" else "Wi-Fi (Toggle)",
+            "bt":       "Bluetooth (Вкл/Выкл)" if self.lang == "ru" else "Bluetooth (Toggle)",
+            "airplane": "Авиарежим (Вкл/Выкл)" if self.lang == "ru" else "Airplane Mode (Toggle)",
+            "power":    "Энергосбережение" if self.lang == "ru" else "Battery Saver (Toggle)",
+        }
 
         items = [
-            ("wifi",     t["wifi"],     get_wifi_state(),     "on",         toggle_wifi),
-            ("bt",       t["bt"],       get_bt_state(),       "on",         toggle_bt),
-            ("airplane", t["airplane"], get_airplane_state(), "on-airplane",toggle_airplane),
-            ("power",    t["power"],    get_power_profile() == "power-saver", "on-power", toggle_power_saver),
+            ("wifi",     t["wifi"],     get_wifi_state(),                     "on",          toggle_wifi),
+            ("bt",       t["bt"],       get_bt_state(),                       "on",          toggle_bt),
+            ("airplane", t["airplane"], get_airplane_state(),                 "on-airplane", toggle_airplane),
+            ("power",    t["power"],    get_power_profile() == "power-saver", "on-power",    toggle_power_saver),
         ]
-        positions = [(0,0),(0,1),(1,0),(1,1)]
 
-        for (key, label, is_on, cls_on, action), (row, col) in zip(items, positions):
+        for key, label, is_on, cls_on, action in items:
             btn = Gtk.Button(label=label)
             btn.get_style_context().add_class("toggle-btn")
+            btn.set_tooltip_text(tips.get(key, ""))
             if is_on: btn.get_style_context().add_class(cls_on)
             self._tog_btns[key] = btn
 
@@ -1108,9 +1468,9 @@ class Sidebar:
                 self._refresh_dynamic()
 
             btn.connect("clicked", _clicked)
-            grid.attach(btn, col, row, 1, 1)
+            box.pack_start(btn, True, True, 0)
 
-        return grid
+        return box
 
     # ─── 6. Waybar Позиция ───────────────────────────────────────────────────
     def _make_waybar_pos(self, t):
@@ -1273,7 +1633,11 @@ class Sidebar:
         for b in self._prof_btns.values():
             b.get_style_context().remove_class("active-profile")
         btn.get_style_context().add_class("active-profile")
-        switch_script = os.path.join(HOME, "hyprland_configs", "switch.sh")
+        switch_script = os.path.join(SCRIPTS_DIR, "switch.sh")
+        if not os.path.exists(switch_script):
+            switch_script = os.path.join(HOME, "hyprland_dots", "switch.sh")
+        if not os.path.exists(switch_script):
+            switch_script = os.path.join(HOME, "hyprland_configs", "switch.sh")
         run_bg(f'bash "{switch_script}" {target}')
 
     def _on_theme(self, btn, cat, substyle, theme_key):
@@ -1281,6 +1645,7 @@ class Sidebar:
             b.get_style_context().remove_class("active-theme")
         btn.get_style_context().add_class("active-theme")
         run_bg(f'bash "{SCRIPTS_DIR}/theme_ctl.sh" set {cat} {substyle}')
+        GLib.timeout_add(150, self._apply_theme_mode)
 
 
 # ─── Main ─────────────────────────────────────────────────────────────────────

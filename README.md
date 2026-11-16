@@ -31,8 +31,15 @@ chmod +x install.sh
 # Fast update over existing setup (auto-backup, config deploy, live reload)
 ./install.sh --update
 
+# Full clean reinstall with auto-rollback safety snapshot
+./install.sh --reinstall
+
 # Restore previous backup
 ./install.sh --restore
+
+# Switch configuration profiles (Classic Main <-> Cyberpunk Cybrdots)
+./switch.sh main
+./switch.sh cybrdots
 ```
 
 ### 3. Package Dependencies
@@ -264,8 +271,15 @@ chmod +x install.sh
 # Быстрое обновление поверх существующей сборки (бэкап + авто-перезагрузка)
 ./install.sh --update
 
-# Восстановление конфигурации из последнего бэкапа
+# Полная чистая переустановка с автоматическим откатом при ошибках
+./install.sh --reinstall
+
+# Восстановление конфигурации из бэкапа
 ./install.sh --restore
+
+# Переключение профилей сборки (Классический Main <-> Киберпанк Cybrdots)
+./switch.sh main
+./switch.sh cybrdots
 ```
 
 ### 3. Зависимости пакетов

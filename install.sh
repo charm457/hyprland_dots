@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # INSTALL.SH — Hyprland Dotfiles Installer & Updater
-# Supports clean install, seamless update with automatic backups, and EN/RU languages.
+# Supports clean install, full reinstall with auto-rollback, package update check,
+# seamless update with automatic backups, and EN/RU languages.
 # ==============================================================================
 
 set -e
@@ -25,6 +26,7 @@ WALLPAPER_DST="$HOME/wallpapers"
 SCREENSHOTS_DST="$HOME/Screenshots"
 TIMESTAMP="$(date +%Y%m%d_%H%M%S)"
 BACKUP_DIR="$CONFIG_DIR/hypr_backup_$TIMESTAMP"
+SNAPSHOT_DIR="$CONFIG_DIR/hypr_snapshot_pre_reinstall_$TIMESTAMP"
 CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}"
 LANG_FILE="$CACHE_DIR/dots_lang"
 
@@ -51,11 +53,13 @@ EOF
     if [[ "$INSTALL_LANG" == "ru" ]]; then
         echo -e "${BOLD}${MAGENTA}  Универсальный установщик и менеджер сборки Hyprland${RESET}"
         echo -e "${BLUE}  • Стили: Black, White, macOS Glass, Cyber (с подстилями)${RESET}"
-        echo -e "${BLUE}  • Режимы окон: Плитка / Monocle с Waybar / Windows Mode${RESET}"
+        echo -e "${BLUE}  • Режимы окон: Обычный (тайлинг) / Свободный (плавающий как в Windows)${RESET}"
+        echo -e "${BLUE}  • Сайдбар: Монохромный (чёрный/белый под тему), управление в 1 строку${RESET}"
     else
         echo -e "${BOLD}${MAGENTA}  Universal Hyprland Dotfiles Installer & Manager${RESET}"
         echo -e "${BLUE}  • Styles: Black, White, macOS Glass, Cyber (with sub-themes)${RESET}"
-        echo -e "${BLUE}  • Window Modes: Tiling / Fullscreen with Waybar / Windows Floating${RESET}"
+        echo -e "${BLUE}  • Window Modes: Default (Tiling) / Free (Floating like Windows)${RESET}"
+        echo -e "${BLUE}  • Sidebar: Pure Monochrome (Black/White adaptive), compact layout${RESET}"
     fi
     echo -e "${CYAN}------------------------------------------------------------${RESET}\n"
 }
@@ -90,6 +94,93 @@ detect_pkg_manager() {
     fi
 }
 
+check_and_offer_sys_update() {
+    local pm
+    pm=$(detect_pkg_manager)
+    local has_updates=false
+
+    if [[ "$INSTALL_LANG" == "ru" ]]; then
+        log_info "Проверка доступных обновлений пакетов системы..."
+    else
+        log_info "Checking for available system package updates..."
+    fi
+
+    case "$pm" in
+        pacman)
+            if command -v checkupdates &>/dev/null; then
+                if checkupdates 2>/dev/null | grep -q .; then
+                    has_updates=true
+                fi
+            elif pacman -Qu 2>/dev/null | grep -q .; then
+                has_updates=true
+            fi
+            ;;
+        dnf)
+            if ! dnf check-update --quiet &>/dev/null; then
+                # dnf check-update returns exit code 100 when updates are available
+                [[ $? -eq 100 ]] && has_updates=true
+            fi
+            ;;
+        apt)
+            local apt_pending
+            apt_pending=$(apt-get -s upgrade 2>/dev/null | grep -E '^[0-9]+ upgraded' || true)
+            if [[ -n "$apt_pending" && ! "$apt_pending" =~ ^0\ upgraded ]]; then
+                has_updates=true
+            fi
+            ;;
+    esac
+
+    if [[ "$has_updates" == true ]]; then
+        local ans=""
+        if [[ "$INSTALL_LANG" == "ru" ]]; then
+            log_warn "Обнаружены доступные обновления системных пакетов!"
+            read -rp "Желаете обновить пакеты системы сейчас? (y/N): " ans
+        else
+            log_warn "Available system package updates detected!"
+            read -rp "Would you like to upgrade system packages now? (y/N): " ans
+        fi
+
+        if [[ "$ans" =~ ^[YyДд]$ ]]; then
+            if [[ "$INSTALL_LANG" == "ru" ]]; then
+                log_info "Запуск обновления системы..."
+            else
+                log_info "Running system upgrade..."
+            fi
+
+            case "$pm" in
+                pacman)
+                    if command -v yay &>/dev/null; then
+                        yay -Syu || log_warn "Обновление через yay завершилось с предупреждением."
+                    elif command -v paru &>/dev/null; then
+                        paru -Syu || log_warn "Обновление через paru завершилось с предупреждением."
+                    else
+                        sudo pacman -Syu || log_warn "Обновление через pacman завершилось с предупреждением."
+                    fi
+                    ;;
+                dnf)
+                    sudo dnf upgrade -y || log_warn "Обновление через dnf завершилось с предупреждением."
+                    ;;
+                apt)
+                    sudo apt-get update && sudo apt-get upgrade -y || log_warn "Обновление через apt завершилось с предупреждением."
+                    ;;
+            esac
+            log_ok "Процесс обновления пакетов завершен!"
+        else
+            if [[ "$INSTALL_LANG" == "ru" ]]; then
+                log_info "Обновление пакетов пропущено пользователем."
+            else
+                log_info "Package upgrade skipped by user."
+            fi
+        fi
+    else
+        if [[ "$INSTALL_LANG" == "ru" ]]; then
+            log_ok "Системные пакеты в актуальном состоянии."
+        else
+            log_ok "System packages are up to date."
+        fi
+    fi
+}
+
 check_and_install_deps() {
     local pm
     pm=$(detect_pkg_manager)
@@ -99,49 +190,114 @@ check_and_install_deps() {
         log_info "Detected package manager: ${BOLD}$pm${RESET}"
     fi
 
-    local core_deps=("hyprland" "waybar" "kitty" "swaybg" "playerctl" "brightnessctl" "python3" "grimblast" "dunst" "rofi-wayland" "jq" "ttf-jetbrains-mono-nerd" "ttf-font-awesome" "polkit-gnome" "python-gobject" "gtk3" "gtk-layer-shell")
-    local missing=()
+    # Основные исполняемые команды
+    local core_cmds=("hyprland" "waybar" "kitty" "swaybg" "playerctl" "brightnessctl" "python3" "dunst" "jq" "libnotify")
+    local missing_cmds=()
 
-    for dep in "${core_deps[@]}"; do
-        if ! command -v "$dep" &>/dev/null && ! pacman -Qs "$dep" &>/dev/null && ! rpm -q "$dep" &>/dev/null && ! dpkg -l "$dep" &>/dev/null; then
-            missing+=("$dep")
+    for cmd in "${core_cmds[@]}"; do
+        if ! command -v "$cmd" &>/dev/null; then
+            missing_cmds+=("$cmd")
         fi
     done
 
-    if [[ ${#missing[@]} -eq 0 ]]; then
-        log_ok "Все зависимости установлены!"
+    # Проверка Python GTK и GtkLayerShell для сайдбара
+    local missing_gtk=false
+    if ! python3 -c "import gi; gi.require_version('Gtk', '3.0'); gi.require_version('GtkLayerShell', '0.1'); from gi.repository import Gtk, GtkLayerShell" 2>/dev/null; then
+        missing_gtk=true
+    fi
+
+    # Проверка утилиты скриншотов
+    local missing_screenshot=false
+    if ! command -v grimblast &>/dev/null && (! command -v grim &>/dev/null || ! command -v slurp &>/dev/null); then
+        missing_screenshot=true
+    fi
+
+    if [[ ${#missing_cmds[@]} -eq 0 && "$missing_gtk" == false && "$missing_screenshot" == false ]]; then
+        if [[ "$INSTALL_LANG" == "ru" ]]; then
+            log_ok "Все ключевые зависимости установлены!"
+        else
+            log_ok "All key dependencies are installed!"
+        fi
         return 0
     fi
 
-    log_warn "Отсутствуют пакеты: ${YELLOW}${missing[*]}${RESET}"
-    read -rp "Установить их? (y/N): " ans
+    if [[ "$INSTALL_LANG" == "ru" ]]; then
+        log_warn "Обнаружены отсутствующие компоненты: ${YELLOW}${missing_cmds[*]}${RESET}"
+        read -rp "Установить все необходимые библиотеки и пакеты? (y/N): " ans
+    else
+        log_warn "Missing components detected: ${YELLOW}${missing_cmds[*]}${RESET}"
+        read -rp "Install all required packages and libraries? (y/N): " ans
+    fi
+
     if [[ ! "$ans" =~ ^[YyДд]$ ]]; then
-        log_err "Установка прервана. Пожалуйста, установите зависимости вручную: ${missing[*]}"
-        exit 1
+        if [[ "$INSTALL_LANG" == "ru" ]]; then
+            log_warn "Продолжаем установку без автоматической установки пакетов."
+        else
+            log_warn "Continuing without automatic package installation."
+        fi
+        return 0
     fi
 
     case "$pm" in
         pacman)
+            local arch_pkgs=(
+                "hyprland" "waybar" "kitty" "swaybg" "dunst" "rofi-wayland"
+                "playerctl" "brightnessctl" "grim" "slurp" "wl-clipboard" "libnotify"
+                "python" "python-gobject" "gtk3" "gtk-layer-shell" "jq"
+                "ttf-jetbrains-mono-nerd" "ttf-font-awesome" "polkit-gnome"
+            )
             if command -v yay &>/dev/null; then
-                yay -S --needed "${missing[@]}" || exit 1
+                yay -S --needed --noconfirm "${arch_pkgs[@]}" grimblast-git || true
             elif command -v paru &>/dev/null; then
-                paru -S --needed "${missing[@]}" || exit 1
+                paru -S --needed --noconfirm "${arch_pkgs[@]}" grimblast-git || true
             else
-                sudo pacman -S --needed "${missing[@]}" || exit 1
+                sudo pacman -S --needed --noconfirm "${arch_pkgs[@]}" || true
+                # Если grimblast отсутствует, устанавливаем скрипт напрямую
+                if ! command -v grimblast &>/dev/null; then
+                    log_info "Установка утилиты grimblast..."
+                    sudo curl -sSL https://raw.githubusercontent.com/hyprwm/contrib/main/grimblast/grimblast -o /usr/local/bin/grimblast 2>/dev/null && sudo chmod +x /usr/local/bin/grimblast || true
+                fi
             fi
             ;;
         dnf)
-            sudo dnf install -y "${missing[@]}" || exit 1
+            local dnf_pkgs=(
+                "hyprland" "waybar" "kitty" "swaybg" "dunst" "rofi-wayland"
+                "playerctl" "brightnessctl" "grim" "slurp" "wl-clipboard" "libnotify"
+                "python3" "python3-gobject" "gtk3" "gtk-layer-shell" "jq"
+                "fontawesome-fonts" "polkit-gnome"
+            )
+            sudo dnf install -y "${dnf_pkgs[@]}" || true
+            if ! command -v grimblast &>/dev/null; then
+                sudo curl -sSL https://raw.githubusercontent.com/hyprwm/contrib/main/grimblast/grimblast -o /usr/local/bin/grimblast 2>/dev/null && sudo chmod +x /usr/local/bin/grimblast || true
+            fi
             ;;
         apt)
-            sudo apt-get update && sudo apt-get install -y "${missing[@]}" || exit 1
+            sudo apt-get update || true
+            local apt_pkgs=(
+                "waybar" "kitty" "swaybg" "dunst" "playerctl" "brightnessctl"
+                "grim" "slurp" "wl-clipboard" "libnotify-bin" "python3"
+                "python3-gi" "gir1.2-gtk-3.0" "libgtk-layer-shell0" "jq"
+                "fonts-font-awesome" "policykit-1-gnome"
+            )
+            sudo apt-get install -y "${apt_pkgs[@]}" || true
             ;;
         *)
-            log_err "Неподдерживаемый пакетный менеджер. Установите вручную: ${missing[*]}"
-            exit 1
+            log_warn "Неподдерживаемый пакетный менеджер. Убедитесь, что установлены: ${core_cmds[*]} python-gobject gtk-layer-shell"
             ;;
     esac
-    log_ok "Зависимости успешно установлены!"
+
+    # Финальная проверка работоспособности библиотек
+    if ! python3 -c "import gi; gi.require_version('Gtk', '3.0'); gi.require_version('GtkLayerShell', '0.1'); from gi.repository import Gtk, GtkLayerShell" 2>/dev/null; then
+        if [[ "$INSTALL_LANG" == "ru" ]]; then
+            log_warn "GtkLayerShell для Python не найден в системе. Сайдбар будет открываться, но без эксклюзивного резервирования зоны."
+            log_info "Для Arch Linux: sudo pacman -S gtk-layer-shell python-gobject"
+        else
+            log_warn "Python GtkLayerShell library not found. Sidebar will run without layer exclusive zone."
+            log_info "For Arch Linux: sudo pacman -S gtk-layer-shell python-gobject"
+        fi
+    else
+        log_ok "Все библиотеки и зависимости успешно проверены!"
+    fi
 }
 
 backup_existing_configs() {
@@ -182,7 +338,7 @@ deploy_configs() {
     mkdir -p "$CONFIG_DIR" "$WALLPAPER_DST" "$SCREENSHOTS_DST" "$CACHE_DIR/sidebar_thumbs"
 
     local clean_mode=true
-    if [[ -t 0 && -d "$HYPR_DST" && "${NON_INTERACTIVE:-false}" != "true" ]]; then
+    if [[ -t 0 && -d "$HYPR_DST" && "${NON_INTERACTIVE:-false}" != "true" && "${FORCE_CLEAN:-false}" != "true" ]]; then
         if [[ "$INSTALL_LANG" == "ru" ]]; then
             echo -e "\n${YELLOW}Обнаружены существующие конфиги Hyprland!${RESET}"
             echo -e "${BLUE}(Они сохранены в бэкап: $BACKUP_DIR)${RESET}"
@@ -226,11 +382,15 @@ deploy_configs() {
         mv "/tmp/userprefs_backup.conf" "$KITTY_DST/userprefs.conf" 2>/dev/null || true
     fi
 
-    # 4. Make all scripts executable
+    # 4. Копируем switch.sh в hypr/scripts и корень hypr
+    cp -f "$SCRIPT_DIR/switch.sh" "$HYPR_DST/scripts/switch.sh" 2>/dev/null || true
+    cp -f "$SCRIPT_DIR/switch.sh" "$HYPR_DST/switch.sh" 2>/dev/null || true
+
+    # 5. Выдача прав на выполнение
     chmod +x "$HYPR_DST/scripts/"*.sh 2>/dev/null || true
     chmod +x "$HYPR_DST/sidebar/"*.sh 2>/dev/null || true
     chmod +x "$HYPR_DST/sidebar/sidebar.py" 2>/dev/null || true
-    chmod +x "$HYPR_DST/change_wallpaper.sh" 2>/dev/null || true
+    chmod +x "$HYPR_DST/switch.sh" 2>/dev/null || true
     chmod +x "$SCRIPT_DIR/switch.sh" 2>/dev/null || true
 
     if [[ "$INSTALL_LANG" == "ru" ]]; then
@@ -257,12 +417,12 @@ reload_environment() {
         # Исключаем дублирование Waybar: убиваем любые старые копии и запускаем ровно один процесс
         killall -9 waybar 2>/dev/null || pkill -9 -x waybar 2>/dev/null || true
         sleep 0.4
-        waybar &>/dev/null &
+        nohup waybar </dev/null &>/dev/null &
 
         pkill -SIGUSR1 kitty 2>/dev/null || true
         pkill -9 -f "sidebar.py" 2>/dev/null || true
         rm -f "$CACHE_DIR/sidebar.pid" 2>/dev/null || true
-        sleep 0.5
+        sleep 0.3
         python3 "$HYPR_DST/sidebar/sidebar.py" &>> /tmp/sidebar.log &
 
         if [[ "$INSTALL_LANG" == "ru" ]]; then
@@ -273,23 +433,112 @@ reload_environment() {
     fi
 }
 
+# ==============================================================================
+# ПОЛНАЯ ПЕРЕУСТАНОВКА С АВТОМАТИЧЕСКИМ ОТКАТОМ (Full Reinstall with Rollback)
+# ==============================================================================
+full_reinstall() {
+    if [[ "$INSTALL_LANG" == "ru" ]]; then
+        log_info "Начало полной переустановки с защитой авто-отката..."
+    else
+        log_info "Starting full reinstall with automated rollback safety..."
+    fi
+
+    # 1. Создаем контрольный снапшот текущей рабочей версии
+    mkdir -p "$SNAPSHOT_DIR"
+    [[ -d "$HYPR_DST" ]]   && cp -r "$HYPR_DST"   "$SNAPSHOT_DIR/hypr"
+    [[ -d "$WAYBAR_DST" ]] && cp -r "$WAYBAR_DST" "$SNAPSHOT_DIR/waybar"
+    [[ -d "$KITTY_DST" ]]  && cp -r "$KITTY_DST"  "$SNAPSHOT_DIR/kitty"
+
+    if [[ "$INSTALL_LANG" == "ru" ]]; then
+        log_ok "Контрольный снимок текущей сборки создан: $SNAPSHOT_DIR"
+    else
+        log_ok "Pre-reinstall safety snapshot created: $SNAPSHOT_DIR"
+    fi
+
+    # Функция экстренного авто-отката при сбое
+    rollback_on_failure() {
+        local exit_code=$?
+        trap - ERR
+        echo ""
+        if [[ "$INSTALL_LANG" == "ru" ]]; then
+            log_err "В процессе переустановки произошла ошибка (код: $exit_code)!"
+            log_warn "Запускаем автоматический откат к предыдущей рабочей версии..."
+        else
+            log_err "An error occurred during reinstall (exit code: $exit_code)!"
+            log_warn "Triggering automatic rollback to previous working version..."
+        fi
+
+        if [[ -d "$SNAPSHOT_DIR" ]]; then
+            [[ -d "$SNAPSHOT_DIR/hypr" ]]   && rm -rf "$HYPR_DST"   && cp -r "$SNAPSHOT_DIR/hypr" "$HYPR_DST"
+            [[ -d "$SNAPSHOT_DIR/waybar" ]] && rm -rf "$WAYBAR_DST" && cp -r "$SNAPSHOT_DIR/waybar" "$WAYBAR_DST"
+            [[ -d "$SNAPSHOT_DIR/kitty" ]]  && rm -rf "$KITTY_DST"  && cp -r "$SNAPSHOT_DIR/kitty" "$KITTY_DST"
+
+            reload_environment
+
+            if [[ "$INSTALL_LANG" == "ru" ]]; then
+                log_ok "Авто-откат успешно завершен! Предыдущая версия восстановлена и запущена."
+            else
+                log_ok "Auto-rollback completed! Previous working version restored and running."
+            fi
+        else
+            log_err "Snapshot not found, cannot rollback."
+        fi
+        exit "$exit_code"
+    }
+
+    # Включаем ловушку на ошибку
+    trap rollback_on_failure ERR
+
+    # 2. Проверка и предложение обновить системные пакеты
+    check_and_offer_sys_update
+
+    # 3. Проверка и установка всех библиотек
+    check_and_install_deps
+
+    # 4. Полная очистка целевых директорий
+    rm -rf "$HYPR_DST" "$WAYBAR_DST" "$KITTY_DST"
+
+    # 5. Развертывание свежих файлов
+    FORCE_CLEAN=true NON_INTERACTIVE=true deploy_configs
+
+    # 6. Проверка валидности Python скриптов
+    python3 -m py_compile "$HYPR_DST/sidebar/sidebar.py"
+
+    # 7. Перезагрузка и запуск
+    reload_environment
+
+    # Отключаем ловушку после успешного завершения
+    trap - ERR
+
+    if [[ "$INSTALL_LANG" == "ru" ]]; then
+        log_ok "Полная чистая переустановка успешно завершена!"
+    else
+        log_ok "Full clean reinstall completed successfully!"
+    fi
+}
+
 restore_backup() {
-    local backups=("$CONFIG_DIR"/hypr_backup_*)
-    if [[ ! -e "${backups[0]}" ]]; then
+    local backups=("$CONFIG_DIR"/hypr_backup_* "$CONFIG_DIR"/hypr_snapshot_pre_reinstall_*)
+    local valid_backups=()
+    for b in "${backups[@]}"; do
+        [[ -d "$b" ]] && valid_backups+=("$b")
+    done
+
+    if [[ ${#valid_backups[@]} -eq 0 ]]; then
         log_warn "No backups found."
         return 0
     fi
 
-    echo -e "\nAvailable backups:"
+    echo -e "\nAvailable backups / Доступные резервные копии:"
     local i=1
-    for b in "${backups[@]}"; do
+    for b in "${valid_backups[@]}"; do
         echo "  $i) $(basename "$b")"
         ((i++))
     done
 
-    read -rp "Select backup number to restore (or 0 to cancel): " choice
-    if [[ "$choice" -ge 1 && "$choice" -le "${#backups[@]}" ]]; then
-        local target="${backups[$((choice - 1))]}"
+    read -rp "Select backup number / Выберите номер бэкапа (0 to cancel): " choice
+    if [[ "$choice" -ge 1 && "$choice" -le "${#valid_backups[@]}" ]]; then
+        local target="${valid_backups[$((choice - 1))]}"
         log_info "Restoring from $target..."
         [[ -d "$target/hypr" ]]   && rm -rf "$HYPR_DST"   && cp -r "$target/hypr" "$HYPR_DST"
         [[ -d "$target/waybar" ]] && rm -rf "$WAYBAR_DST" && cp -r "$target/waybar" "$WAYBAR_DST"
@@ -307,6 +556,7 @@ main() {
             --lang=en|-en) FORCE_LANG="en" ;;
             --fresh) action="fresh" ;;
             --update) action="update" ;;
+            --reinstall) action="reinstall" ;;
             --restore) action="restore" ;;
         esac
     done
@@ -315,6 +565,7 @@ main() {
 
     case "$action" in
         fresh)
+            check_and_offer_sys_update
             check_and_install_deps
             backup_existing_configs
             deploy_configs
@@ -327,6 +578,10 @@ main() {
             reload_environment
             exit 0
             ;;
+        reinstall)
+            full_reinstall
+            exit 0
+            ;;
         restore)
             restore_backup
             exit 0
@@ -337,24 +592,27 @@ main() {
         echo -e "${BOLD}Выберите действие:${RESET}"
         echo -e "  ${GREEN}1)${RESET} ${BOLD}Установка на чистый Hyprland${RESET} (с проверкой пакетов)"
         echo -e "  ${CYAN}2)${RESET} ${BOLD}Обновление поверх готовой сборки${RESET} (с авто-бэкапом)"
-        echo -e "  ${YELLOW}3)${RESET} Создать только резервную копию (бэкап)"
-        echo -e "  ${MAGENTA}4)${RESET} Восстановить конфиги из бэкапа"
-        echo -e "  ${RED}5)${RESET} Выход"
+        echo -e "  ${YELLOW}3)${RESET} ${BOLD}Полная переустановка с авто-откатом${RESET} (Clean Reinstall + Rollback)"
+        echo -e "  ${BLUE}4)${RESET} Создать только резервную копию (бэкап)"
+        echo -e "  ${MAGENTA}5)${RESET} Восстановить конфиги из бэкапа"
+        echo -e "  ${RED}6)${RESET} Выход"
         echo ""
-        read -rp "Введите пункт [1-5]: " choice
+        read -rp "Введите пункт [1-6]: " choice
     else
         echo -e "${BOLD}Select Action:${RESET}"
         echo -e "  ${GREEN}1)${RESET} ${BOLD}Install on Fresh Hyprland${RESET} (with package check)"
         echo -e "  ${CYAN}2)${RESET} ${BOLD}Update Existing Setup${RESET} (with auto-backup)"
-        echo -e "  ${YELLOW}3)${RESET} Create backup only"
-        echo -e "  ${MAGENTA}4)${RESET} Restore from previous backup"
-        echo -e "  ${RED}5)${RESET} Exit"
+        echo -e "  ${YELLOW}3)${RESET} ${BOLD}Full Reinstall with Auto-Rollback${RESET} (Clean Reinstall + Rollback)"
+        echo -e "  ${BLUE}4)${RESET} Create backup only"
+        echo -e "  ${MAGENTA}5)${RESET} Restore from previous backup"
+        echo -e "  ${RED}6)${RESET} Exit"
         echo ""
-        read -rp "Enter choice [1-5]: " choice
+        read -rp "Enter choice [1-6]: " choice
     fi
 
     case "$choice" in
         1)
+            check_and_offer_sys_update
             check_and_install_deps
             backup_existing_configs
             deploy_configs
@@ -366,12 +624,15 @@ main() {
             reload_environment
             ;;
         3)
-            backup_existing_configs
+            full_reinstall
             ;;
         4)
-            restore_backup
+            backup_existing_configs
             ;;
         5)
+            restore_backup
+            ;;
+        6)
             exit 0
             ;;
         *)
