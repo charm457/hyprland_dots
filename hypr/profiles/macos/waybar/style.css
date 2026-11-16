@@ -1,5 +1,5 @@
 /* ==============================================================================
- * MACOS WAYBAR STYLE — Cupertino Top Bar & Floating Dynamic Dock
+ * MACOS WAYBAR STYLE — Cupertino Top Menu Bar
  * ============================================================================== */
 * {
     font-family: "-apple-system", "SF Pro Text", "JetBrainsMono Nerd Font", sans-serif;
@@ -10,33 +10,32 @@
     border-radius: 0;
 }
 
-/* ─── 1. TOP BAR (macOS Menu Bar) ────────────────────────────────────────── */
-window#waybar.top-bar {
-    background: rgba(30, 30, 35, 0.45);
+window#waybar {
+    background: rgba(30, 30, 35, 0.55);
     color: #ffffff;
     border-bottom: 1px solid rgba(255, 255, 255, 0.15);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     transition: none;
 }
 
-window#waybar.top-bar #custom-apple {
+#custom-apple {
     font-size: 16px;
     font-weight: bold;
     color: #ffffff;
     padding: 0 12px 0 14px;
 }
 
-window#waybar.top-bar #custom-apple:hover {
+#custom-apple:hover {
     color: #007aff;
 }
 
-window#waybar.top-bar #custom-finder,
-window#waybar.top-bar #custom-file,
-window#waybar.top-bar #custom-edit,
-window#waybar.top-bar #custom-view,
-window#waybar.top-bar #custom-go,
-window#waybar.top-bar #custom-window,
-window#waybar.top-bar #custom-help {
+#custom-finder,
+#custom-file,
+#custom-edit,
+#custom-view,
+#custom-go,
+#custom-window,
+#custom-help {
     padding: 0 8px;
     color: #ffffff;
     font-size: 13px;
@@ -45,94 +44,47 @@ window#waybar.top-bar #custom-help {
     margin: 2px 1px;
 }
 
-window#waybar.top-bar #custom-finder:hover,
-window#waybar.top-bar #custom-file:hover,
-window#waybar.top-bar #custom-edit:hover,
-window#waybar.top-bar #custom-view:hover,
-window#waybar.top-bar #custom-go:hover,
-window#waybar.top-bar #custom-window:hover,
-window#waybar.top-bar #custom-help:hover {
+#custom-finder:hover,
+#custom-file:hover,
+#custom-edit:hover,
+#custom-view:hover,
+#custom-go:hover,
+#custom-window:hover,
+#custom-help:hover {
     background: rgba(255, 255, 255, 0.15);
 }
 
-window#waybar.top-bar #window {
+#window {
     color: rgba(255, 255, 255, 0.85);
     font-size: 12px;
     font-style: italic;
     padding: 0 10px;
 }
 
-window#waybar.top-bar #battery,
-window#waybar.top-bar #network,
-window#waybar.top-bar #custom-search,
-window#waybar.top-bar #custom-control_center {
+#pulseaudio,
+#battery,
+#network,
+#custom-search,
+#custom-control_center {
     padding: 0 8px;
     color: #ffffff;
     font-size: 13px;
 }
 
-window#waybar.top-bar #battery:hover,
-window#waybar.top-bar #network:hover,
-window#waybar.top-bar #custom-search:hover,
-window#waybar.top-bar #custom-control_center:hover {
+#pulseaudio:hover,
+#battery:hover,
+#network:hover,
+#custom-search:hover,
+#custom-control_center:hover {
     background: rgba(255, 255, 255, 0.15);
     border-radius: 4px;
 }
 
-window#waybar.top-bar #clock {
+#clock {
     color: #ffffff;
     font-weight: 600;
     font-size: 12px;
     padding: 0 14px;
-}
-
-/* ─── 2. BOTTOM DOCK (macOS Floating Glass Dock) ─────────────────────────── */
-window#waybar.dock {
-    background: rgba(255, 255, 255, 0.22);
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    border-radius: 22px;
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
-    padding: 4px 10px;
-    margin-bottom: 8px;
-}
-
-window#waybar.dock #custom-dock_finder,
-window#waybar.dock #custom-dock_launchpad,
-window#waybar.dock #custom-dock_safari,
-window#waybar.dock #custom-dock_mail,
-window#waybar.dock #custom-dock_messages,
-window#waybar.dock #custom-dock_terminal,
-window#waybar.dock #custom-dock_music,
-window#waybar.dock #custom-dock_settings,
-window#waybar.dock #custom-dock_downloads,
-window#waybar.dock #custom-dock_trash {
-    font-size: 24px;
-    padding: 4px 10px;
-    margin: 0 2px;
-    color: #ffffff;
-    border-radius: 12px;
-    transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-window#waybar.dock #custom-dock_finder:hover,
-window#waybar.dock #custom-dock_launchpad:hover,
-window#waybar.dock #custom-dock_safari:hover,
-window#waybar.dock #custom-dock_mail:hover,
-window#waybar.dock #custom-dock_messages:hover,
-window#waybar.dock #custom-dock_terminal:hover,
-window#waybar.dock #custom-dock_music:hover,
-window#waybar.dock #custom-dock_settings:hover,
-window#waybar.dock #custom-dock_downloads:hover,
-window#waybar.dock #custom-dock_trash:hover {
-    background: rgba(255, 255, 255, 0.28);
-    color: #007aff;
-    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
-}
-
-window#waybar.dock #custom-dock_sep {
-    color: rgba(255, 255, 255, 0.35);
-    font-size: 20px;
-    padding: 0 4px;
 }
 
 tooltip {

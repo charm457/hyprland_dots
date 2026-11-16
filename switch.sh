@@ -56,7 +56,6 @@ if [[ -d "$REPO_DIR/hypr" && "$REPO_DIR" != "$CONFIG_DIR" ]]; then
     cp -rf "$REPO_DIR/hypr/scripts" "$CONFIG_DIR/hypr/" 2>/dev/null || true
     cp -rf "$REPO_DIR/hypr/sidebar" "$CONFIG_DIR/hypr/" 2>/dev/null || true
     cp -rf "$REPO_DIR/hypr/profiles" "$CONFIG_DIR/hypr/" 2>/dev/null || true
-    [[ -d "$REPO_DIR/hypr/assets" ]] && cp -rf "$REPO_DIR/hypr/assets" "$CONFIG_DIR/hypr/" 2>/dev/null || true
     [[ -d "$REPO_DIR/yazi" ]] && cp -rf "$REPO_DIR/yazi/"* "$CONFIG_DIR/yazi/" 2>/dev/null || true
     cp -f "$REPO_DIR/switch.sh" "$CONFIG_DIR/hypr/switch.sh" 2>/dev/null || true
     chmod +x "$CONFIG_DIR/hypr/scripts/"*.sh "$CONFIG_DIR/hypr/sidebar/"*.sh "$CONFIG_DIR/hypr/sidebar/sidebar.py" "$CONFIG_DIR/hypr/switch.sh" 2>/dev/null || true
@@ -93,24 +92,15 @@ if [[ "$TARGET" == "macos" ]]; then
     echo "macos_glass" > "$CACHE_DIR/sidebar_theme"
     echo "top" > "$CACHE_DIR/waybar_position"
 
-    # Обои macOS Sonoma / Ventura
-    if [[ -f "$REPO_DIR/hypr/assets/wallpapers/macos_sonoma.jpg" ]]; then
-        WP="$REPO_DIR/hypr/assets/wallpapers/macos_sonoma.jpg"
-    elif [[ -f "$CONFIG_DIR/hypr/assets/wallpapers/macos_sonoma.jpg" ]]; then
-        WP="$CONFIG_DIR/hypr/assets/wallpapers/macos_sonoma.jpg"
-    elif [[ -f "$HOME/wallpapers/macos_sonoma.jpg" ]]; then
-        WP="$HOME/wallpapers/macos_sonoma.jpg"
+    # Для macOS сохраняем текущие обои пользователя (не навязываем sonoma)
+    if [[ -f "$CACHE_DIR/current_wallpaper" && -f "$(cat "$CACHE_DIR/current_wallpaper")" ]]; then
+        WP=$(cat "$CACHE_DIR/current_wallpaper")
     elif [[ -d "$HOME/wallpapers" ]]; then
-        WP=$(find "$HOME/wallpapers" -type f \( -name "*macos*" -o -name "*sonoma*" -o -name "*ventura*" -o -name "*apple*" -o -name "*.jpg" -o -name "*.png" -o -name "*.webp" \) 2>/dev/null | head -n 1)
+        WP=$(find "$HOME/wallpapers" -type f \( -name "*.jpg" -o -name "*.png" -o -name "*.webp" \) 2>/dev/null | head -n 1)
     fi
 
-    # Копируем обои в ~/wallpapers для доступности в цикле
-    if [[ -n "$WP" && -f "$WP" && ! -f "$HOME/wallpapers/macos_sonoma.jpg" ]]; then
-        cp -f "$WP" "$HOME/wallpapers/macos_sonoma.jpg" 2>/dev/null || true
-    fi
-
-    NOTIFY_TITLE="macOS Sonoma Profile"
-    NOTIFY_BODY=" Apple Menu Bar сверху, парящий Dock внизу, обои Sonoma и плавные анимации Cupertino"
+    NOTIFY_TITLE="macOS Profile"
+    NOTIFY_BODY=" Apple Menu Bar сверху, аутентичные анимации и стекло"
 
 elif [[ "$TARGET" == "cybrdots" ]]; then
     echo "cyber_neon" > "$CACHE_DIR/sidebar_theme"
