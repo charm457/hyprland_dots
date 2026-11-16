@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# toggle.sh — мгновенное открытие/закрытие sidebar через SIGUSR1
+# toggle.sh — мгновенное открытие/закрытие sidebar через SIGUSR1 с авто-синхронизацией
 
 export WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-wayland-1}"
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
@@ -7,7 +7,21 @@ export DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user
 export GDK_BACKEND=wayland
 
 PID_FILE="${XDG_CACHE_HOME:-$HOME/.cache}/sidebar.pid"
-SCRIPT="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/sidebar/sidebar.py"
+CONFIG_SCRIPT="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/sidebar/sidebar.py"
+REPO_SCRIPT="$HOME/hyprland_dots/hypr/sidebar/sidebar.py"
+[[ ! -f "$REPO_SCRIPT" ]] && REPO_SCRIPT="$HOME/hyprland_configs/hypr/sidebar/sidebar.py"
+
+# Авто-синхронизация из репозитория при наличии свежей версии
+if [[ -f "$REPO_SCRIPT" ]]; then
+    if [[ ! -f "$CONFIG_SCRIPT" || "$REPO_SCRIPT" -nt "$CONFIG_SCRIPT" ]]; then
+        mkdir -p "$(dirname "$CONFIG_SCRIPT")"
+        cp -f "$REPO_SCRIPT" "$CONFIG_SCRIPT"
+        chmod +x "$CONFIG_SCRIPT"
+    fi
+fi
+
+SCRIPT="$CONFIG_SCRIPT"
+[[ ! -f "$SCRIPT" && -f "$REPO_SCRIPT" ]] && SCRIPT="$REPO_SCRIPT"
 
 if [[ -f "$PID_FILE" ]]; then
     PID=$(cat "$PID_FILE")

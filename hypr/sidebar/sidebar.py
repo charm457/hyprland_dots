@@ -111,6 +111,15 @@ def get_current_lang():
     return "ru"
 
 def get_current_profile():
+    prof_file = os.path.join(CACHE_DIR, "active_profile")
+    if os.path.exists(prof_file):
+        try:
+            with open(prof_file, "r") as f:
+                p = f.read().strip()
+                if p in ("main", "cybrdots"):
+                    return p
+        except Exception:
+            pass
     try:
         repo_dir = os.path.join(HOME, "hyprland_dots")
         if not os.path.isdir(repo_dir):
@@ -181,8 +190,9 @@ window {
     border-radius: 12px;
     border: 1px solid #222222;
 }
-.root-box {
-    background-color: transparent;
+scrolledwindow, viewport, .root-box {
+    background-color: #000000;
+    color: #ffffff;
 }
 
 scrollbar, scrollbar.vertical {
@@ -489,8 +499,9 @@ window {
     border-radius: 12px;
     border: 1px solid #d0d0d5;
 }
-.root-box {
-    background-color: transparent;
+scrolledwindow, viewport, .root-box {
+    background-color: #ffffff;
+    color: #000000;
 }
 
 scrollbar, scrollbar.vertical {
@@ -981,12 +992,9 @@ class Sidebar:
         self.window.connect("destroy", self._quit)
         self.window.connect("key-press-event", self._on_key)
 
-        # Поддержка прозрачности/скругления углов без артефактов
-        screen = self.window.get_screen()
-        visual = screen.get_rgba_visual()
-        if visual:
-            self.window.set_visual(visual)
-        self.window.set_app_paintable(True)
+        # 100% непрозрачный фон окна (Solid Opaque)
+        self.window.set_app_paintable(False)
+        self.window.connect("draw", self._on_window_draw)
 
         # LayerShell
         GtkLayerShell.init_for_window(self.window)
@@ -1028,6 +1036,15 @@ class Sidebar:
             self.toggle()
 
         self._refresh_timer = GLib.timeout_add(3000, self._refresh_dynamic)
+
+    def _on_window_draw(self, widget, cr):
+        # Жесткая заливка непрозрачным цветом перед отрисовкой виджетов
+        if is_light_theme():
+            cr.set_source_rgb(1.0, 1.0, 1.0)
+        else:
+            cr.set_source_rgb(0.0, 0.0, 0.0)
+        cr.paint()
+        return False
 
     def _apply_theme_mode(self):
         css = GTK_CSS_LIGHT if is_light_theme() else GTK_CSS_DARK
