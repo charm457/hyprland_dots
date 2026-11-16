@@ -88,13 +88,16 @@ if command -v nm-applet &>/dev/null; then
     nm-applet --indicator &
 fi
 
-# Уведомления (Dunst / Mako)
+# Уведомления (Dunst / Mako / SwayNC)
 if command -v dunst &>/dev/null; then
     pkill dunst 2>/dev/null || true
     dunst &
 elif command -v mako &>/dev/null; then
     pkill mako 2>/dev/null || true
     mako &
+elif command -v swaync &>/dev/null; then
+    pkill swaync 2>/dev/null || true
+    swaync &
 fi
 
 # Панель Waybar (строго один экземпляр)

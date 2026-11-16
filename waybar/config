@@ -106,7 +106,7 @@
     "custom/theme": {
         "format": "󰏘",
         "on-click": "~/.config/hypr/sidebar/toggle.sh",
-        "tooltip-format": "Смена тем и стилей оформления"
+        "tooltip-format": "Дизайн и стилизация (Super+P / Ctrl+P)"
     },
     "tray": {
         "icon-size": 16,
