@@ -1,0 +1,189 @@
+[
+    {
+        "name": "top-bar",
+        "layer": "top",
+        "position": "top",
+        "height": 28,
+        "spacing": 0,
+        "margin": 0,
+        "modules-left": [
+            "custom/apple",
+            "custom/finder",
+            "custom/file",
+            "custom/edit",
+            "custom/view",
+            "custom/go",
+            "custom/window",
+            "custom/help"
+        ],
+        "modules-center": [
+            "hyprland/window"
+        ],
+        "modules-right": [
+            "battery",
+            "network",
+            "custom/search",
+            "custom/control_center",
+            "clock"
+        ],
+        "custom/apple": {
+            "format": "",
+            "interval": 3600,
+            "on-click": "~/.config/hypr/sidebar/toggle.sh",
+            "tooltip-format": "macOS Пункт управления (Super+P)"
+        },
+        "custom/finder": {
+            "format": "<b>Finder</b>",
+            "interval": 3600,
+            "on-click": "~/.config/hypr/scripts/file_manager.sh",
+            "tooltip-format": "Менеджер файлов (Super+E)"
+        },
+        "custom/file": {
+            "format": "File",
+            "interval": 3600,
+            "on-click": "~/.config/hypr/scripts/file_manager.sh",
+            "tooltip-format": "Открыть проводник"
+        },
+        "custom/edit": {
+            "format": "Edit",
+            "interval": 3600,
+            "on-click": "~/.config/hypr/scripts/file_manager.sh yazi",
+            "tooltip-format": "Yazi редактор / проводник (Super+Shift+E)"
+        },
+        "custom/view": {
+            "format": "View",
+            "interval": 3600,
+            "on-click": "~/.config/hypr/scripts/window_mode.sh cycle",
+            "tooltip-format": "Смена режима окон (Super+W)"
+        },
+        "custom/go": {
+            "format": "Go",
+            "interval": 3600,
+            "on-click": "rofi -show drun",
+            "tooltip-format": "Меню приложений (Super+Space)"
+        },
+        "custom/window": {
+            "format": "Window",
+            "interval": 3600,
+            "on-click": "~/.config/hypr/scripts/window_mode.sh toggle_floating",
+            "tooltip-format": "Переключить окно (Float / Tile) (Super+V)"
+        },
+        "custom/help": {
+            "format": "Help",
+            "interval": 3600,
+            "on-click": "~/.config/hypr/scripts/keybinds_help.sh",
+            "tooltip-format": "Справка клавиш (Super+/)"
+        },
+        "hyprland/window": {
+            "format": "{}",
+            "max-length": 35,
+            "separate-outputs": true
+        },
+        "battery": {
+            "format": "{icon} {capacity}%",
+            "format-charging": "󰂄 {capacity}%",
+            "format-full": "󰁹 100%",
+            "format-icons": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
+            "states": { "warning": 30, "critical": 15 },
+            "interval": 30
+        },
+        "network": {
+            "format-wifi": "󰤨",
+            "format-ethernet": "󰈀",
+            "format-disconnected": "󰤭",
+            "tooltip-format": "{essid} ({ipaddr})",
+            "interval": 5
+        },
+        "custom/search": {
+            "format": "󰍉",
+            "on-click": "rofi -show drun",
+            "tooltip-format": "Spotlight Search (Super+Space)"
+        },
+        "custom/control_center": {
+            "format": "󱐋",
+            "on-click": "~/.config/hypr/sidebar/toggle.sh",
+            "tooltip-format": "Control Center (Super+P)"
+        },
+        "clock": {
+            "format": "{:%a %b %d  %I:%M %p}",
+            "format-alt": "{:%Y-%m-%d  %H:%M:%S}",
+            "tooltip-format": "<tt><small>{calendar}</small></tt>",
+            "interval": 1
+        }
+    },
+    {
+        "name": "dock",
+        "layer": "top",
+        "position": "bottom",
+        "height": 52,
+        "margin-bottom": 8,
+        "spacing": 4,
+        "modules-center": [
+            "custom/dock_finder",
+            "custom/dock_launchpad",
+            "custom/dock_safari",
+            "custom/dock_mail",
+            "custom/dock_messages",
+            "custom/dock_terminal",
+            "custom/dock_music",
+            "custom/dock_settings",
+            "custom/dock_sep",
+            "custom/dock_downloads",
+            "custom/dock_trash"
+        ],
+        "custom/dock_finder": {
+            "format": "󰀻",
+            "on-click": "~/.config/hypr/scripts/file_manager.sh",
+            "tooltip-format": "Finder (Super+E)"
+        },
+        "custom/dock_launchpad": {
+            "format": "󰍉",
+            "on-click": "rofi -show drun",
+            "tooltip-format": "Launchpad (Super+Space)"
+        },
+        "custom/dock_safari": {
+            "format": "󰖟",
+            "on-click": "firefox || chromium",
+            "tooltip-format": "Safari / Web Browser"
+        },
+        "custom/dock_mail": {
+            "format": "󰇮",
+            "on-click": "thunderbird || xdg-open mailto:",
+            "tooltip-format": "Mail"
+        },
+        "custom/dock_messages": {
+            "format": "󰭹",
+            "on-click": "telegram-desktop || discord",
+            "tooltip-format": "Messages / Telegram"
+        },
+        "custom/dock_terminal": {
+            "format": "󰞷",
+            "on-click": "kitty",
+            "tooltip-format": "Terminal Kitty (Super+Enter)"
+        },
+        "custom/dock_music": {
+            "format": "󰝚",
+            "on-click": "spotify || playerctl play-pause",
+            "tooltip-format": "Music Player"
+        },
+        "custom/dock_settings": {
+            "format": "󰒓",
+            "on-click": "~/.config/hypr/sidebar/toggle.sh",
+            "tooltip-format": "System Settings (Super+P)"
+        },
+        "custom/dock_sep": {
+            "format": "│",
+            "tooltip": false
+        },
+        "custom/dock_downloads": {
+            "format": "󰉋",
+            "on-click": "~/.config/hypr/scripts/file_manager.sh yazi",
+            "tooltip-format": "Downloads / Yazi (Super+Shift+E)"
+        },
+        "custom/dock_trash": {
+            "format": "󰩹",
+            "on-click": "wlogout",
+            "tooltip-format": "Trash / Session Logout"
+        }
+    }
+]

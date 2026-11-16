@@ -1,0 +1,102 @@
+{
+    "layer": "top",
+    "position": "top",
+    "height": 28,
+    "spacing": 2,
+    "modules-left": [
+        "custom/gb_badge",
+        "custom/spc",
+        "hyprland/workspaces",
+        "custom/tty",
+        "hyprland/window"
+    ],
+    "modules-center": [
+        "custom/shield",
+        "custom/profile_name",
+        "custom/ice",
+        "cpu",
+        "memory"
+    ],
+    "modules-right": [
+        "network",
+        "custom/sys_stat",
+        "battery",
+        "custom/idle_hold",
+        "clock"
+    ],
+    "custom/gb_badge": {
+        "format": "GB // 13",
+        "on-click": "~/.config/hypr/sidebar/toggle.sh",
+        "tooltip-format": "Tactical HUD Unit 13 — Sidebar (Super+P)"
+    },
+    "custom/spc": {
+        "format": "SPC // 01",
+        "tooltip-format": "Space Cluster 01"
+    },
+    "hyprland/workspaces": {
+        "disable-scroll": true,
+        "all-outputs": true,
+        "format": "{id}",
+        "on-click": "activate"
+    },
+    "custom/tty": {
+        "format": "TTY.00",
+        "tooltip": false
+    },
+    "hyprland/window": {
+        "format": "bash // {}",
+        "max-length": 30,
+        "separate-outputs": true
+    },
+    "custom/shield": {
+        "format": "S // SHIELD UFW //",
+        "tooltip": false
+    },
+    "custom/profile_name": {
+        "format": "PROFILE CIRCUIT //",
+        "tooltip": false
+    },
+    "custom/ice": {
+        "format": "ICE NOMINAL // レイス",
+        "tooltip": false
+    },
+    "cpu": {
+        "interval": 2,
+        "format": "CPU {usage}% |",
+        "tooltip-format": "CPU Load: {usage}%"
+    },
+    "memory": {
+        "interval": 2,
+        "format": "MEM {used:0.1f}G",
+        "tooltip-format": "RAM: {used:0.1f}G / {total:0.1f}G ({percentage}%)"
+    },
+    "network": {
+        "format-wifi": "▲ {bandwidthUpBytes} ▼ {bandwidthDownBytes}",
+        "format-ethernet": "▲ {bandwidthUpBytes} ▼ {bandwidthDownBytes}",
+        "format-disconnected": "OFFLINE",
+        "tooltip-format": "{essid} ({ipaddr})",
+        "interval": 2
+    },
+    "custom/sys_stat": {
+        "format": "§ NOMINAL",
+        "tooltip": false
+    },
+    "battery": {
+        "format": "PWR {capacity}%",
+        "format-charging": "PWR AC {capacity}%",
+        "format-plugged": "PWR AC",
+        "states": { "warning": 25, "critical": 10 },
+        "interval": 30
+    },
+    "custom/idle_hold": {
+        "format": "IDLE // HOLD",
+        "on-click": "~/.config/hypr/scripts/window_mode.sh toggle_floating",
+        "tooltip-format": "Mode: Toggle Floating / Tiling (Super+V)"
+    },
+    "clock": {
+        "format": "{:%H:%M  01 %m.%d.%y NOM}",
+        "format-alt": "{:%Y-%m-%d  %H:%M:%S}",
+        "tooltip-format": "<tt><small>{calendar}</small></tt>",
+        "interval": 1
+    }
+}
