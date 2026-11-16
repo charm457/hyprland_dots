@@ -99,65 +99,49 @@ check_and_install_deps() {
         log_info "Detected package manager: ${BOLD}$pm${RESET}"
     fi
 
-    local core_deps=("hyprland" "waybar" "kitty" "swaybg" "playerctl" "brightnessctl" "python3" "grimblast")
+    local core_deps=("hyprland" "waybar" "kitty" "swaybg" "playerctl" "brightnessctl" "python3" "grimblast" "dunst" "rofi-wayland" "jq" "ttf-jetbrains-mono-nerd" "ttf-font-awesome" "polkit-gnome" "python-gobject" "gtk3" "gtk-layer-shell")
     local missing=()
 
     for dep in "${core_deps[@]}"; do
-        if ! command -v "$dep" &>/dev/null; then
+        if ! command -v "$dep" &>/dev/null && ! pacman -Qs "$dep" &>/dev/null && ! rpm -q "$dep" &>/dev/null && ! dpkg -l "$dep" &>/dev/null; then
             missing+=("$dep")
         fi
     done
 
-    if ! python3 -c "import gi; gi.require_version('GtkLayerShell', '0.1'); from gi.repository import GtkLayerShell" 2>/dev/null; then
-        missing+=("gtk-layer-shell" "python-gobject")
-    fi
-
     if [[ ${#missing[@]} -eq 0 ]]; then
-        if [[ "$INSTALL_LANG" == "ru" ]]; then
-            log_ok "Все основные зависимости установлены!"
-        else
-            log_ok "All core dependencies are installed!"
-        fi
+        log_ok "Все зависимости установлены!"
         return 0
     fi
 
-    if [[ "$INSTALL_LANG" == "ru" ]]; then
-        log_warn "Отсутствуют пакеты: ${YELLOW}${missing[*]}${RESET}"
-        read -rp "Установить недостающие зависимости? (y/N): " ans
-    else
-        log_warn "Missing packages: ${YELLOW}${missing[*]}${RESET}"
-        read -rp "Install missing dependencies automatically? (y/N): " ans
+    log_warn "Отсутствуют пакеты: ${YELLOW}${missing[*]}${RESET}"
+    read -rp "Установить их? (y/N): " ans
+    if [[ ! "$ans" =~ ^[YyДд]$ ]]; then
+        log_err "Установка прервана. Пожалуйста, установите зависимости вручную: ${missing[*]}"
+        exit 1
     fi
 
-    if [[ "$ans" =~ ^[YyДд]$ ]]; then
-        case "$pm" in
-            pacman)
-                local arch_pkgs=(
-                    "hyprland" "waybar" "kitty" "swaybg" "dunst" "rofi-wayland"
-                    "playerctl" "brightnessctl" "grimblast-git" "libnotify"
-                    "python" "python-gobject" "gtk3" "gtk-layer-shell" "jq"
-                    "ttf-jetbrains-mono-nerd" "ttf-font-awesome" "polkit-gnome"
-                )
-                if command -v yay &>/dev/null; then
-                    yay -S --needed "${arch_pkgs[@]}" || true
-                elif command -v paru &>/dev/null; then
-                    paru -S --needed "${arch_pkgs[@]}" || true
-                else
-                    sudo pacman -S --needed hyprland waybar kitty swaybg dunst playerctl brightnessctl python python-gobject gtk3 gtk-layer-shell jq polkit-gnome || true
-                fi
-                ;;
-            dnf)
-                sudo dnf install -y hyprland waybar kitty swaybg dunst rofi-wayland playerctl brightnessctl python3 python3-gobject gtk3 gtk-layer-shell jq || true
-                ;;
-            apt)
-                sudo apt-get update
-                sudo apt-get install -y waybar kitty playerctl brightnessctl python3 python3-gi gir1.2-gtk-3.0 jq || true
-                ;;
-            *)
-                log_warn "Unsupported package manager for auto-install. Please install manually: ${missing[*]}"
-                ;;
-        esac
-    fi
+    case "$pm" in
+        pacman)
+            if command -v yay &>/dev/null; then
+                yay -S --needed "${missing[@]}" || exit 1
+            elif command -v paru &>/dev/null; then
+                paru -S --needed "${missing[@]}" || exit 1
+            else
+                sudo pacman -S --needed "${missing[@]}" || exit 1
+            fi
+            ;;
+        dnf)
+            sudo dnf install -y "${missing[@]}" || exit 1
+            ;;
+        apt)
+            sudo apt-get update && sudo apt-get install -y "${missing[@]}" || exit 1
+            ;;
+        *)
+            log_err "Неподдерживаемый пакетный менеджер. Установите вручную: ${missing[*]}"
+            exit 1
+            ;;
+    esac
+    log_ok "Зависимости успешно установлены!"
 }
 
 backup_existing_configs() {

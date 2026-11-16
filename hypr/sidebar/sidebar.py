@@ -171,11 +171,10 @@ STYLE_GROUPS = [
 GTK_CSS = """
 * { transition: none; font-family: "JetBrainsMono Nerd Font", "SF Pro Display", sans-serif; }
 window {
-    background-color: #0c0c0e;
-    color: #d0d0d5;
-    border-radius: 16px;
-    border: 2px solid #282830;
-    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.75);
+    background-color: #000000;
+    color: #ffffff;
+    border-radius: 0px;
+    border: 1px solid #282830;
 }
 .root-box { background-color: transparent; }
 
