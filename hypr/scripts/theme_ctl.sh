@@ -48,8 +48,12 @@ apply_theme() {
         return 1
     fi
 
-    # 1. Hyprland конфиг темы
+    # 1. Hyprland конфиг темы (поддержка классического .conf и нового Lua формата в Hyprland 0.57+)
     cp "$hypr_theme" "$HYPR_DIR/current_theme.conf"
+    local hypr_theme_lua="$HYPR_DIR/themes/$category/$substyle.lua"
+    if [[ -f "$hypr_theme_lua" ]]; then
+        cp -f "$hypr_theme_lua" "$HYPR_DIR/current_theme.lua"
+    fi
     if command -v hyprctl &>/dev/null; then
         hyprctl reload &>/dev/null
     fi
@@ -61,7 +65,7 @@ apply_theme() {
         if pgrep -x waybar &>/dev/null; then
             pkill -USR2 -x waybar 2>/dev/null || true
         else
-            waybar &>/dev/null &
+            nohup waybar </dev/null &>/dev/null &
         fi
     fi
 
@@ -69,7 +73,7 @@ apply_theme() {
     if [[ -f "$kitty_theme" ]]; then
         cp -f "$kitty_theme" "$KITTY_DIR/theme.conf"
         # 1. Мгновенное обновление через remote-control
-        kitty @ set-colors --all "$KITTY_DIR/theme.conf" 2>/dev/null || true
+        kitty @ set-colors --all "$KITTY_DIR/theme.conf" &>/dev/null || true
         # 2. Сигнал SIGUSR1 всем запущенным процессам Kitty
         pkill -SIGUSR1 -x kitty 2>/dev/null || true
         pkill -SIGUSR1 -f kitty 2>/dev/null || true

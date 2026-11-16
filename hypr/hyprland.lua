@@ -1,0 +1,238 @@
+-- ==============================================================================
+-- HYPRLAND LUA CONFIGURATION (Hyprland v0.57+)
+-- Перенесено из hyprland.conf с поддержкой тем, сайдбара и горячих клавиш
+-- ==============================================================================
+
+local home = os.getenv("HOME") or "/home/linux"
+
+------------------
+---- MONITORS ----
+------------------
+hl.monitor({
+    output   = "",
+    mode     = "preferred",
+    position = "auto",
+    scale    = 1,
+})
+
+-------------------------------
+---- ENVIRONMENT VARIABLES ----
+-------------------------------
+hl.env("GTK_USE_PORTAL", "1")
+hl.env("QT_QPA_PLATFORM", "wayland")
+hl.env("GDK_BACKEND", "wayland")
+hl.env("QT_WAYLAND_FORCE_DPI", "physical")
+hl.env("FREETYPE_PROPERTIES", "truetype:interpreter-version=35")
+hl.env("XDG_CURRENT_DESKTOP", "Hyprland")
+hl.env("XDG_SESSION_TYPE", "wayland")
+hl.env("XDG_SESSION_DESKTOP", "Hyprland")
+hl.env("XCURSOR_SIZE", "24")
+hl.env("HYPRCURSOR_SIZE", "24")
+
+-------------------
+---- AUTOSTART ----
+-------------------
+hl.on("hyprland.start", function ()
+    hl.exec_cmd(home .. "/.config/hypr/scripts/init_desktop.sh")
+end)
+
+-----------------------
+---- LOOK AND FEEL ----
+-----------------------
+hl.config({
+    general = {
+        gaps_in  = 5,
+        gaps_out = 10,
+        border_size = 2,
+        col = {
+            active_border   = { colors = { "rgba(33ccffee)", "rgba(00ff99ee)" }, angle = 45 },
+            inactive_border = "rgba(595959aa)",
+        },
+        resize_on_border = false,
+        allow_tearing    = false,
+        layout           = "dwindle",
+    },
+
+    decoration = {
+        rounding       = 10,
+        rounding_power = 2,
+        active_opacity   = 1.0,
+        inactive_opacity = 0.95,
+
+        shadow = {
+            enabled      = true,
+            range        = 4,
+            render_power = 3,
+            color        = "rgba(00000088)",
+        },
+
+        blur = {
+            enabled  = true,
+            size     = 5,
+            passes   = 2,
+            vibrancy = 0.17,
+        },
+    },
+
+    animations = {
+        enabled = true,
+    },
+
+    input = {
+        kb_layout = "us,ru",
+        kb_variant = "",
+        kb_options = "grp:alt_shift_toggle",
+        follow_mouse = 1,
+        touchpad = {
+            natural_scroll = false,
+        },
+    },
+
+    dwindle = {
+        preserve_split = true,
+    },
+})
+
+-- Подключение активной темы оформления (Black, White, macOS, Cyber)
+pcall(dofile, home .. "/.config/hypr/current_theme.lua")
+
+---------------------
+---- MY PROGRAMS ----
+---------------------
+local mainMod     = "SUPER"
+local terminal    = "kitty"
+local fileManager = "dolphin"
+local menu        = "rofi -show drun"
+
+---------------------
+---- KEYBINDINGS ----
+---------------------
+
+-- Запуск базовых приложений
+hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd(terminal))
+hl.bind(mainMod .. " + B",      hl.dsp.exec_cmd("firefox"))
+hl.bind(mainMod .. " + E",      hl.dsp.exec_cmd(fileManager))
+hl.bind(mainMod .. " + D",      hl.dsp.exec_cmd(menu))
+hl.bind(mainMod .. " + space",  hl.dsp.exec_cmd(menu))
+
+-- Управление окнами и сессией
+hl.bind(mainMod .. " + Q",         hl.dsp.window.close())
+hl.bind(mainMod .. " + SHIFT + M", hl.dsp.exit())
+
+-- Режимы окон (Обычный тайлинг / Свободный плавающий как в Windows)
+hl.bind(mainMod .. " + W",         hl.dsp.exec_cmd(home .. "/.config/hypr/scripts/window_mode.sh cycle"))
+hl.bind(mainMod .. " + SHIFT + T", hl.dsp.exec_cmd(home .. "/.config/hypr/scripts/window_mode.sh tiling"))
+hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd(home .. "/.config/hypr/scripts/window_mode.sh floating"))
+hl.bind(mainMod .. " + V",         hl.dsp.exec_cmd(home .. "/.config/hypr/scripts/window_mode.sh toggle_floating"))
+hl.bind(mainMod .. " + F",         hl.dsp.window.fullscreen(0))
+
+-- Скрытие окон в фон (Специальный воркспейс / Scratchpad / Минимизация)
+-- Super + H или Super + Shift + Minus: скрыть активное окно в фон
+-- Super + U или Super + Minus: открыть / скрыть спрятанные окна
+hl.bind(mainMod .. " + H",             hl.dsp.window.move({ workspace = "special:minimized" }))
+hl.bind(mainMod .. " + U",             hl.dsp.workspace.toggle_special("minimized"))
+hl.bind(mainMod .. " + minus",         hl.dsp.workspace.toggle_special("minimized"))
+hl.bind(mainMod .. " + SHIFT + minus", hl.dsp.window.move({ workspace = "special:minimized" }))
+
+-- Сайдбар управления (Win+P, Ctrl+P, Super+Ctrl+P)
+hl.bind(mainMod .. " + P",        hl.dsp.exec_cmd(home .. "/.config/hypr/sidebar/toggle.sh"))
+hl.bind(mainMod .. " + CTRL + P", hl.dsp.exec_cmd(home .. "/.config/hypr/sidebar/toggle.sh"))
+hl.bind("CTRL + P",               hl.dsp.exec_cmd(home .. "/.config/hypr/sidebar/toggle.sh"))
+
+-- Управление положением панели Waybar
+hl.bind(mainMod .. " + ALT + P",    hl.dsp.exec_cmd(home .. "/.config/hypr/scripts/waybar_position.sh toggle"))
+hl.bind(mainMod .. " + ALT + up",   hl.dsp.exec_cmd(home .. "/.config/hypr/scripts/waybar_position.sh top"))
+hl.bind(mainMod .. " + ALT + down", hl.dsp.exec_cmd(home .. "/.config/hypr/scripts/waybar_position.sh bottom"))
+hl.bind(mainMod .. " + ALT + H",    hl.dsp.exec_cmd(home .. "/.config/hypr/scripts/waybar_position.sh hide"))
+
+-- Смена обоев
+hl.bind(mainMod .. " + bracketright", hl.dsp.exec_cmd(home .. "/.config/hypr/scripts/wallpaper_cycle.sh next"))
+hl.bind(mainMod .. " + bracketleft",  hl.dsp.exec_cmd(home .. "/.config/hypr/scripts/wallpaper_cycle.sh prev"))
+hl.bind(mainMod .. " + ALT + W",      hl.dsp.exec_cmd(home .. "/.config/hypr/scripts/wallpaper_cycle.sh next"))
+
+-- Навигация и фокус
+hl.bind(mainMod .. " + left",  hl.dsp.focus({ direction = "left" }))
+hl.bind(mainMod .. " + right", hl.dsp.focus({ direction = "right" }))
+hl.bind(mainMod .. " + up",    hl.dsp.focus({ direction = "up" }))
+hl.bind(mainMod .. " + down",  hl.dsp.focus({ direction = "down" }))
+
+-- Рабочие столы (1..10)
+for i = 1, 10 do
+    local key = i % 10
+    hl.bind(mainMod .. " + " .. key,         hl.dsp.focus({ workspace = i }))
+    hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }))
+end
+
+-- Перемещение и изменение размера окон мышью
+hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(),   { mouse = true })
+hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
+
+-- Изменение размера окон стрелками
+hl.bind(mainMod .. " + CTRL + right", hl.dsp.window.resize({ x = 40, y = 0, relative = true }),   { repeating = true })
+hl.bind(mainMod .. " + CTRL + left",  hl.dsp.window.resize({ x = -40, y = 0, relative = true }),  { repeating = true })
+hl.bind(mainMod .. " + CTRL + up",    hl.dsp.window.resize({ x = 0, y = -40, relative = true }),  { repeating = true })
+hl.bind(mainMod .. " + CTRL + down",  hl.dsp.window.resize({ x = 0, y = 40, relative = true }),   { repeating = true })
+
+-- Перемещение плиточных окон
+hl.bind(mainMod .. " + SHIFT + left",  hl.dsp.window.move({ direction = "left" }))
+hl.bind(mainMod .. " + SHIFT + right", hl.dsp.window.move({ direction = "right" }))
+hl.bind(mainMod .. " + SHIFT + up",    hl.dsp.window.move({ direction = "up" }))
+hl.bind(mainMod .. " + SHIFT + down",  hl.dsp.window.move({ direction = "down" }))
+
+-- Мультимедиа и системные клавиши
+hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("pactl set-sink-volume @DEFAULT_SINK@ +5%"), { repeating = true })
+hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("pactl set-sink-volume @DEFAULT_SINK@ -5%"), { repeating = true })
+hl.bind("XF86AudioMute",        hl.dsp.exec_cmd("pactl set-sink-mute @DEFAULT_SINK@ toggle"))
+hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("brightnessctl s +10%"), { repeating = true })
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl s 10%-"), { repeating = true })
+
+-- Скриншоты
+hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd(home .. "/.config/hypr/scripts/screenshot.sh area"))
+hl.bind(mainMod .. " + ALT + S",   hl.dsp.exec_cmd(home .. "/.config/hypr/scripts/screenshot.sh menu"))
+hl.bind("Print",                   hl.dsp.exec_cmd(home .. "/.config/hypr/scripts/screenshot.sh full"))
+hl.bind(mainMod .. " + Print",     hl.dsp.exec_cmd(home .. "/.config/hypr/scripts/screenshot.sh window"))
+
+-- Справка по клавишам и язык
+hl.bind(mainMod .. " + slash", hl.dsp.exec_cmd(home .. "/.config/hypr/scripts/keybinds_help.sh"))
+hl.bind(mainMod .. " + F1",    hl.dsp.exec_cmd(home .. "/.config/hypr/scripts/keybinds_help.sh"))
+hl.bind(mainMod .. " + ALT + L", hl.dsp.exec_cmd(home .. "/.config/hypr/scripts/lang_ctl.sh toggle"))
+
+--------------------------------
+---- WINDOWS RULES -------------
+--------------------------------
+
+local float_classes = {
+    "pavucontrol",
+    "blueman-manager",
+    "nm-connection-editor",
+    "wlogout",
+}
+
+for _, cls in ipairs(float_classes) do
+    hl.window_rule({
+        name = "float-" .. cls,
+        match = { class = "^(" .. cls .. ")$" },
+        float = true,
+    })
+end
+
+local float_titles = {
+    "Open File",
+    "Save File",
+    "Choose Wallpaper",
+}
+
+for _, t in ipairs(float_titles) do
+    hl.window_rule({
+        name = "float-" .. t:gsub(" ", "-"),
+        match = { title = "^(" .. t .. ")$" },
+        float = true,
+    })
+end
+
+-- Игнорировать запросы на максимизацию
+hl.window_rule({
+    name = "suppress-maximize",
+    match = { class = ".*" },
+    suppress_event = "maximize",
+})

@@ -247,6 +247,7 @@ deploy_configs() {
     chmod +x "$HYPR_DST/sidebar/"*.sh 2>/dev/null || true
     chmod +x "$HYPR_DST/sidebar/sidebar.py" 2>/dev/null || true
     chmod +x "$HYPR_DST/change_wallpaper.sh" 2>/dev/null || true
+    chmod +x "$SCRIPT_DIR/switch.sh" 2>/dev/null || true
 
     if [[ "$INSTALL_LANG" == "ru" ]]; then
         log_ok "Файлы успешно скопированы и права выданы!"

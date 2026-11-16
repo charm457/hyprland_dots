@@ -58,7 +58,13 @@ LOCALES = {
         "wb_bottom": "⬇ Bottom",
         "wb_hide": "👁 Hide",
         "wp_title": "WALLPAPERS",
-        "themes_title": "THEMES & STYLES",
+        "themes_title": "DESIGN & STYLING",
+        "profiles_title": "ENVIRONMENT PROFILE (FULL SETUP)",
+        "prof_cyber": "⚡ Cyberpunk (Cybrdots)",
+        "prof_cyber_tip": "Full Cyberpunk setup: neon Waybar, Samurai wallpaper, Kitty cybrcore, neon borders",
+        "prof_main": "💻 Classic (Main)",
+        "prof_main_tip": "Classic clean Hyprland desktop with multiple color schemes",
+        "styles_title": "COLOR SCHEMES (MAIN PROFILE)",
         "no_music": "Nothing Playing",
     },
     "ru": {
@@ -85,6 +91,12 @@ LOCALES = {
         "wb_hide": "👁 Скрыть",
         "wp_title": "ОБОИ",
         "themes_title": "ДИЗАЙН И СТИЛИЗАЦИЯ",
+        "profiles_title": "ПРОФИЛЬ СИСТЕМЫ (ПОЛНЫЙ СЕТАП)",
+        "prof_cyber": "⚡ Киберпанк (Cybrdots)",
+        "prof_cyber_tip": "Полный киберпанк-сетап: неоновый Waybar, обои Samurai, Kitty cybrcore, неоновые рамки",
+        "prof_main": "💻 Классический (Main)",
+        "prof_main_tip": "Классический чистый профиль Hyprland с поддержкой цветовых тем",
+        "styles_title": "ЦВЕТОВЫЕ СТИЛИ (MAIN)",
         "no_music": "Ничего не играет",
     }
 }
@@ -97,6 +109,19 @@ def get_current_lang():
     except Exception:
         pass
     return "ru"
+
+def get_current_profile():
+    try:
+        repo_dir = os.path.join(HOME, "hyprland_configs")
+        branch = subprocess.check_output(
+            ["git", "-C", repo_dir, "rev-parse", "--abbrev-ref", "HEAD"],
+            stderr=subprocess.DEVNULL, timeout=1.0
+        ).decode().strip()
+        if branch in ("main", "cybrdots"):
+            return branch
+    except Exception:
+        pass
+    return "main"
 
 # ─── Стили оформления ────────────────────────────────────────────────────────
 STYLE_GROUPS = [
@@ -348,6 +373,37 @@ scale highlight {
     font-weight: bold;
 }
 
+/* Профили системы (Киберпанк / Классический) */
+.profile-btn {
+    background-color: #0d0f17;
+    color: #c0c6d8;
+    border-radius: 9px;
+    border: 1px solid #1f2536;
+    padding: 8px 12px;
+    font-size: 12px;
+    min-height: 38px;
+    font-weight: 500;
+}
+.profile-btn:hover {
+    background-color: #171d2b;
+    color: #ffffff;
+    border-color: #00f0ff;
+}
+.profile-btn.active-profile {
+    background: linear-gradient(135deg, rgba(255, 0, 127, 0.28), rgba(0, 240, 255, 0.28));
+    border: 1px solid #00f0ff;
+    color: #00f0ff;
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.35);
+}
+
+.sub-section-label {
+    font-size: 10px;
+    font-weight: bold;
+    color: #64708a;
+    letter-spacing: 0.8px;
+}
+
 /* Темы */
 .theme-btn {
     background-color: #0a0a0c;
@@ -555,6 +611,7 @@ class Sidebar:
         self.visible   = False
         self.lang      = get_current_lang()
         self._wp_btns  = []
+        self._prof_btns= {}
         self._th_btns  = {}
         self._mode_btns= {}
         self._pos_btns = {}
@@ -721,6 +778,12 @@ class Sidebar:
                 btn.get_style_context().remove_class("on")
                 btn.get_style_context().remove_class("on-airplane")
                 btn.get_style_context().remove_class("on-power")
+
+        # Профиль окружения (Киберпанк / Main)
+        cur_prof = get_current_profile()
+        for p_target, btn in self._prof_btns.items():
+            if p_target == cur_prof: btn.get_style_context().add_class("active-profile")
+            else: btn.get_style_context().remove_class("active-profile")
 
         # Режим окон
         for m_name, btn in self._mode_btns.items():
@@ -1140,12 +1203,44 @@ class Sidebar:
 
     # ─── 8. Стили и Темы ─────────────────────────────────────────────────────
     def _make_themes(self):
+        t = LOCALES[self.lang]
         sw = Gtk.ScrolledWindow()
         sw.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        sw.set_min_content_height(280)
+        sw.set_min_content_height(340)
 
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
         box.set_margin_top(2); box.set_margin_bottom(10)
+
+        # 8.1 Профили системы (Киберпанк / Классический)
+        prof_lbl = Gtk.Label(label=t.get("profiles_title", "ПРОФИЛЬ ОКРУЖЕНИЯ"), xalign=0)
+        prof_lbl.get_style_context().add_class("sub-section-label")
+        prof_lbl.set_margin_top(2)
+        box.pack_start(prof_lbl, False, False, 0)
+
+        cur_prof = get_current_profile()
+        self._prof_btns = {}
+
+        profiles = [
+            ("cybrdots", t.get("prof_cyber", "⚡ Киберпанк (Cybrdots)"), t.get("prof_cyber_tip", "Полный сетап Киберпанк")),
+            ("main",     t.get("prof_main",  "💻 Классический (Main)"),    t.get("prof_main_tip", "Классический сетап")),
+        ]
+
+        for p_target, p_label, p_tip in profiles:
+            btn = Gtk.Button(label=p_label)
+            btn.set_property("xalign", 0.05)
+            btn.get_style_context().add_class("profile-btn")
+            btn.set_tooltip_text(p_tip)
+            if p_target == cur_prof:
+                btn.get_style_context().add_class("active-profile")
+            btn.connect("clicked", self._on_profile, p_target)
+            self._prof_btns[p_target] = btn
+            box.pack_start(btn, False, False, 0)
+
+        # 8.2 Разделитель и заголовок цветовых стилей
+        styles_lbl = Gtk.Label(label=t.get("styles_title", "ЦВЕТОВЫЕ СТИЛИ (MAIN)"), xalign=0)
+        styles_lbl.get_style_context().add_class("sub-section-label")
+        styles_lbl.set_margin_top(8)
+        box.pack_start(styles_lbl, False, False, 0)
 
         current_theme = get_active_theme()
 
@@ -1174,6 +1269,13 @@ class Sidebar:
 
         sw.add(box)
         return sw
+
+    def _on_profile(self, btn, target):
+        for b in self._prof_btns.values():
+            b.get_style_context().remove_class("active-profile")
+        btn.get_style_context().add_class("active-profile")
+        switch_script = os.path.join(HOME, "hyprland_configs", "switch.sh")
+        run_bg(f'bash "{switch_script}" {target}')
 
     def _on_theme(self, btn, cat, substyle, theme_key):
         for b in self._th_btns.values():
@@ -1205,6 +1307,8 @@ def main():
                          lambda: (_sidebar.toggle() if _sidebar else None) or True)
 
     _sidebar = Sidebar()
+    if "--show" in sys.argv:
+        _sidebar.toggle()
     Gtk.main()
 
 if __name__ == "__main__":
