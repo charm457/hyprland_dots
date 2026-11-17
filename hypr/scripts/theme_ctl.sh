@@ -59,11 +59,17 @@ apply_theme() {
     fi
 
     # 2. Waybar CSS (копируем файл целиком, чтобы GTK не кэшировал импорты)
+    # При смене подтемы меняем ТОЛЬКО style.css, waybar config остаётся от текущего профиля
     if [[ -f "$waybar_theme" ]]; then
         cp -f "$waybar_theme" "$WAYBAR_DIR/style.css"
-        # Мгновенная перезагрузка стилей без перезапуска процесса (исключает дублирование панели)
+        # Перезагрузка стилей: SIGUSR2 для reload конфига+стилей, с фолбэком на рестарт
         if pgrep -x waybar &>/dev/null; then
-            pkill -USR2 -x waybar 2>/dev/null || true
+            pkill -SIGUSR2 -x waybar 2>/dev/null || {
+                # Фолбэк: полный перезапуск если сигнал не сработал
+                killall -9 waybar 2>/dev/null || pkill -9 -x waybar 2>/dev/null || true
+                sleep 0.3
+                nohup waybar </dev/null &>/dev/null &
+            }
         else
             nohup waybar </dev/null &>/dev/null &
         fi

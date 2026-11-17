@@ -1048,8 +1048,7 @@ class Sidebar:
         self._build_ui()
 
         # При старте демон запускается скрытым в фоне, открывается только по Win+P
-        if "--show" in sys.argv:
-            self.toggle()
+        # Показ при --show обрабатывается в main(), здесь не дублируем
 
         self._refresh_timer = GLib.timeout_add(3000, self._refresh_dynamic)
 

@@ -15,7 +15,6 @@ show_symlink   = true
 tab_size        = 4
 max_width       = 1200
 max_height      = 900
-cache_dir       = ""
 
 [opener]
 edit = [

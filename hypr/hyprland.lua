@@ -101,7 +101,7 @@ pcall(dofile, home .. "/.config/hypr/current_theme.lua")
 ---------------------
 local mainMod     = "SUPER"
 local terminal    = "kitty"
-local fileManager = "dolphin"
+local fileManager = home .. "/.config/hypr/scripts/file_manager.sh"
 local menu        = "rofi -show drun"
 
 ---------------------
