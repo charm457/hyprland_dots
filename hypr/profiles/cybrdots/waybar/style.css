@@ -1,184 +1,80 @@
-/* ==============================================================================
- * CYBERPUNK HUD WAYBAR STYLE — Tactical Circuit Military HUD
- * Inspired by Image 2 (GB // 13, Red Polygons, Sharp HUD telemetry)
- * ============================================================================== */
-
+/* Waybar Theme: Cyber Neon (Hunty Edition) */
 * {
-    font-family: "JetBrainsMono Nerd Font", "Fira Code", monospace;
-    font-size: 11px;
-    font-weight: 700;
+    font-family: "JetBrainsMono Nerd Font", "Font Awesome 6 Free", sans-serif;
+    font-size: 13px;
+    font-weight: 600;
     min-height: 0;
     border: none;
     border-radius: 0;
-    margin: 0;
-    padding: 0;
 }
 
 window#waybar {
-    background: #05050a;
-    color: #c0caf5;
-    border-bottom: 2px solid #ff003c;
-    box-shadow: 0 2px 16px rgba(255, 0, 60, 0.25);
+    background: rgba(12, 4, 24, 0.92);
+    color: #e0e0ff;
+    border-radius: 12px;
+    border: 1px solid #ff007f;
+    box-shadow: 0 0 12px rgba(255, 0, 127, 0.35);
+    transition: none;
 }
 
-/* ─── 1. LEFT HUD (GB // 13 Badge, Space, Workspaces, TTY) ───────────────── */
-#custom-gb_badge {
-    background: #ff003c;
-    color: #ffffff;
-    font-size: 12px;
-    font-weight: 900;
-    padding: 2px 18px 2px 10px;
-    margin-right: 6px;
-    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 100%, 0 100%);
-    letter-spacing: 1px;
-}
-
-#custom-gb_badge:hover {
-    background: #ff3366;
-    box-shadow: 0 0 10px #ff003c;
-}
-
-#custom-spc {
-    background: rgba(255, 0, 60, 0.12);
-    color: #ff003c;
-    border: 1px solid #ff003c;
-    padding: 2px 8px;
-    margin: 2px 4px 2px 0;
-    font-size: 10px;
-    letter-spacing: 1px;
-}
-
-#workspaces {
-    background: transparent;
-    margin: 2px 4px;
+#custom-menu {
+    font-size: 16px;
+    color: #00f0ff;
+    padding: 0 12px 0 14px;
 }
 
 #workspaces button {
-    background: #0a0b12;
-    color: #707880;
-    padding: 1px 7px;
-    margin: 0 2px;
-    border: 1px solid #23283b;
-    border-radius: 0;
-    font-size: 10px;
+    padding: 0 7px;
+    color: #7a6b99;
+    background: transparent;
+    border-radius: 6px;
+    font-size: 12px;
+    min-width: 24px;
+    margin: 4px 1px;
 }
 
 #workspaces button.active {
-    background: #ff003c;
-    color: #ffffff;
-    border: 1px solid #ff003c;
-    box-shadow: 0 0 8px rgba(255, 0, 60, 0.6);
+    color: #00f0ff;
+    background: rgba(0, 240, 255, 0.15);
+    border: 1px solid #00f0ff;
+    box-shadow: 0 0 6px rgba(0, 240, 255, 0.4);
 }
 
 #workspaces button:hover {
-    background: #1f2335;
-    color: #00f0ff;
-}
-
-#custom-tty {
-    background: #b8002e;
     color: #ffffff;
-    padding: 2px 6px;
-    margin: 2px 4px;
-    font-size: 10px;
-    font-weight: 900;
+    background: rgba(255, 0, 127, 0.2);
 }
 
 #window {
-    color: #7aa2f7;
-    padding: 2px 8px;
-    font-size: 11px;
-}
-
-/* ─── 2. CENTER TELEMETRY ─────────────────────────────────────────────────── */
-#custom-shield,
-#custom-profile_name,
-#custom-ice {
-    color: #707880;
-    padding: 0 4px;
-    font-size: 10px;
-    letter-spacing: 0.5px;
-}
-
-#custom-profile_name {
-    color: #00f0ff;
-    font-weight: 800;
-}
-
-#custom-ice {
-    color: #a9b1d6;
-}
-
-#cpu {
-    color: #00f0ff;
-    padding: 0 4px;
-    font-size: 10px;
-}
-
-#memory {
-    color: #ff003c;
-    padding: 0 4px;
-    font-size: 10px;
-}
-
-/* ─── 3. RIGHT HUD (Network, Status, Power, Idle, Clock) ─────────────────── */
-#network {
-    color: #00f0ff;
-    padding: 2px 8px;
-    font-size: 10px;
-}
-
-#custom-sys_stat {
-    color: #73daca;
-    padding: 2px 6px;
-    font-size: 10px;
-}
-
-#battery {
-    color: #ffffff;
-    padding: 2px 8px;
-    font-size: 10px;
-}
-
-#battery.warning {
-    color: #ff9e3b;
-}
-
-#battery.critical {
-    color: #ff003c;
-    animation: blink 1s infinite alternate;
-}
-
-#custom-idle_hold {
-    background: rgba(255, 0, 60, 0.15);
-    color: #ff003c;
-    border: 1px solid #ff003c;
-    padding: 2px 8px;
-    margin: 2px 6px;
-    font-size: 10px;
-    letter-spacing: 1px;
-}
-
-#custom-idle_hold:hover {
-    background: #ff003c;
-    color: #ffffff;
+    color: #b8b8d0;
+    padding: 0 10px;
+    font-size: 12px;
 }
 
 #clock {
-    color: #ffffff;
-    font-size: 11px;
-    font-weight: 900;
-    padding: 2px 10px;
-    background: #0f1019;
-    border-left: 2px solid #ff003c;
-    letter-spacing: 0.5px;
+    color: #00f0ff;
+    font-weight: bold;
+    padding: 0 14px;
+    background: rgba(255, 0, 127, 0.1);
+    border-radius: 6px;
+    margin: 4px 0;
+    border: 1px solid rgba(255, 0, 127, 0.3);
+}
+
+#pulseaudio, #network, #battery, #custom-theme, #tray, #custom-power {
+    padding: 0 9px;
+    color: #e0e0ff;
+}
+
+#pulseaudio:hover, #network:hover, #battery:hover, #custom-theme:hover, #custom-power:hover {
+    color: #00f0ff;
+    background: rgba(0, 240, 255, 0.12);
+    border-radius: 6px;
 }
 
 tooltip {
-    background: #05050a;
-    border: 1px solid #ff003c;
-    color: #c0caf5;
-    font-family: "JetBrainsMono Nerd Font", monospace;
-    font-size: 11px;
-    padding: 6px;
+    background: #0d051c;
+    border: 1px solid #ff007f;
+    border-radius: 8px;
+    color: #00f0ff;
 }

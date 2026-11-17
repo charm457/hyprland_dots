@@ -26,12 +26,11 @@ open = [
 ]
 
 [open]
-rules = [
-    { name = "*/", use = [ "edit", "open" ] },
+prepend_rules = [
     { mime = "text/*", use = [ "edit", "open" ] },
     { mime = "image/*", use = [ "open" ] },
     { mime = "video/*", use = [ "open" ] },
     { mime = "audio/*", use = [ "open" ] },
     { mime = "application/pdf", use = [ "open" ] },
-    { mime = "*", use = [ "open" ] },
+    { url = "*", use = [ "open" ] },
 ]

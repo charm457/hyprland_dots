@@ -1,6 +1,8 @@
-/* Waybar Theme: macOS / iOS Dynamic Island Glass (Full Transparency) */
+/* ==============================================================================
+ * MACOS LIQUID GLASS WAYBAR STYLE
+ * ============================================================================== */
 * {
-    font-family: "-apple-system", "SF Pro Display", "JetBrainsMono Nerd Font", sans-serif;
+    font-family: "-apple-system", "SF Pro Text", "JetBrainsMono Nerd Font", sans-serif;
     font-size: 13px;
     font-weight: 500;
     min-height: 0;
@@ -9,51 +11,62 @@
 }
 
 window#waybar {
-    background: rgba(22, 24, 32, 0.58);
-    color: #f2f2f7;
-    border-radius: 22px;
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-    margin: 6px 14px;
+    background: rgba(30, 30, 35, 0.55);
+    color: #ffffff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: none;
 }
 
-#custom-menu, #custom-apple {
-    font-size: 17px;
+#custom-apple, #custom-menu {
+    font-size: 16px;
     font-weight: bold;
     color: #ffffff;
-    padding: 0 12px 0 16px;
-    transition: all 0.2s ease;
+    padding: 0 12px 0 14px;
 }
 
-#custom-menu:hover, #custom-apple:hover {
+#custom-apple:hover, #custom-menu:hover {
     color: #007aff;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 8px;
 }
 
-#window {
+#custom-finder,
+#custom-file,
+#custom-edit,
+#custom-view,
+#custom-go,
+#custom-window,
+#custom-help {
+    padding: 0 8px;
     color: #ffffff;
-    font-weight: 600;
     font-size: 13px;
-    padding: 0 12px;
+    font-weight: 500;
+    border-radius: 4px;
+    margin: 2px 1px;
+}
+
+#custom-finder:hover,
+#custom-file:hover,
+#custom-edit:hover,
+#custom-view:hover,
+#custom-go:hover,
+#custom-window:hover,
+#custom-help:hover {
+    background: rgba(255, 255, 255, 0.15);
 }
 
 #workspaces {
     background: rgba(255, 255, 255, 0.08);
-    border-radius: 14px;
-    padding: 2px 6px;
-    margin: 4px 6px;
-    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 10px;
+    padding: 2px 4px;
+    margin: 3px 6px;
 }
 
 #workspaces button {
     padding: 0 8px;
     color: #a1a1a6;
     background: transparent;
-    border-radius: 10px;
+    border-radius: 6px;
     font-size: 12px;
-    min-width: 22px;
-    margin: 2px 1px;
 }
 
 #workspaces button.active {
@@ -62,50 +75,49 @@ window#waybar {
     font-weight: 600;
 }
 
-#workspaces button:hover {
-    color: #ffffff;
-    background: rgba(255, 255, 255, 0.15);
+#window {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 12px;
+    font-style: italic;
+    padding: 0 10px;
 }
+
+#pulseaudio,
+#battery,
+#network,
+#custom-search,
+#custom-control_center,
+#custom-theme,
+#tray,
+#custom-power {
+    padding: 0 8px;
+    color: #ffffff;
+    font-size: 13px;
+}
+
+#pulseaudio:hover,
+#battery:hover,
+#network:hover,
+#custom-search:hover,
+#custom-control_center:hover,
+#custom-theme:hover,
+#custom-power:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+}
+
 #clock {
     color: #ffffff;
     font-weight: 600;
-    font-size: 13px;
-    padding: 0 18px;
-    background: rgba(255, 255, 255, 0.10);
-    border-radius: 14px;
-    margin: 4px 0;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-}
-
-#pulseaudio, #network, #battery, #custom-theme, #custom-control_center, #tray, #custom-power {
-    padding: 0 10px;
-    color: #f2f2f7;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    margin: 4px 2px;
-}
-
-#pulseaudio:hover, #network:hover, #battery:hover, #custom-theme:hover, #custom-control_center:hover, #custom-power:hover {
-    color: #ffffff;
-    background: rgba(255, 255, 255, 0.18);
-}
-
-#pulseaudio.muted { color: #8e8e93; }
-#network.disconnected { color: #ff453a; }
-#battery.warning { color: #ffd60a; }
-#battery.critical { color: #ff453a; }
-#battery.charging { color: #30d158; }
-
-#custom-power {
-    color: #ff453a;
-    font-size: 14px;
-    padding: 0 12px;
+    font-size: 12px;
+    padding: 0 14px;
 }
 
 tooltip {
     background: rgba(22, 24, 30, 0.88);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 12px;
     color: #ffffff;
     font-size: 12px;
+    padding: 4px 8px;
 }

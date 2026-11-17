@@ -1,5 +1,5 @@
 /* ==============================================================================
- * MACOS WAYBAR STYLE — Cupertino Top Menu Bar
+ * MACOS LIQUID GLASS WAYBAR STYLE
  * ============================================================================== */
 * {
     font-family: "-apple-system", "SF Pro Text", "JetBrainsMono Nerd Font", sans-serif;
@@ -18,14 +18,14 @@ window#waybar {
     transition: none;
 }
 
-#custom-apple {
+#custom-apple, #custom-menu {
     font-size: 16px;
     font-weight: bold;
     color: #ffffff;
     padding: 0 12px 0 14px;
 }
 
-#custom-apple:hover {
+#custom-apple:hover, #custom-menu:hover {
     color: #007aff;
 }
 
@@ -54,6 +54,27 @@ window#waybar {
     background: rgba(255, 255, 255, 0.15);
 }
 
+#workspaces {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 2px 4px;
+    margin: 3px 6px;
+}
+
+#workspaces button {
+    padding: 0 8px;
+    color: #a1a1a6;
+    background: transparent;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+#workspaces button.active {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.25);
+    font-weight: 600;
+}
+
 #window {
     color: rgba(255, 255, 255, 0.85);
     font-size: 12px;
@@ -65,7 +86,10 @@ window#waybar {
 #battery,
 #network,
 #custom-search,
-#custom-control_center {
+#custom-control_center,
+#custom-theme,
+#tray,
+#custom-power {
     padding: 0 8px;
     color: #ffffff;
     font-size: 13px;
@@ -75,7 +99,9 @@ window#waybar {
 #battery:hover,
 #network:hover,
 #custom-search:hover,
-#custom-control_center:hover {
+#custom-control_center:hover,
+#custom-theme:hover,
+#custom-power:hover {
     background: rgba(255, 255, 255, 0.15);
     border-radius: 4px;
 }

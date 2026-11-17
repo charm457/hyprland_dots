@@ -91,6 +91,7 @@ WP=""
 if [[ "$TARGET" == "macos" ]]; then
     echo "macos_glass" > "$CACHE_DIR/sidebar_theme"
     echo "top" > "$CACHE_DIR/waybar_position"
+    [[ -f "$REPO_DIR/hypr/themes/macos/glass.conf" ]] && cp -f "$REPO_DIR/hypr/themes/macos/glass.conf" "$CONFIG_DIR/hypr/current_theme.conf" 2>/dev/null || true
 
     # Для macOS сохраняем текущие обои пользователя (не навязываем sonoma)
     if [[ -f "$CACHE_DIR/current_wallpaper" && -f "$(cat "$CACHE_DIR/current_wallpaper")" ]]; then
@@ -105,6 +106,7 @@ if [[ "$TARGET" == "macos" ]]; then
 elif [[ "$TARGET" == "cybrdots" ]]; then
     echo "cyber_neon" > "$CACHE_DIR/sidebar_theme"
     echo "top" > "$CACHE_DIR/waybar_position"
+    [[ -f "$REPO_DIR/hypr/themes/cyber/neon.conf" ]] && cp -f "$REPO_DIR/hypr/themes/cyber/neon.conf" "$CONFIG_DIR/hypr/current_theme.conf" 2>/dev/null || true
 
     # Обои Cyberpunk / Samurai
     if [[ -f "$CACHE_DIR/cybrdots_wallpaper" && -f "$(cat "$CACHE_DIR/cybrdots_wallpaper")" ]]; then
@@ -115,12 +117,13 @@ elif [[ "$TARGET" == "cybrdots" ]]; then
         WP=$(find "$HOME/wallpapers" -type f \( -name "*samurai*" -o -name "*cyber*" -o -name "*.png" -o -name "*.jpg" -o -name "*.webp" \) 2>/dev/null | head -n 1)
     fi
 
-    NOTIFY_TITLE="Cyberpunk HUD Profile"
-    NOTIFY_BODY="GB // 13 Tactical HUD Waybar, неон #ff003c/#00f0ff, телеметрия Circuit и резкие границы"
+    NOTIFY_TITLE="Cyberpunk Profile"
+    NOTIFY_BODY="Неоновый Waybar (Hunty edition), неон #ff007f/#00f0ff, Kitty Cyber Neon"
 
 else
     echo "black_solid" > "$CACHE_DIR/sidebar_theme"
     echo "top" > "$CACHE_DIR/waybar_position"
+    [[ -f "$REPO_DIR/hypr/themes/black/solid.conf" ]] && cp -f "$REPO_DIR/hypr/themes/black/solid.conf" "$CONFIG_DIR/hypr/current_theme.conf" 2>/dev/null || true
 
     # Обои Main
     if [[ -f "$CACHE_DIR/main_wallpaper" && -f "$(cat "$CACHE_DIR/main_wallpaper")" ]]; then

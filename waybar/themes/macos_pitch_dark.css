@@ -1,6 +1,8 @@
-/* Waybar Theme: macOS / iOS Total Pitch Black OLED */
+/* ==============================================================================
+ * MACOS TOTAL BLACK (PITCH DARK OLED) WAYBAR STYLE
+ * ============================================================================== */
 * {
-    font-family: "-apple-system", "SF Pro Display", "JetBrainsMono Nerd Font", sans-serif;
+    font-family: "-apple-system", "SF Pro Text", "JetBrainsMono Nerd Font", sans-serif;
     font-size: 13px;
     font-weight: 500;
     min-height: 0;
@@ -11,38 +13,61 @@
 window#waybar {
     background: #000000;
     color: #e5e5ea;
-    border-radius: 20px;
-    border: 1px solid #1e1e24;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
-    margin: 6px 12px;
+    border-bottom: 1px solid #222222;
+    transition: none;
 }
 
-#custom-menu {
+#custom-apple, #custom-menu {
     font-size: 16px;
-    color: #c7c7cf;
-    padding: 0 14px 0 16px;
+    font-weight: bold;
+    color: #ffffff;
+    padding: 0 12px 0 14px;
 }
 
-#custom-menu:hover {
-    color: #8e8e93;
+#custom-apple:hover, #custom-menu:hover {
+    color: #0a84ff;
+}
+
+#custom-finder,
+#custom-file,
+#custom-edit,
+#custom-view,
+#custom-go,
+#custom-window,
+#custom-help {
+    padding: 0 8px;
+    color: #d1d1d6;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 4px;
+    margin: 2px 1px;
+}
+
+#custom-finder:hover,
+#custom-file:hover,
+#custom-edit:hover,
+#custom-view:hover,
+#custom-go:hover,
+#custom-window:hover,
+#custom-help:hover {
+    background: #1c1c1e;
+    color: #ffffff;
 }
 
 #workspaces {
-    background: #000000;
-    border-radius: 14px;
-    padding: 3px 6px;
-    margin: 4px 6px;
-    border: 1px solid #1a1a1e;
+    background: #111113;
+    border-radius: 10px;
+    padding: 2px 4px;
+    margin: 3px 6px;
+    border: 1px solid #1e1e24;
 }
 
 #workspaces button {
     padding: 0 8px;
     color: #636366;
     background: transparent;
-    border-radius: 10px;
+    border-radius: 6px;
     font-size: 12px;
-    min-width: 22px;
-    margin: 2px 1px;
 }
 
 #workspaces button.active {
@@ -52,50 +77,50 @@ window#waybar {
     font-weight: 600;
 }
 
-#workspaces button:hover {
-    color: #c7c7cf;
-    background: #121214;
-}
-#clock {
-    color: #d8d8de;
-    font-weight: 600;
-    font-size: 13px;
-    padding: 0 16px;
-    background: #000000;
-    border-radius: 14px;
-    margin: 4px 0;
-    border: 1px solid #1e1e24;
-}
-
-#pulseaudio, #network, #battery, #custom-theme, #tray, #custom-power {
+#window {
+    color: #8e8e93;
+    font-size: 12px;
+    font-style: italic;
     padding: 0 10px;
-    color: #b0b0b8;
-    background: #000000;
-    border-radius: 12px;
-    margin: 4px 2px;
-    border: 1px solid #16161a;
 }
 
-#pulseaudio:hover, #network:hover, #battery:hover, #custom-theme:hover, #custom-power:hover {
-    color: #d8d8de;
-    background: #141418;
-}
-
-#pulseaudio.muted { color: #555555; }
-#network.disconnected { color: #ff453a; }
-#battery.warning { color: #ffd60a; }
-#battery.critical { color: #ff453a; }
-#battery.charging { color: #30d158; }
-
+#pulseaudio,
+#battery,
+#network,
+#custom-search,
+#custom-control_center,
+#custom-theme,
+#tray,
 #custom-power {
-    color: #b0b0b8;
-    font-size: 14px;
-    padding: 0 12px;
+    padding: 0 8px;
+    color: #d1d1d6;
+    font-size: 13px;
+}
+
+#pulseaudio:hover,
+#battery:hover,
+#network:hover,
+#custom-search:hover,
+#custom-control_center:hover,
+#custom-theme:hover,
+#custom-power:hover {
+    background: #1c1c1e;
+    border-radius: 4px;
+    color: #ffffff;
+}
+
+#clock {
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 12px;
+    padding: 0 14px;
 }
 
 tooltip {
     background: #000000;
     border: 1px solid #2c2c30;
-    border-radius: 12px;
+    border-radius: 10px;
     color: #d8d8de;
+    font-size: 12px;
+    padding: 4px 8px;
 }
