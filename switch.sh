@@ -7,6 +7,9 @@
 
 set -u
 
+export WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-wayland-1}"
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET="${1:-main}"
 CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}"
@@ -52,20 +55,27 @@ echo "$TARGET" > "$CACHE_DIR/active_profile"
 
 # 2. Обновляем общие скрипты, менеджер файлов и сайдбар (если доступны из REPO_DIR)
 mkdir -p "$CONFIG_DIR/hypr" "$CONFIG_DIR/waybar" "$CONFIG_DIR/kitty" "$CONFIG_DIR/yazi" "$HOME/wallpapers"
-if [[ -d "$REPO_DIR/hypr" && "$REPO_DIR" != "$CONFIG_DIR" ]]; then
+if [[ -d "$REPO_DIR/hypr" && "$(realpath -q "$REPO_DIR/hypr" 2>/dev/null)" != "$(realpath -q "$CONFIG_DIR/hypr" 2>/dev/null)" ]]; then
     cp -rf "$REPO_DIR/hypr/scripts" "$CONFIG_DIR/hypr/" 2>/dev/null || true
     cp -rf "$REPO_DIR/hypr/sidebar" "$CONFIG_DIR/hypr/" 2>/dev/null || true
     cp -rf "$REPO_DIR/hypr/profiles" "$CONFIG_DIR/hypr/" 2>/dev/null || true
+    cp -rf "$REPO_DIR/hypr/themes" "$CONFIG_DIR/hypr/" 2>/dev/null || true
+    [[ -d "$REPO_DIR/kitty/themes" ]] && cp -rf "$REPO_DIR/kitty/themes" "$CONFIG_DIR/kitty/" 2>/dev/null || true
+    [[ -d "$REPO_DIR/waybar/themes" ]] && cp -rf "$REPO_DIR/waybar/themes" "$CONFIG_DIR/waybar/" 2>/dev/null || true
     [[ -d "$REPO_DIR/yazi" ]] && cp -rf "$REPO_DIR/yazi/"* "$CONFIG_DIR/yazi/" 2>/dev/null || true
     cp -f "$REPO_DIR/switch.sh" "$CONFIG_DIR/hypr/switch.sh" 2>/dev/null || true
     chmod +x "$CONFIG_DIR/hypr/scripts/"*.sh "$CONFIG_DIR/hypr/sidebar/"*.sh "$CONFIG_DIR/hypr/sidebar/sidebar.py" "$CONFIG_DIR/hypr/switch.sh" 2>/dev/null || true
 fi
 
 # 3. ТОТАЛЬНАЯ замена конфигов из hypr/profiles/<target>
-# 3.1 Hyprland config
+# 3.1 Hyprland config (.conf и .lua для Hyprland 0.57+)
 if [[ -f "$PROF_DIR/hyprland.conf" ]]; then
     cp -f "$PROF_DIR/hyprland.conf" "$CONFIG_DIR/hypr/hyprland.conf"
     echo " -> Hyprland config заменен на $TARGET"
+fi
+if [[ -f "$PROF_DIR/hyprland.lua" ]]; then
+    cp -f "$PROF_DIR/hyprland.lua" "$CONFIG_DIR/hypr/hyprland.lua"
+    echo " -> Hyprland Lua config заменен на $TARGET"
 fi
 
 # 3.2 Waybar config
@@ -92,6 +102,7 @@ if [[ "$TARGET" == "macos" ]]; then
     echo "macos_glass" > "$CACHE_DIR/sidebar_theme"
     echo "top" > "$CACHE_DIR/waybar_position"
     [[ -f "$REPO_DIR/hypr/themes/macos/glass.conf" ]] && cp -f "$REPO_DIR/hypr/themes/macos/glass.conf" "$CONFIG_DIR/hypr/current_theme.conf" 2>/dev/null || true
+    [[ -f "$REPO_DIR/hypr/themes/macos/glass.lua" ]] && cp -f "$REPO_DIR/hypr/themes/macos/glass.lua" "$CONFIG_DIR/hypr/current_theme.lua" 2>/dev/null || true
 
     # Для macOS сохраняем текущие обои пользователя (не навязываем sonoma)
     if [[ -f "$CACHE_DIR/current_wallpaper" && -f "$(cat "$CACHE_DIR/current_wallpaper")" ]]; then
@@ -107,6 +118,7 @@ elif [[ "$TARGET" == "cybrdots" ]]; then
     echo "cyber_neon" > "$CACHE_DIR/sidebar_theme"
     echo "top" > "$CACHE_DIR/waybar_position"
     [[ -f "$REPO_DIR/hypr/themes/cyber/neon.conf" ]] && cp -f "$REPO_DIR/hypr/themes/cyber/neon.conf" "$CONFIG_DIR/hypr/current_theme.conf" 2>/dev/null || true
+    [[ -f "$REPO_DIR/hypr/themes/cyber/neon.lua" ]] && cp -f "$REPO_DIR/hypr/themes/cyber/neon.lua" "$CONFIG_DIR/hypr/current_theme.lua" 2>/dev/null || true
 
     # Обои Cyberpunk / Samurai
     if [[ -f "$CACHE_DIR/cybrdots_wallpaper" && -f "$(cat "$CACHE_DIR/cybrdots_wallpaper")" ]]; then
@@ -124,6 +136,7 @@ else
     echo "black_solid" > "$CACHE_DIR/sidebar_theme"
     echo "top" > "$CACHE_DIR/waybar_position"
     [[ -f "$REPO_DIR/hypr/themes/black/solid.conf" ]] && cp -f "$REPO_DIR/hypr/themes/black/solid.conf" "$CONFIG_DIR/hypr/current_theme.conf" 2>/dev/null || true
+    [[ -f "$REPO_DIR/hypr/themes/black/solid.lua" ]] && cp -f "$REPO_DIR/hypr/themes/black/solid.lua" "$CONFIG_DIR/hypr/current_theme.lua" 2>/dev/null || true
 
     # Обои Main
     if [[ -f "$CACHE_DIR/main_wallpaper" && -f "$(cat "$CACHE_DIR/main_wallpaper")" ]]; then
@@ -138,12 +151,26 @@ else
     NOTIFY_BODY="Классический чистый сетап Hyprland, строгий монохром и лаконичный Waybar"
 fi
 
+# Вспомогательная функция запуска фоновых служб через Hyprland IPC
+launch_desktop_process() {
+    local cmd="$1"
+    if command -v hyprctl &>/dev/null && pgrep -x Hyprland &>/dev/null; then
+        if hyprctl dispatch "hl.dsp.exec_cmd(\"$cmd\")" &>/dev/null; then
+            return 0
+        elif hyprctl dispatch exec "$cmd" &>/dev/null; then
+            return 0
+        fi
+    fi
+    nohup bash -c "$cmd" </dev/null &>/dev/null &
+    disown || true
+}
+
 # Применение обоев через swaybg
 if [[ -n "$WP" && -f "$WP" ]]; then
     echo "$WP" > "$CACHE_DIR/current_wallpaper"
     pkill swaybg 2>/dev/null || true
     sleep 0.1
-    nohup swaybg -i "$WP" -m stretch </dev/null &>/dev/null &
+    launch_desktop_process "swaybg -i '$WP' -m stretch"
 fi
 
 # 5. Перезагрузка Hyprland
@@ -161,14 +188,14 @@ fi
 # 7. Полный перезапуск Waybar под новый профиль
 killall -9 waybar 2>/dev/null || pkill -9 -x waybar 2>/dev/null || true
 sleep 0.3
-nohup waybar </dev/null &>/dev/null &
+launch_desktop_process "waybar"
 
 # 8. Перезапуск Sidebar для применения темы и геометрии
 pkill -9 -f "sidebar.py" 2>/dev/null || true
 rm -f "$CACHE_DIR/sidebar.pid" 2>/dev/null || true
 sleep 0.2
 if [[ -f "$CONFIG_DIR/hypr/sidebar/sidebar.py" ]]; then
-    python3 "$CONFIG_DIR/hypr/sidebar/sidebar.py" &>> /tmp/sidebar.log &
+    launch_desktop_process "python3 $CONFIG_DIR/hypr/sidebar/sidebar.py"
 fi
 
 # 9. Уведомление

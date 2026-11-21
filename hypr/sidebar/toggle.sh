@@ -23,6 +23,18 @@ fi
 SCRIPT="$CONFIG_SCRIPT"
 [[ ! -f "$SCRIPT" && -f "$REPO_SCRIPT" ]] && SCRIPT="$REPO_SCRIPT"
 
+launch_sidebar() {
+    if command -v hyprctl &>/dev/null && pgrep -x Hyprland &>/dev/null; then
+        if hyprctl dispatch "hl.dsp.exec_cmd(\"python3 $SCRIPT --show\")" &>/dev/null; then
+            return 0
+        elif hyprctl dispatch exec "python3 $SCRIPT --show" &>/dev/null; then
+            return 0
+        fi
+    fi
+    nohup python3 "$SCRIPT" --show </dev/null &>> /tmp/sidebar.log &
+    disown || true
+}
+
 if [[ -f "$PID_FILE" ]]; then
     PID=$(cat "$PID_FILE")
     if kill -0 "$PID" 2>/dev/null; then
@@ -31,7 +43,7 @@ if [[ -f "$PID_FILE" ]]; then
             kill -9 "$PID" 2>/dev/null || true
             rm -f "$PID_FILE"
             sleep 0.2
-            python3 "$SCRIPT" --show &>> /tmp/sidebar.log &
+            launch_sidebar
             exit 0
         fi
         # Демон жив — переключаем видимость
@@ -43,5 +55,5 @@ fi
 
 # Демон не запущен — стартуем с открытием
 if [[ -f "$SCRIPT" ]]; then
-    python3 "$SCRIPT" --show &>> /tmp/sidebar.log &
+    launch_sidebar
 fi
