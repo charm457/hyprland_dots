@@ -817,10 +817,18 @@ def run_out(cmd):
 
 # Обои
 def get_wallpapers():
+    valid_exts = {".jpg", ".jpeg", ".png", ".webp"}
     files = []
-    for ext in ("*.jpg", "*.jpeg", "*.png", "*.webp", "*.JPG", "*.PNG"):
-        files += glob.glob(os.path.join(WALLPAPER_DIR, ext))
-    return sorted(set(files))
+    if os.path.isdir(WALLPAPER_DIR):
+        try:
+            for entry in os.scandir(WALLPAPER_DIR):
+                if entry.is_file():
+                    ext = os.path.splitext(entry.name)[1].lower()
+                    if ext in valid_exts:
+                        files.append(entry.path)
+        except Exception:
+            pass
+    return sorted(files)
 
 def get_current_wp_index():
     try:
@@ -1093,6 +1101,7 @@ class Sidebar:
             except Exception:
                 GtkLayerShell.set_exclusive_zone(self.window, 316)
             self._apply_theme_mode()
+            self._refresh_wallpapers()
             self._refresh_dynamic()
             self.window.show_all()
             self.visible = True
@@ -1215,6 +1224,9 @@ class Sidebar:
                         self._sink_status_lbl.set_text(f"● {conn_txt} {s.get('raw_desc', s_name)[:26]}")
             self._sink_combo.set_active(active_idx)
             self._sink_combo.handler_unblock_by_func(self._on_sink_changed)
+
+        # Динамическое обновление списка обоев
+        self._refresh_wallpapers()
 
         return False
 
@@ -1535,44 +1547,73 @@ class Sidebar:
 
     # ─── 7. Обои ─────────────────────────────────────────────────────────────
     def _make_wallpapers(self):
-        wallpapers  = get_wallpapers()
-        current_idx = get_current_wp_index()
-
         sw = Gtk.ScrolledWindow()
         sw.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         sw.set_min_content_height(100)
         sw.set_max_content_height(100)
 
-        fb = Gtk.FlowBox()
-        fb.set_max_children_per_line(3); fb.set_min_children_per_line(3)
-        fb.set_selection_mode(Gtk.SelectionMode.NONE)
-        fb.set_row_spacing(4); fb.set_column_spacing(4)
+        self._wp_fb = Gtk.FlowBox()
+        self._wp_fb.set_max_children_per_line(3); self._wp_fb.set_min_children_per_line(3)
+        self._wp_fb.set_selection_mode(Gtk.SelectionMode.NONE)
+        self._wp_fb.set_row_spacing(4); self._wp_fb.set_column_spacing(4)
 
+        self._wp_paths = []
         self._wp_btns = []
-        for idx, path in enumerate(wallpapers):
-            btn = Gtk.Button()
-            btn.get_style_context().add_class("wp-btn")
-            if idx == current_idx: btn.get_style_context().add_class("active-wp")
+        self._refresh_wallpapers()
 
-            tp = thumb_path(path)
-            if os.path.exists(tp):
-                try:
-                    pb  = GdkPixbuf.Pixbuf.new_from_file(tp)
-                    img = Gtk.Image.new_from_pixbuf(pb)
-                except Exception:
-                    img = Gtk.Image.new_from_icon_name("image-missing", Gtk.IconSize.BUTTON)
-            else:
-                img = Gtk.Image.new_from_icon_name("image-loading", Gtk.IconSize.BUTTON)
-                threading.Thread(target=self._load_thumb, args=(path, img), daemon=True).start()
-
-            btn.add(img)
-            btn.set_tooltip_text(os.path.basename(path))
-            btn.connect("clicked", self._on_wp, path, idx)
-            self._wp_btns.append(btn)
-            fb.add(btn)
-
-        sw.add(fb)
+        sw.add(self._wp_fb)
         return sw
+
+    def _refresh_wallpapers(self):
+        if not hasattr(self, "_wp_fb") or self._wp_fb is None:
+            return
+
+        wallpapers = get_wallpapers()
+        cur_wp = ""
+        try:
+            cur_wp_file = os.path.join(CACHE_DIR, "current_wallpaper")
+            if os.path.exists(cur_wp_file):
+                cur_wp = open(cur_wp_file).read().strip()
+        except Exception:
+            pass
+
+        if wallpapers != self._wp_paths:
+            for child in self._wp_fb.get_children():
+                self._wp_fb.remove(child)
+            self._wp_btns = []
+            self._wp_paths = list(wallpapers)
+
+            for idx, path in enumerate(wallpapers):
+                btn = Gtk.Button()
+                btn.get_style_context().add_class("wp-btn")
+                is_active = (path == cur_wp) if cur_wp else (idx == get_current_wp_index())
+                if is_active:
+                    btn.get_style_context().add_class("active-wp")
+
+                tp = thumb_path(path)
+                if os.path.exists(tp):
+                    try:
+                        pb  = GdkPixbuf.Pixbuf.new_from_file(tp)
+                        img = Gtk.Image.new_from_pixbuf(pb)
+                    except Exception:
+                        img = Gtk.Image.new_from_icon_name("image-missing", Gtk.IconSize.BUTTON)
+                else:
+                    img = Gtk.Image.new_from_icon_name("image-loading", Gtk.IconSize.BUTTON)
+                    threading.Thread(target=self._load_thumb, args=(path, img), daemon=True).start()
+
+                btn.add(img)
+                btn.set_tooltip_text(os.path.basename(path))
+                btn.connect("clicked", self._on_wp, path, idx)
+                self._wp_btns.append(btn)
+                self._wp_fb.add(btn)
+            self._wp_fb.show_all()
+        else:
+            for idx, (path, btn) in enumerate(zip(self._wp_paths, self._wp_btns)):
+                is_active = (path == cur_wp) if cur_wp else (idx == get_current_wp_index())
+                if is_active:
+                    btn.get_style_context().add_class("active-wp")
+                else:
+                    btn.get_style_context().remove_class("active-wp")
 
     def _load_thumb(self, path, img):
         tp = ensure_thumb(path)

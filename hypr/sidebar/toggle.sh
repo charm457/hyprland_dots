@@ -31,7 +31,8 @@ if [[ -f "$PID_FILE" ]]; then
             kill -9 "$PID" 2>/dev/null || true
             rm -f "$PID_FILE"
             sleep 0.2
-            python3 "$SCRIPT" --show &>> /tmp/sidebar.log &
+            nohup python3 "$SCRIPT" --show </dev/null &>> /tmp/sidebar.log &
+            disown || true
             exit 0
         fi
         # Демон жив — переключаем видимость
@@ -43,5 +44,6 @@ fi
 
 # Демон не запущен — стартуем с открытием
 if [[ -f "$SCRIPT" ]]; then
-    python3 "$SCRIPT" --show &>> /tmp/sidebar.log &
+    nohup python3 "$SCRIPT" --show </dev/null &>> /tmp/sidebar.log &
+    disown || true
 fi
