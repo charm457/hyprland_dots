@@ -151,13 +151,26 @@ else
     NOTIFY_BODY="Классический чистый сетап Hyprland, строгий монохром и лаконичный Waybar"
 fi
 
+# Вспомогательная функция запуска фоновых служб через Hyprland IPC
+launch_desktop_process() {
+    local cmd="$1"
+    if command -v hyprctl &>/dev/null && pgrep -x Hyprland &>/dev/null; then
+        if hyprctl dispatch "hl.dsp.exec_cmd(\"$cmd\")" &>/dev/null; then
+            return 0
+        elif hyprctl dispatch exec "$cmd" &>/dev/null; then
+            return 0
+        fi
+    fi
+    nohup bash -c "$cmd" </dev/null &>/dev/null &
+    disown || true
+}
+
 # Применение обоев через swaybg
 if [[ -n "$WP" && -f "$WP" ]]; then
     echo "$WP" > "$CACHE_DIR/current_wallpaper"
     pkill swaybg 2>/dev/null || true
     sleep 0.1
-    nohup swaybg -i "$WP" -m stretch </dev/null &>/dev/null &
-    disown || true
+    launch_desktop_process "swaybg -i '$WP' -m stretch"
 fi
 
 # 5. Перезагрузка Hyprland
@@ -175,16 +188,14 @@ fi
 # 7. Полный перезапуск Waybar под новый профиль
 killall -9 waybar 2>/dev/null || pkill -9 -x waybar 2>/dev/null || true
 sleep 0.3
-nohup waybar </dev/null &>/dev/null &
-disown || true
+launch_desktop_process "waybar"
 
 # 8. Перезапуск Sidebar для применения темы и геометрии
 pkill -9 -f "sidebar.py" 2>/dev/null || true
 rm -f "$CACHE_DIR/sidebar.pid" 2>/dev/null || true
 sleep 0.2
 if [[ -f "$CONFIG_DIR/hypr/sidebar/sidebar.py" ]]; then
-    nohup python3 "$CONFIG_DIR/hypr/sidebar/sidebar.py" </dev/null &>> /tmp/sidebar.log &
-    disown || true
+    launch_desktop_process "python3 $CONFIG_DIR/hypr/sidebar/sidebar.py"
 fi
 
 # 9. Уведомление
