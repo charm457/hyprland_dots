@@ -179,6 +179,12 @@ hl.bind(mainMod .. " + CTRL + left",  hl.dsp.window.resize({ x = -40, y = 0, rel
 hl.bind(mainMod .. " + CTRL + up",    hl.dsp.window.resize({ x = 0, y = -40, relative = true }),  { repeating = true })
 hl.bind(mainMod .. " + CTRL + down",  hl.dsp.window.resize({ x = 0, y = 40, relative = true }),   { repeating = true })
 
+-- Перемещение окон стрелками (Super + Shift + стрелочки)
+hl.bind(mainMod .. " + SHIFT + left",  hl.dsp.window.move({ direction = "left" }))
+hl.bind(mainMod .. " + SHIFT + right", hl.dsp.window.move({ direction = "right" }))
+hl.bind(mainMod .. " + SHIFT + up",    hl.dsp.window.move({ direction = "up" }))
+hl.bind(mainMod .. " + SHIFT + down",  hl.dsp.window.move({ direction = "down" }))
+
 -- Мультимедиа и системные клавиши
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("pactl set-sink-volume @DEFAULT_SINK@ +5%"), { repeating = true })
 hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("pactl set-sink-volume @DEFAULT_SINK@ -5%"), { repeating = true })
