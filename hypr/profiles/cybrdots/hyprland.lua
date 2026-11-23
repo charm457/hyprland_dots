@@ -1,5 +1,5 @@
 -- ==============================================================================
--- HYPRLAND LUA CONFIGURATION — CYBERPUNK HUD PROFILE (Arch Tech / Circuit)
+-- HYPRLAND LUA CONFIGURATION — CYBRDOTS PROFILE (cybrcore Lucid Cyberpunk HUD)
 -- ==============================================================================
 
 local home = os.getenv("HOME") or "/home/linux"
@@ -40,12 +40,12 @@ end)
 -----------------------
 hl.config({
     general = {
-        gaps_in  = 4,
-        gaps_out = 8,
-        border_size = 2,
+        border_size = 1,
+        gaps_in     = 4,
+        gaps_out    = 2,
         col = {
-            active_border   = { colors = { "rgb(ff003c)", "rgb(00f0ff)" }, angle = 45 },
-            inactive_border = "rgb(140926)",
+            active_border   = "rgba(F24848FF)",
+            inactive_border = "rgba(29BECC00)",
         },
         resize_on_border = false,
         allow_tearing    = false,
@@ -53,31 +53,29 @@ hl.config({
     },
 
     decoration = {
-        rounding       = 2,
-        rounding_power = 2,
-        active_opacity   = 0.94,
-        inactive_opacity = 0.85,
+        rounding       = 24,
+        rounding_power = 1.0,
+        active_opacity   = 1.0,
+        inactive_opacity = 0.95,
         fullscreen_opacity = 1.0,
 
         shadow = {
-            enabled      = true,
-            range        = 24,
-            render_power = 3,
-            color        = "rgba(ff003c73)",
-            color_inactive = "rgba(00000099)",
+            enabled = false,
         },
 
         blur = {
-            enabled  = true,
-            size     = 6,
-            passes   = 3,
-            vibrancy = 0.35,
-            contrast = 1.15,
+            enabled           = true,
+            size              = 6,
+            passes            = 4,
+            noise             = 0.05,
+            ignore_opacity    = true,
+            new_optimizations = true,
+            popups            = true,
         },
     },
 
     animations = {
-        enabled = true,
+        enabled = false,
     },
 
     input = {
@@ -95,18 +93,7 @@ hl.config({
     },
 })
 
---------------------
----- ANIMATIONS ----
---------------------
-hl.curve("cyberFast", { type = "bezier", points = { {0.05, 0.9}, {0.1, 1.05} } })
-hl.animation({ leaf = "windows", enabled = true, speed = 3, bezier = "cyberFast", style = "popin 90%" })
-hl.animation({ leaf = "windowsIn", enabled = true, speed = 3, bezier = "cyberFast", style = "popin 90%" })
-hl.animation({ leaf = "windowsOut", enabled = true, speed = 3, bezier = "cyberFast", style = "popin 90%" })
-hl.animation({ leaf = "border", enabled = true, speed = 4, bezier = "default" })
-hl.animation({ leaf = "fade", enabled = true, speed = 4, bezier = "default" })
-hl.animation({ leaf = "workspaces", enabled = true, speed = 4, bezier = "cyberFast", style = "slide" })
-
--- Подключение активной темы оформления (Cyber Neon, Nord)
+-- Подключение темы cybrcore / current_theme
 pcall(dofile, home .. "/.config/hypr/current_theme.lua")
 
 ---------------------
@@ -120,6 +107,8 @@ local menu        = "rofi -show drun"
 ---------------------
 ---- KEYBINDINGS ----
 ---------------------
+
+-- Запуск базовых приложений
 hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + B",      hl.dsp.exec_cmd("firefox"))
 hl.bind(mainMod .. " + E",      hl.dsp.exec_cmd(fileManager))
@@ -148,7 +137,7 @@ hl.bind(mainMod .. " + P",        hl.dsp.exec_cmd(home .. "/.config/hypr/sidebar
 hl.bind(mainMod .. " + CTRL + P", hl.dsp.exec_cmd(home .. "/.config/hypr/sidebar/toggle.sh"))
 hl.bind("CTRL + P",               hl.dsp.exec_cmd(home .. "/.config/hypr/sidebar/toggle.sh"))
 
--- Waybar позиция
+-- Управление положением панели Waybar
 hl.bind(mainMod .. " + ALT + P",    hl.dsp.exec_cmd(home .. "/.config/hypr/scripts/waybar_position.sh toggle"))
 hl.bind(mainMod .. " + ALT + up",   hl.dsp.exec_cmd(home .. "/.config/hypr/scripts/waybar_position.sh top"))
 hl.bind(mainMod .. " + ALT + down", hl.dsp.exec_cmd(home .. "/.config/hypr/scripts/waybar_position.sh bottom"))

@@ -78,19 +78,15 @@ if [[ -f "$PROF_DIR/hyprland.lua" ]]; then
     echo " -> Hyprland Lua config заменен на $TARGET"
 fi
 
-# 3.2 Waybar config
-if [[ -f "$PROF_DIR/waybar/config" ]]; then
-    cp -f "$PROF_DIR/waybar/config" "$CONFIG_DIR/waybar/config"
-    echo " -> Waybar config заменен на $TARGET"
+# 3.2 Waybar config & assets
+if [[ -d "$PROF_DIR/waybar" ]]; then
+    rm -rf "$CONFIG_DIR/waybar/svg" "$CONFIG_DIR/waybar/scripts" 2>/dev/null || true
+    rm -f "$CONFIG_DIR/waybar/config" "$CONFIG_DIR/waybar/config.jsonc" "$CONFIG_DIR/waybar/modules.jsonc" "$CONFIG_DIR/waybar/style.css" 2>/dev/null || true
+    cp -rf "$PROF_DIR/waybar/"* "$CONFIG_DIR/waybar/"
+    echo " -> Waybar profile заменен на $TARGET"
 fi
 
-# 3.3 Waybar style.css
-if [[ -f "$PROF_DIR/waybar/style.css" ]]; then
-    cp -f "$PROF_DIR/waybar/style.css" "$CONFIG_DIR/waybar/style.css"
-    echo " -> Waybar style.css заменен на $TARGET"
-fi
-
-# 3.4 Kitty theme
+# 3.3 Kitty theme
 if [[ -f "$PROF_DIR/kitty/theme.conf" ]]; then
     cp -f "$PROF_DIR/kitty/theme.conf" "$CONFIG_DIR/kitty/theme.conf"
     echo " -> Kitty theme заменен на $TARGET"
@@ -115,22 +111,31 @@ if [[ "$TARGET" == "macos" ]]; then
     NOTIFY_BODY=" Apple Menu Bar сверху, аутентичные анимации и стекло"
 
 elif [[ "$TARGET" == "cybrdots" ]]; then
-    echo "cyber_neon" > "$CACHE_DIR/sidebar_theme"
+    echo "cybrcore" > "$CACHE_DIR/sidebar_theme"
     echo "top" > "$CACHE_DIR/waybar_position"
-    [[ -f "$REPO_DIR/hypr/themes/cyber/neon.conf" ]] && cp -f "$REPO_DIR/hypr/themes/cyber/neon.conf" "$CONFIG_DIR/hypr/current_theme.conf" 2>/dev/null || true
-    [[ -f "$REPO_DIR/hypr/themes/cyber/neon.lua" ]] && cp -f "$REPO_DIR/hypr/themes/cyber/neon.lua" "$CONFIG_DIR/hypr/current_theme.lua" 2>/dev/null || true
+    if [[ -f "$PROF_DIR/current_theme.conf" ]]; then
+        cp -f "$PROF_DIR/current_theme.conf" "$CONFIG_DIR/hypr/current_theme.conf" 2>/dev/null || true
+    elif [[ -f "$REPO_DIR/hypr/themes/cyber/neon.conf" ]]; then
+        cp -f "$REPO_DIR/hypr/themes/cyber/neon.conf" "$CONFIG_DIR/hypr/current_theme.conf" 2>/dev/null || true
+    fi
+    if [[ -f "$PROF_DIR/current_theme.lua" ]]; then
+        cp -f "$PROF_DIR/current_theme.lua" "$CONFIG_DIR/hypr/current_theme.lua" 2>/dev/null || true
+    elif [[ -f "$REPO_DIR/hypr/themes/cyber/neon.lua" ]]; then
+        cp -f "$REPO_DIR/hypr/themes/cyber/neon.lua" "$CONFIG_DIR/hypr/current_theme.lua" 2>/dev/null || true
+    fi
 
     # Обои Cyberpunk / Samurai
-    if [[ -f "$CACHE_DIR/cybrdots_wallpaper" && -f "$(cat "$CACHE_DIR/cybrdots_wallpaper")" ]]; then
-        WP=$(cat "$CACHE_DIR/cybrdots_wallpaper")
-    elif [[ -f "$HOME/wallpapers/samurai-2560x1440.png" ]]; then
+    if [[ -f "$HOME/wallpapers/samurai-2560x1440.png" ]]; then
         WP="$HOME/wallpapers/samurai-2560x1440.png"
+    elif [[ -f "$CACHE_DIR/cybrdots_wallpaper" && -f "$(cat "$CACHE_DIR/cybrdots_wallpaper")" ]]; then
+        WP=$(cat "$CACHE_DIR/cybrdots_wallpaper")
     elif [[ -d "$HOME/wallpapers" ]]; then
         WP=$(find "$HOME/wallpapers" -type f \( -name "*samurai*" -o -name "*cyber*" -o -name "*.png" -o -name "*.jpg" -o -name "*.webp" \) 2>/dev/null | head -n 1)
     fi
+    echo "$WP" > "$CACHE_DIR/cybrdots_wallpaper"
 
-    NOTIFY_TITLE="Cyberpunk Profile"
-    NOTIFY_BODY="Неоновый Waybar (Hunty edition), неон #ff007f/#00f0ff, Kitty Cyber Neon"
+    NOTIFY_TITLE="Cyberpunk HUD Profile"
+    NOTIFY_BODY="Аутентичный Lucid cybrcore HUD: шевроны, самурай, скосы и неон"
 
 else
     echo "black_solid" > "$CACHE_DIR/sidebar_theme"
