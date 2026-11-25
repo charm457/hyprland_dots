@@ -1,0 +1,86 @@
+/* Rofi Theme: Main Monochrome (Total Black OLED) */
+
+* {
+    bg:         #000000;
+    bg-alt:     #0d0d0d;
+    bg-sel:     #1c1c20;
+    border-col: #2b2b30;
+    fg:         #b8b8c2;
+    fg-bright:  #ffffff;
+    fg-muted:   #666670;
+    font:       "JetBrainsMono Nerd Font 12";
+}
+
+window {
+    width:            560px;
+    location:         center;
+    anchor:           center;
+    border:           1px;
+    border-color:     @border-col;
+    border-radius:    12px;
+    background-color: @bg;
+    padding:          12px;
+}
+
+mainbox {
+    spacing:          10px;
+    background-color: transparent;
+    children:         [ "inputbar", "listview" ];
+}
+
+inputbar {
+    spacing:          8px;
+    padding:          10px 12px;
+    border:           1px;
+    border-color:     #1f1f24;
+    border-radius:    8px;
+    background-color: @bg-alt;
+    children:         [ "prompt", "entry" ];
+}
+
+prompt {
+    background-color: transparent;
+    text-color:       @fg-bright;
+}
+
+entry {
+    background-color: transparent;
+    text-color:       @fg-bright;
+    placeholder:      "Search...";
+    placeholder-color: @fg-muted;
+}
+
+listview {
+    columns:          1;
+    lines:            9;
+    spacing:          4px;
+    scrollbar:        false;
+    fixed-height:     false;
+    background-color: transparent;
+}
+
+element {
+    padding:          8px 10px;
+    spacing:          10px;
+    border-radius:    8px;
+    background-color: transparent;
+    text-color:       @fg;
+}
+
+element selected.normal {
+    background-color: @bg-sel;
+    text-color:       @fg-bright;
+    border:           1px;
+    border-color:     #3a3a44;
+}
+
+element-icon {
+    size:             24px;
+    background-color: transparent;
+}
+
+element-text {
+    background-color: transparent;
+    text-color:       inherit;
+    vertical-align:   0.5;
+}

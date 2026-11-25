@@ -72,5 +72,16 @@ else
     )
 fi
 
+PROFILE_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/active_profile"
+ACTIVE_PROFILE="main"
+[[ -f "$PROFILE_CACHE" ]] && ACTIVE_PROFILE=$(cat "$PROFILE_CACHE")
+
+ROFI_RADIUS="12px"
+if [[ "$ACTIVE_PROFILE" == "cybrdots" ]]; then
+    ROFI_RADIUS="0px"
+elif [[ "$ACTIVE_PROFILE" == "macos" ]]; then
+    ROFI_RADIUS="16px"
+fi
+
 printf "%s\n" "${BINDS[@]}" | rofi -dmenu -i -p "$PROMPT" \
-    -theme-str 'window {width: 650px; border-radius: 16px;} listview {lines: 16;}'
+    -theme-str "window {width: 680px; border-radius: ${ROFI_RADIUS};} inputbar {children: [ \"prompt\", \"entry\" ];} prompt {enabled: true; padding: 8px; text-color: inherit;} listview {columns: 1; lines: 16;}"

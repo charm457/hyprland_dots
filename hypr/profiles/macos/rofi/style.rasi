@@ -1,0 +1,85 @@
+/* Rofi Theme: macOS Liquid Glass Spotlight */
+
+* {
+    bg:         rgba(28, 28, 34, 0.88);
+    bg-input:   rgba(255, 255, 255, 0.08);
+    accent:     rgba(10, 132, 255, 0.90);
+    border-col: rgba(255, 255, 255, 0.18);
+    fg:         rgba(235, 235, 245, 0.90);
+    fg-bright:  #ffffff;
+    fg-muted:   rgba(235, 235, 245, 0.45);
+    font:       "JetBrainsMono Nerd Font 12";
+}
+
+window {
+    width:            600px;
+    location:         center;
+    anchor:           center;
+    border:           1px;
+    border-color:     @border-col;
+    border-radius:    16px;
+    background-color: @bg;
+    transparency:     "real";
+    padding:          14px;
+}
+
+mainbox {
+    spacing:          12px;
+    background-color: transparent;
+    children:         [ "inputbar", "listview" ];
+}
+
+inputbar {
+    spacing:          10px;
+    padding:          11px 14px;
+    border:           1px;
+    border-color:     rgba(255, 255, 255, 0.12);
+    border-radius:    12px;
+    background-color: @bg-input;
+    children:         [ "prompt", "entry" ];
+}
+
+prompt {
+    background-color: transparent;
+    text-color:       #0A84FF;
+}
+
+entry {
+    background-color: transparent;
+    text-color:       @fg-bright;
+    placeholder:      "Spotlight Search...";
+    placeholder-color: @fg-muted;
+}
+
+listview {
+    columns:          1;
+    lines:            8;
+    spacing:          4px;
+    scrollbar:        false;
+    fixed-height:     false;
+    background-color: transparent;
+}
+
+element {
+    padding:          9px 12px;
+    spacing:          12px;
+    border-radius:    10px;
+    background-color: transparent;
+    text-color:       @fg;
+}
+
+element selected.normal {
+    background-color: @accent;
+    text-color:       @fg-bright;
+}
+
+element-icon {
+    size:             26px;
+    background-color: transparent;
+}
+
+element-text {
+    background-color: transparent;
+    text-color:       inherit;
+    vertical-align:   0.5;
+}

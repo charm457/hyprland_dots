@@ -103,7 +103,7 @@ show_menu() {
     fi
 
     local choice
-    choice=$(printf "%s\n%s\n%s\n%s" "$opt_area" "$opt_full" "$opt_win" "$opt_delay" | rofi -dmenu -p "Screenshot" -theme-str 'window {width: 320px;}')
+    choice=$(printf "%s\n%s\n%s\n%s" "$opt_area" "$opt_full" "$opt_win" "$opt_delay" | rofi -dmenu -p "Screenshot" -theme-str 'window {width: 340px;} inputbar {children: [ "prompt", "entry" ];} prompt {enabled: true; padding: 8px;} listview {columns: 1; lines: 4;}')
 
     case "$choice" in
         *"$opt_area"*)  take_area ;;

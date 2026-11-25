@@ -54,7 +54,7 @@ echo "Применение ТОТАЛЬНОЙ трансформации про�
 echo "$TARGET" > "$CACHE_DIR/active_profile"
 
 # 2. Обновляем общие скрипты, менеджер файлов и сайдбар (если доступны из REPO_DIR)
-mkdir -p "$CONFIG_DIR/hypr" "$CONFIG_DIR/waybar" "$CONFIG_DIR/kitty" "$CONFIG_DIR/yazi" "$HOME/wallpapers"
+mkdir -p "$CONFIG_DIR/hypr" "$CONFIG_DIR/waybar" "$CONFIG_DIR/kitty" "$CONFIG_DIR/rofi" "$CONFIG_DIR/yazi" "$HOME/wallpapers"
 if [[ -d "$REPO_DIR/hypr" && "$(realpath -q "$REPO_DIR/hypr" 2>/dev/null)" != "$(realpath -q "$CONFIG_DIR/hypr" 2>/dev/null)" ]]; then
     cp -rf "$REPO_DIR/hypr/scripts" "$CONFIG_DIR/hypr/" 2>/dev/null || true
     cp -rf "$REPO_DIR/hypr/sidebar" "$CONFIG_DIR/hypr/" 2>/dev/null || true
@@ -90,6 +90,14 @@ fi
 if [[ -f "$PROF_DIR/kitty/theme.conf" ]]; then
     cp -f "$PROF_DIR/kitty/theme.conf" "$CONFIG_DIR/kitty/theme.conf"
     echo " -> Kitty theme заменен на $TARGET"
+fi
+
+# 3.4 Rofi config & theme
+if [[ -d "$PROF_DIR/rofi" ]]; then
+    rm -rf "$CONFIG_DIR/rofi/theme" "$CONFIG_DIR/rofi/scripts" 2>/dev/null || true
+    rm -f "$CONFIG_DIR/rofi/config.rasi" "$CONFIG_DIR/rofi/style.rasi" "$CONFIG_DIR/rofi/launcher.rasi" 2>/dev/null || true
+    cp -rf "$PROF_DIR/rofi/"* "$CONFIG_DIR/rofi/"
+    echo " -> Rofi theme заменен на $TARGET"
 fi
 
 # 4. Установка обоев и специфичных настроек под каждый профиль
